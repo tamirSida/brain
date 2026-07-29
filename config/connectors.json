@@ -1,0 +1,82 @@
+{
+  "$comment": "Connector registry. Add a system by dropping an SVG in /public/connectors and adding a row here. status: live | syncing | error | unconfigured",
+  "connectors": [
+    {
+      "id": "priority",
+      "name": "Priority ERP",
+      "nameHe": "פריוריטי",
+      "logo": "/connectors/priority.svg",
+      "kind": "ERP · פיננסים ופרויקטים",
+      "status": "live",
+      "objects": 184320,
+      "lastSync": "לפני 4 דקות",
+      "chip": "light"
+    },
+    {
+      "id": "microsoft-365",
+      "name": "Microsoft 365",
+      "nameHe": "מיקרוסופט 365",
+      "logo": "/connectors/microsoft-365.png",
+      "kind": "מסמכים · דוא״ל · הרשאות",
+      "status": "live",
+      "objects": 512884,
+      "lastSync": "לפני 2 דקות",
+      "chip": "light"
+    },
+    {
+      "id": "monday",
+      "name": "monday.com",
+      "nameHe": "מאנדיי",
+      "logo": "/connectors/monday.png",
+      "kind": "ניהול פרויקטים",
+      "status": "live",
+      "objects": 9412,
+      "lastSync": "לפני 11 דקות",
+      "chip": "light"
+    },
+    {
+      "id": "sap",
+      "name": "SAP",
+      "nameHe": "סאפ",
+      "logo": "/connectors/sap.svg",
+      "kind": "ERP · חברות בנות",
+      "status": "syncing",
+      "objects": 47190,
+      "lastSync": "מסנכרן כעת",
+      "chip": "light"
+    },
+    {
+      "id": "autodesk",
+      "name": "Autodesk Build",
+      "nameHe": "אוטודסק",
+      "logo": "/connectors/autodesk.svg",
+      "kind": "תוכניות · פיקוח ביצוע",
+      "status": "live",
+      "objects": 21668,
+      "lastSync": "לפני 18 דקות",
+      "chip": "light"
+    },
+    {
+      "id": "docusign",
+      "name": "DocuSign",
+      "nameHe": "דוקיוסיין",
+      "logo": "/connectors/docusign.png",
+      "kind": "חוזים · חתימות",
+      "status": "live",
+      "objects": 6240,
+      "lastSync": "לפני 9 דקות",
+      "chip": "light"
+    },
+    {
+      "id": "outlook",
+      "name": "Microsoft Outlook",
+      "nameHe": "אאוטלוק",
+      "logo": "/connectors/outlook.svg",
+      "kind": "דוא״ל · יומן",
+      "status": "live",
+      "objects": 128940,
+      "lastSync": "לפני דקה",
+      "chip": "light"
+    }
+  ]
+}

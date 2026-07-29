@@ -1,0 +1,85 @@
+import "server-only";
+
+import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  type Firestore,
+} from "firebase/firestore";
+import type { SessionState } from "@/lib/types";
+
+/**
+ * Session store keyed by email. No auth in the mock — email is the session key.
+ *
+ * Uses the Firebase *web* SDK (no service account). This config is public by
+ * design; access is governed by Firestore security rules, not by hiding it.
+ *
+ * NOTE: the `brain_sessions` collection must be readable/writable by
+ * unauthenticated clients for the mock to persist. Rules:
+ *
+ *   match /brain_sessions/{id} { allow read, write: if true; }
+ *
+ * Falls back to an in-memory store if Firestore is unreachable, so the mock
+ * never hard-fails during a demo.
+ */
+
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? "AIzaSyBB4Ikbm82dCC7iSNlzfoDd13M3Z768mTY",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? "ofek-brain.firebaseapp.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "ofek-brain",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? "ofek-brain.firebasestorage.app",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_SENDER_ID ?? "270481503406",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? "1:270481503406:web:5ad98a036f0e0f90ca693f",
+};
+
+const COLLECTION = process.env.NEXT_PUBLIC_FIRESTORE_COLLECTION ?? "brain_sessions";
+
+let db: Firestore | null = null;
+
+export function firestore(): Firestore {
+  if (db) return db;
+  const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  return db;
+}
+
+/**
+ * In-memory fallback. Hung off globalThis: Next re-evaluates modules between
+ * requests in dev, so a plain module-level Map silently loses every write.
+ */
+const globalForStore = globalThis as typeof globalThis & {
+  __ofekBrainStore?: Map<string, SessionState>;
+};
+const memory = (globalForStore.__ofekBrainStore ??= new Map<string, SessionState>());
+
+const key = (email: string) => email.trim().toLowerCase();
+
+/** Firestore rejects undefined — strip it before every write. */
+function clean<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+export async function readSession(email: string): Promise<SessionState | null> {
+  const id = key(email);
+  try {
+    const snap = await getDoc(doc(firestore(), COLLECTION, id));
+    if (snap.exists()) return snap.data() as SessionState;
+    return memory.get(id) ?? null;
+  } catch (err) {
+    console.warn("[store] Firestore read failed, using memory:", (err as Error).message);
+    return memory.get(id) ?? null;
+  }
+}
+
+export async function writeSession(state: SessionState): Promise<void> {
+  const id = key(state.email);
+  const payload = clean(state);
+  memory.set(id, payload);
+  try {
+    await setDoc(doc(firestore(), COLLECTION, id), payload, { merge: true });
+  } catch (err) {
+    console.warn("[store] Firestore write failed, kept in memory:", (err as Error).message);
+  }
+}

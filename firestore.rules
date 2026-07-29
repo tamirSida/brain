@@ -1,0 +1,26 @@
+rules_version = '2';
+
+// MOCK / PROTOTYPE RULES.
+// The app has no auth — the session is an unverified email cookie — so these
+// collections are open. Scoped to the two collections the app uses rather than
+// a blanket match, so nothing else in the project is exposed by accident.
+//
+// Do NOT ship this to anything public: anyone with the project ID can read and
+// write every session and conversation directly over the REST API.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /brain_sessions/{sessionId} {
+      allow read, write: if true;
+    }
+
+    match /brain_conversations/{conversationId} {
+      allow read, write: if true;
+    }
+
+    // Everything else stays closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
