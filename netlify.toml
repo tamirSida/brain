@@ -1,0 +1,36 @@
+# Netlify deployment.
+#
+# The Next.js adapter (@netlify/plugin-nextjs) is provisioned automatically and
+# is deliberately not pinned here — Netlify keeps it current with each Next
+# release, and pinning it means missing those updates silently.
+#
+# Route handlers become serverless functions with a 60-second synchronous
+# limit that no plan can raise. The slowest path here is onboarding at roughly
+# 20 seconds, so there is real headroom, but that is the number to watch if the
+# prompts grow.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # Next 16 requires Node 20.9+; 22 is the current LTS.
+  NODE_VERSION = "22"
+
+# Long-lived, content-hashed build output.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    cache-control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/connectors/*"
+  [headers.values]
+    cache-control = "public, max-age=86400"
+
+# The phone remote is a live view of a board; a cached copy would show a
+# dashboard that has already moved on.
+[[headers]]
+  for = "/r/*"
+  [headers.values]
+    cache-control = "no-store"

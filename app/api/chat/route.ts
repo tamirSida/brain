@@ -9,7 +9,8 @@ import { readSession } from "@/lib/store";
 import type { ChatMessage, Conversation } from "@/lib/chat/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+// Netlify caps synchronous functions at 60s and does not allow raising it.
+export const maxDuration = 60;
 
 const Body = z.object({
   conversationId: z.string().nullable(),

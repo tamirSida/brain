@@ -3,7 +3,8 @@ import "server-only";
 import { z } from "zod";
 
 import { structuredCall, toJsonSchema } from "./client";
-import { MetricSchema, type Metric } from "./schemas";
+import { buildMetric, normaliseMetric } from "./metric";
+import { type Metric } from "./schemas";
 import { systemPrompt } from "@/lib/chat/respond";
 import type { Profile } from "@/lib/types";
 
@@ -67,23 +68,6 @@ spec יהיה ״רכבים בליסינג — 47 רכבים, עלות חודשי
 
 reply לעריכה: משפט אחד בגוף ראשון, למשל ״הוספתי רכבים בליסינג ללוח.״`;
 
-const METRIC_RULES = `אתה בונה מדד יחיד ללוח מדדים של חברת נדל״ן ואחזקות ישראלית.
-
-- id: slug באנגלית, אותיות קטנות ומקפים, שלא קיים ברשימת ה-id התפוסים.
-- title: תווית עברית קצרה, עד ארבע מילים.
-- viz לפי סוג הנתון:
-  · number — ערך בודד בלי מגמה
-  · line — מגמה לאורך זמן (5–8 נקודות)
-  · bar — השוואה בין פריטים (3–6)
-  · donut — התפלגות ל-2 עד 4 חלקים
-  · progress — התקדמות מול יעד (נקודה אחת, 0–100)
-- value מעוצב ומוכן לתצוגה, כולל ₪ / % / M לפי העניין.
-- אם המפרט כולל מספרים — השתמש בהם בדיוק, אל תמציא אחרים.
-- insight: משפט עברי אחד, עובדתי.
-- נתוני הדגמה חיוביים: delta חיובי, trend הוא "ok" או "neutral".
-
-כל הטקסט בעברית.`;
-
 export interface TurnResult {
   intent: "answer" | "add" | "remove" | "replace";
   /** Present only when the board changed. */
@@ -144,20 +128,11 @@ export async function runTurn(
   }
 
   // Second call, only for turns that actually build something.
-  const built = await structuredCall({
-    system: METRIC_RULES,
-    prompt: [
-      `id-ים תפוסים: ${current.map((m) => m.id).join(", ") || "(אין)"}`,
-      "",
-      "המדד לבנייה:",
-      decision.spec || text,
-    ].join("\n"),
-    schema: MetricSchema,
-    jsonSchema: toJsonSchema(MetricSchema),
-    maxTokens: 3000,
-  });
-
-  const metric = normalise(built, current);
+  const built = await buildMetric(
+    decision.spec || text,
+    current.map((m) => m.id)
+  );
+  const metric = normaliseMetric(built, current.map((m) => m.id));
 
   if (decision.intent === "replace") {
     const idx = current.findIndex((m) => m.id === decision.targetId);
@@ -168,36 +143,4 @@ export async function runTurn(
   }
 
   return { intent: "add", metrics: [...current, metric], reply: decision.reply };
-}
-
-/**
- * Reconcile the generated metric to something renderable, and guarantee its id
- * is unique — a duplicate would collide with an existing card's React key.
- */
-function normalise(m: Metric, current: Metric[]): Metric {
-  const series = (m.series ?? []).filter((p) => Number.isFinite(p.value));
-
-  let viz = m.viz;
-  if (series.length === 0) viz = "number";
-  else if (viz === "line" && series.length < 3) viz = "bar";
-
-  let points = series;
-  if (viz === "donut" && series.length > 4) {
-    const sorted = [...series].sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
-    const rest = sorted.slice(3).reduce((sum, p) => sum + Math.abs(p.value), 0);
-    points = [...sorted.slice(0, 3), { label: "אחר", value: rest }];
-  }
-  if (viz === "bar" && series.length > 6) points = series.slice(0, 6);
-  if (viz === "progress" && series.length) {
-    const raw = series[0].value;
-    const pct = raw > 0 && raw < 1 ? raw * 100 : raw;
-    points = [{ ...series[0], value: Math.max(0, Math.min(100, pct)) }];
-  }
-  if (viz === "number") points = [];
-
-  const taken = new Set(current.map((x) => x.id));
-  let id = m.id?.trim() || "metric";
-  while (taken.has(id)) id = `${id}-2`;
-
-  return { ...m, id, viz, series: points };
 }

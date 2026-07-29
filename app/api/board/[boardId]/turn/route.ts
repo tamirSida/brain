@@ -6,7 +6,8 @@ import { runTurn } from "@/lib/ai/turn";
 import { readBoard, writeSession } from "@/lib/store";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+// Netlify caps synchronous functions at 60s and does not allow raising it.
+export const maxDuration = 60;
 
 const Body = z.object({
   text: z.string().trim().min(2, "לא הבנתי את הבקשה"),

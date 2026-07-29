@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# אופק · המוח הארגוני — mock
 
-## Getting Started
+A working prototype of the Organization Brain for Ofek Holdings: a Hebrew,
+RTL, mobile-first dashboard over a company's connected systems, with a phone
+remote that edits it by voice.
 
-First, run the development server:
+Next.js 16 (App Router) · Claude Sonnet 5 · Firestore · Tailwind v4.
+
+---
+
+## Running locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local     # then set ANTHROPIC_API_KEY
+npm run dev                    # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Without `ANTHROPIC_API_KEY` the app still runs: onboarding falls back to a
+fixed sample board so the UI is clickable, and the badge **נתוני הדגמה** says
+so on screen. Everything that calls the model — chat, meeting prep, the phone
+remote — returns a clear error instead.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Testing the phone remote locally
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The QR encodes `window.location.origin`, which on localhost is an address no
+phone can reach. Set `NEXT_PUBLIC_TUNNEL_URL` to your tunnel and the QR falls
+back to it:
 
-## Learn More
+```bash
+ngrok http 3000
+# put the https URL in .env.local as NEXT_PUBLIC_TUNNEL_URL, then restart dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+`next.config.ts` allows tunnel hosts as dev origins. Without that, Next blocks
+cross-origin requests to `/_next/*` and the page renders with none of its
+JavaScript — it looks correct and nothing works.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+On an ngrok free tunnel the first visit from each device hits ngrok's
+interstitial; tap **Visit Site** once. API calls already send
+`ngrok-skip-browser-warning`, so only that first page load is affected.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Deploying to Netlify
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Connect the repository in the Netlify dashboard. The Next.js adapter is
+provisioned automatically — `netlify.toml` only sets the Node version and
+cache headers.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Environment variables** (Site configuration → Environment variables):
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `ANTHROPIC_API_KEY` | yes | Server-only. Never prefix with `NEXT_PUBLIC_`. |
+| `CLAUDE_MODEL` | no | Defaults to `claude-sonnet-5`. |
+| `NEXT_PUBLIC_FIREBASE_*` | no | Defaults to the `ofek-brain` project, baked into `lib/store.ts`. |
+| `NEXT_PUBLIC_TUNNEL_URL` | **no — leave unset** | Local-only escape hatch. In production the QR uses the real origin. |
+
+Firestore rules live in `firestore.rules` and deploy separately:
+
+```bash
+npx firebase deploy --only firestore:rules
+```
+
+### Things to know before it goes public
+
+- **There is no authentication.** An email address is the session key, and the
+  Firestore rules are open on the three collections the app uses. Anyone with
+  the project ID can read and write every session over the REST API. That is
+  deliberate for a prototype and must not survive contact with real data.
+- **The phone remote is unauthenticated by design.** Possession of the
+  seven-character board ID is the credential; the only way to obtain one is to
+  scan the QR on screen. Treat a board as public to anyone who has seen it.
+- **All data is fictional.** The calendar, mailbox, connector inventory and
+  every figure the model produces are demo content. The prompts explicitly
+  instruct the model to answer from them rather than disclaim, so nothing on
+  screen should be read as a real number.
+- Route handlers run as Netlify serverless functions with a **60 second**
+  synchronous limit that no plan can raise. Onboarding is the slowest path, at
+  roughly 20 seconds.
+
+---
+
+## Layout of the code
+
+```
+app/
+  onboarding/        name, role, and what matters to you
+  dashboard/         the board, connector brain, agenda
+  chat/              full conversation with history
+  r/[boardId]/       phone remote — WhatsApp-shaped, voice first
+  api/               onboard · brief · chat · prep · board/[id]{,/turn}
+components/          cards, charts, brain graph, composer
+lib/
+  ai/                prompts and structured calls
+  chat/              context windowing and summarisation
+  store.ts           Firestore session store, memory fallback
+  workspace.ts       the shared demo calendar and mailbox
+config/
+  connectors.json    connected systems — add one by dropping a logo here
+  workspace.json     calendar, mail, and file contents
+```
+
+Design tokens are CSS custom properties in `app/globals.css`, swapped per
+theme and mapped to Tailwind via `@theme inline`.

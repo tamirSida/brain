@@ -41,12 +41,9 @@ export type Metric = z.infer<typeof MetricSchema>;
 
 export const BriefSchema = z.object({
   /**
-   * Exactly three metrics, ordered by importance. Length is enforced in
-   * buildBrief rather than here — the structured-output compiler rejects
-   * minItems > 1, so a `.length(3)` would 400 the request.
+   * The board. Starts as three at onboarding and grows or shrinks from the
+   * phone remote, so nothing here pins the length.
    */
   metrics: z.array(MetricSchema),
-  /** 1–2 Hebrew sentences tying the three together. Facts first, no superlatives. */
-  briefing: z.string(),
 });
 export type Brief = z.infer<typeof BriefSchema>;

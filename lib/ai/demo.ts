@@ -7,8 +7,6 @@ import type { Brief } from "./schemas";
  */
 export function demoBrief(): Brief {
   return {
-    briefing:
-      "התזרים חזר למגמת עלייה שישה חודשים ברציפות, והתקציבים בכל הפרויקטים הפעילים נסגרים מתחת לאומדן. תמהיל התיק התחזק לצד הנכסים המניבים.",
     metrics: [
       {
         id: "cash-flow",

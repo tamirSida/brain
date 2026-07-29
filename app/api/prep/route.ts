@@ -7,7 +7,8 @@ import { readSession } from "@/lib/store";
 import { fileText, getEvents, getMail, RSVP_LABEL } from "@/lib/workspace";
 
 export const runtime = "nodejs";
-export const maxDuration = 90;
+// Netlify caps synchronous functions at 60s and does not allow raising it.
+export const maxDuration = 60;
 
 const Body = z.object({ eventId: z.string() });
 

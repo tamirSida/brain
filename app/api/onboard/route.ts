@@ -9,7 +9,8 @@ import { setCurrentEmail } from "@/lib/session";
 import { linkBoard, newBoardId, writeSession } from "@/lib/store";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+// Netlify caps synchronous functions at 60s and does not allow raising it.
+export const maxDuration = 60;
 
 const Body = z.object({
   name: z.string().trim().min(2, "שם קצר מדי"),
