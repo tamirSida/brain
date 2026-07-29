@@ -39,6 +39,11 @@
   --notif-mix: 78%;
   --wash-brand: 0.18;
   --wash-horizon: 0.08;
+
+  /* Outgoing chat bubble — WhatsApp's own greens, because the remote is meant
+     to read as a messaging app rather than as part of the dashboard chrome. */
+  --bubble-out: #005c4b;
+  --bubble-out-ink: #e9edef;
 }
 
 :root[data-theme="light"] {
@@ -69,6 +74,8 @@
   --notif-mix: 100%;
   --wash-brand: 0.1;
   --wash-horizon: 0.07;
+  --bubble-out: #d9fdd3;
+  --bubble-out-ink: #111b21;
 }
 
 @media (prefers-color-scheme: light) {
@@ -99,6 +106,8 @@
     --notif-mix: 100%;
     --wash-brand: 0.1;
     --wash-horizon: 0.07;
+  --bubble-out: #d9fdd3;
+  --bubble-out-ink: #111b21;
   }
 }
 
@@ -273,6 +282,19 @@ body {
 .edge-flow {
   stroke-dasharray: 2 6;
   animation: dash 1000ms linear infinite;
+}
+
+/* Chat bubbles. Outgoing sits on the inline-end side, which under dir="rtl"
+   puts it on the left — matching WhatsApp in Hebrew. */
+.bubble-out {
+  background: var(--bubble-out);
+  color: var(--bubble-out-ink);
+}
+
+.bubble-in {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
 }
 
 .pulse {

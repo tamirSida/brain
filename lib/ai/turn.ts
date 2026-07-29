@@ -20,12 +20,15 @@ import type { Profile } from "@/lib/types";
  * routing questions and edits to separate endpoints would mean the edit never
  * sees the answer it is referring to. One call, one thread.
  *
- * The model always fills `metric`; on an answer it is ignored. That wastes a
- * few hundred tokens per question and saves a second round trip on every edit,
- * which is the trade that matters when someone is watching a wall screen.
+ * Two calls, not one. Folding the metric into a single structured response
+ * meant the model built a whole chart object just to answer "how many cars do
+ * we lease" — measured at 55s, which is unusable when someone is standing in
+ * front of a screen. The intent call is small and fast; the metric is only
+ * generated when the turn actually changes the board.
  */
 
-const TurnSchema = z.object({
+/** First call: what did the user mean, and what do we say back. No chart. */
+const IntentSchema = z.object({
   /**
    * answer — reply only, the board is untouched.
    * add / remove / replace — mutate the board.
@@ -33,13 +36,17 @@ const TurnSchema = z.object({
   intent: z.enum(["answer", "add", "remove", "replace"]),
   /** For remove/replace: the exact `id` from the board list. Empty otherwise. */
   targetId: z.string(),
-  /** The new metric for add/replace. Ignored for answer and remove. */
-  metric: MetricSchema,
   /**
    * What to show on the phone: the answer itself for `answer`, or a one-line
    * confirmation for an edit.
    */
   reply: z.string(),
+  /**
+   * For add/replace: one line naming the metric to build and the figures it
+   * should carry, drawn from the conversation. This is what lets "add that to
+   * the dashboard" inherit the number from the answer above it.
+   */
+  spec: z.string(),
 });
 
 const RULES = `
@@ -48,20 +55,21 @@ const RULES = `
 
 intent:
 - answer — המשתמש שאל שאלה. אל תיגע בלוח. reply הוא התשובה עצמה, קצרה:
-  עד ארבעה משפטים או חמש נקודות, מתאים למסך טלפון.
+  עד ארבעה משפטים או חמש נקודות, מתאים למסך טלפון. spec = "".
 - add — המשתמש מבקש מדד חדש. targetId = "".
-- remove — המשתמש מבקש להסיר מדד. targetId = ה-id המדויק מרשימת הלוח.
-- replace — המשתמש מבקש להחליף מדד קיים. targetId = הישן, metric = החדש.
+- remove — המשתמש מבקש להסיר מדד. targetId = ה-id המדויק מרשימת הלוח. spec = "".
+- replace — המשתמש מבקש להחליף מדד קיים. targetId = הישן.
 
 **הקשר**: אם המשתמש שאל שאלה ואז אמר ״תוסיף את זה ללוח״ / ״תוסיף לדשבורד״,
-בנה את המדד מתוך התשובה שנתת קודם — אותם מספרים, אותו נושא. אל תמציא נושא חדש.
-דוגמה: לשאלה ״כמה רכבים החברה מחכירה?״ ענית ״47 רכבים״; ״תוסיף ללוח״ יוצר
-מדד בשם ״רכבים בליסינג״ עם value ״47״.
+ה-spec חייב לשאת את המספרים שכבר נתת בתשובה — לא נושא חדש.
+דוגמה: לשאלה ״כמה רכבים החברה מחכירה?״ ענית ״47 רכבים, ₪312 אלף לחודש״;
+spec יהיה ״רכבים בליסינג — 47 רכבים, עלות חודשית ₪312 אלף״.
 
-כשה-intent הוא answer, מלא את metric בערכי מציין מקום כלשהם — הוא לא ייעשה בו שימוש.
+reply לעריכה: משפט אחד בגוף ראשון, למשל ״הוספתי רכבים בליסינג ללוח.״`;
 
-כללים למדד חדש:
-- id: slug באנגלית, אותיות קטנות ומקפים, שלא קיים כבר ברשימה.
+const METRIC_RULES = `אתה בונה מדד יחיד ללוח מדדים של חברת נדל״ן ואחזקות ישראלית.
+
+- id: slug באנגלית, אותיות קטנות ומקפים, שלא קיים ברשימת ה-id התפוסים.
 - title: תווית עברית קצרה, עד ארבע מילים.
 - viz לפי סוג הנתון:
   · number — ערך בודד בלי מגמה
@@ -70,10 +78,11 @@ intent:
   · donut — התפלגות ל-2 עד 4 חלקים
   · progress — התקדמות מול יעד (נקודה אחת, 0–100)
 - value מעוצב ומוכן לתצוגה, כולל ₪ / % / M לפי העניין.
+- אם המפרט כולל מספרים — השתמש בהם בדיוק, אל תמציא אחרים.
 - insight: משפט עברי אחד, עובדתי.
 - נתוני הדגמה חיוביים: delta חיובי, trend הוא "ok" או "neutral".
-- אל תשכפל מדד שכבר קיים; אם הבקשה דומה לקיים, בחר replace.
-- reply לעריכה: משפט אחד בגוף ראשון, למשל ״הוספתי רכבים בליסינג ללוח.״`;
+
+כל הטקסט בעברית.`;
 
 export interface TurnResult {
   intent: "answer" | "add" | "remove" | "replace";
@@ -97,58 +106,68 @@ export async function runTurn(
     ? current.map((m) => `- ${m.id} · ${m.title} (${m.viz}) — ${m.value}`).join("\n")
     : "(הלוח ריק)";
 
-  // The full chat grounding — calendar, mail, connected systems — so a question
-  // asked from the phone is answered from the same data as one asked at the
-  // desk, rather than from a thinner prompt that disclaims more.
-  const system = `${systemPrompt(profile)}\n${RULES}`;
-
   const conversation = history.length
     ? history.map((h) => `${h.role === "user" ? "משתמש" : "עוזר"}: ${h.content}`).join("\n")
     : "(אין שיחה קודמת)";
 
-  const prompt = [
-    "המדדים שכרגע על הלוח:",
-    list,
-    "",
-    "השיחה עד כה:",
-    conversation,
-    "",
-    "ההודעה החדשה:",
-    text,
-  ].join("\n");
-
-  const turn = await structuredCall({
-    system,
-    prompt,
-    schema: TurnSchema,
-    jsonSchema: toJsonSchema(TurnSchema),
-    maxTokens: 6000,
+  // The full chat grounding — calendar, mail, connected systems — so a question
+  // asked from the phone is answered from the same data as one asked at the
+  // desk, rather than from a thinner prompt that disclaims more.
+  const decision = await structuredCall({
+    system: `${systemPrompt(profile)}\n${RULES}`,
+    prompt: [
+      "המדדים שכרגע על הלוח:",
+      list,
+      "",
+      "השיחה עד כה:",
+      conversation,
+      "",
+      "ההודעה החדשה:",
+      text,
+    ].join("\n"),
+    schema: IntentSchema,
+    jsonSchema: toJsonSchema(IntentSchema),
+    maxTokens: 2500,
   });
 
-  if (turn.intent === "answer") {
-    return { intent: "answer", metrics: null, reply: turn.reply };
+  if (decision.intent === "answer") {
+    return { intent: "answer", metrics: null, reply: decision.reply };
   }
 
-  if (turn.intent === "remove") {
-    const next = current.filter((m) => m.id !== turn.targetId);
+  if (decision.intent === "remove") {
+    const next = current.filter((m) => m.id !== decision.targetId);
     // A removal that matched nothing is a failed instruction, not a no-op.
     if (next.length === current.length) {
       return { intent: "answer", metrics: null, reply: "לא מצאתי מדד כזה על הלוח." };
     }
-    return { intent: "remove", metrics: next, reply: turn.reply };
+    return { intent: "remove", metrics: next, reply: decision.reply };
   }
 
-  const metric = normalise(turn.metric, current);
+  // Second call, only for turns that actually build something.
+  const built = await structuredCall({
+    system: METRIC_RULES,
+    prompt: [
+      `id-ים תפוסים: ${current.map((m) => m.id).join(", ") || "(אין)"}`,
+      "",
+      "המדד לבנייה:",
+      decision.spec || text,
+    ].join("\n"),
+    schema: MetricSchema,
+    jsonSchema: toJsonSchema(MetricSchema),
+    maxTokens: 3000,
+  });
 
-  if (turn.intent === "replace") {
-    const idx = current.findIndex((m) => m.id === turn.targetId);
-    if (idx === -1) return { intent: "add", metrics: [...current, metric], reply: turn.reply };
+  const metric = normalise(built, current);
+
+  if (decision.intent === "replace") {
+    const idx = current.findIndex((m) => m.id === decision.targetId);
+    if (idx === -1) return { intent: "add", metrics: [...current, metric], reply: decision.reply };
     const next = [...current];
     next[idx] = metric;
-    return { intent: "replace", metrics: next, reply: turn.reply };
+    return { intent: "replace", metrics: next, reply: decision.reply };
   }
 
-  return { intent: "add", metrics: [...current, metric], reply: turn.reply };
+  return { intent: "add", metrics: [...current, metric], reply: decision.reply };
 }
 
 /**

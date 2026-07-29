@@ -47,7 +47,10 @@ export interface Dictation {
   listening: boolean;
   error: string | null;
   start: () => void;
+  /** End the recording and deliver the transcript. */
   stop: () => void;
+  /** End the recording and throw the transcript away. */
+  cancel: () => void;
   clearError: () => void;
 }
 
@@ -71,6 +74,8 @@ export function useDictation({
   const [error, setError] = useState<string | null>(null);
 
   const recog = useRef<any>(null);
+  /** Set when the user discards a recording, so `onend` stays silent. */
+  const discarded = useRef(false);
   const watchdog = useRef<ReturnType<typeof setTimeout> | null>(null);
   const started = useRef(false);
 
@@ -97,11 +102,23 @@ export function useDictation({
   }, []);
 
   const stop = useCallback(() => {
+    discarded.current = false;
     try {
       recog.current?.stop?.();
     } catch {
       setListening(false);
     }
+  }, []);
+
+  const cancel = useCallback(() => {
+    discarded.current = true;
+    try {
+      // abort(), not stop(): stop() still emits whatever it heard.
+      recog.current?.abort?.();
+    } catch {
+      /* already gone */
+    }
+    setListening(false);
   }, []);
 
   const start = useCallback(() => {
@@ -129,6 +146,7 @@ export function useDictation({
 
     let final = "";
     started.current = false;
+    discarded.current = false;
 
     r.onstart = () => {
       started.current = true;
@@ -156,6 +174,7 @@ export function useDictation({
     r.onend = () => {
       if (watchdog.current) clearTimeout(watchdog.current);
       setListening(false);
+      if (discarded.current) return;
       const text = final.trim();
       if (text) finalRef.current(text);
     };
@@ -192,6 +211,7 @@ export function useDictation({
     error,
     start,
     stop,
+    cancel,
     clearError: useCallback(() => setError(null), []),
   };
 }

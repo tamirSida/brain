@@ -3,11 +3,11 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import {
-  faArrowUp,
   faCheck,
+  faChevronDown,
   faCircleNotch,
   faMicrophone,
-  faStop,
+  faPaperPlane,
   faTrashCan,
   faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
@@ -20,17 +20,16 @@ import { useDictation } from "@/lib/useDictation";
 import type { Metric } from "@/lib/ai/schemas";
 
 /**
- * Phone remote for the dashboard.
+ * Phone remote, shaped as a messaging app.
  *
- * One input, one thread — no mode switch. Asking a question and then saying
- * "תוסיף את זה ללוח" has to work, and that only holds if both go through the
- * same conversation: a mode toggle would make the second sentence ambiguous,
- * and separate endpoints would mean the edit never sees the answer it refers
- * to. The model decides which it was.
+ * A chat is the right form here because that is what it is: you say something,
+ * it answers or acts, and the history is the context for the next thing you
+ * say. Borrowing WhatsApp's conventions — outgoing bubbles in green on the
+ * inline-end side, a fixed composer, hold-to-talk with cancel or send — means
+ * nobody needs the interface explained.
  *
- * Voice first: the mic is the largest target on the page, dictation runs
- * continuously so the speaker decides when they are finished, and the
- * transcript is visible while it forms.
+ * One thread, no modes: asking "כמה רכבים החברה מחכירה?" and then saying
+ * "תוסיף את זה ללוח" only works if both go through the same conversation.
  */
 
 const IDEAS = ["מה מחכה לי היום?", "תוסיף תזרים חודשי", "כמה רכבים החברה מחכירה?"];
@@ -42,6 +41,12 @@ interface Turn {
   edited?: boolean;
   /** True while the answer is still in flight. */
   pending?: boolean;
+}
+
+function clock(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
 }
 
 export function RemoteClient({
@@ -58,12 +63,11 @@ export function RemoteClient({
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [board, setBoard] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+
   const typed = useRef<HTMLInputElement>(null);
   const tail = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    tail.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [thread]);
 
   async function run(text: string) {
     const body = text.trim();
@@ -72,8 +76,8 @@ export function RemoteClient({
     setError(null);
     setInput("");
 
-    // Everything said so far, so "add that to the dashboard" can resolve
-    // against the answer that preceded it.
+    // Everything said so far, so "add that to the dashboard" resolves against
+    // the answer that preceded it.
     const history = thread
       .filter((t) => !t.pending)
       .map((t) => ({ role: t.role, content: t.content }));
@@ -117,193 +121,70 @@ export function RemoteClient({
 
   const mic = useDictation({
     // Continuous: the speaker decides when they are done, not the recogniser's
-    // pause detection. Tapping again ends it and sends.
+    // pause detection.
     continuous: true,
     onPartial: setInput,
     onFinal: (text) => void run(text),
   });
 
   const listening = mic.listening;
+
+  // Recording timer, exactly as a voice note shows one.
+  useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
+    if (!listening) {
+      setElapsed(0);
+      return;
+    }
+    const t = setInterval(() => setElapsed((n) => n + 1), 1000);
+    /* eslint-enable react-hooks/set-state-in-effect */
+    return () => clearInterval(t);
+  }, [listening]);
+
+  useEffect(() => {
+    tail.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [thread, listening]);
+
   const problem = error ?? mic.error;
+  const canSend = input.trim().length > 0 && !busy;
 
   return (
-    <main className="relative min-h-dvh overflow-x-clip pb-10">
-      <div className="horizon-wash" />
-
-      <div className="relative mx-auto w-full max-w-[440px] px-4 pt-[max(1.5rem,env(safe-area-inset-top))]">
-        <header className="flex items-center justify-between">
-          <Image
-            src="/ofek-logo.svg"
-            alt="אופק אחזקות"
-            width={70}
-            height={25}
-            priority
-            className="brand-mark opacity-90"
-          />
-          <p className="text-[11.5px] text-ink-3">
-            הלוח של <span className="text-ink-2">{owner}</span>
-          </p>
-        </header>
-
-        <section className="mt-9 text-center">
-          <h1 className="text-[22px] font-light tracking-tight text-ink">איך אפשר לעזור?</h1>
-          <p className="mt-2 text-[13px] leading-relaxed text-ink-2">
-            שאל שאלה, או תגיד מה להוסיף ללוח. המסך יתעדכן מיד.
-          </p>
-        </section>
-
-        {/* Mic — the primary action, sized to be hit without looking. */}
-        <div className="mt-8 grid place-items-center">
-          <button
-            type="button"
-            onClick={() => {
-              setError(null);
-              if (!mic.supported) {
-                typed.current?.focus();
-                return;
-              }
-              mic.start();
-            }}
-            disabled={busy}
-            aria-label={listening ? "סיים ושלח" : "התחל הכתבה"}
-            className={cn(
-              "grid size-24 place-items-center rounded-full border-2 transition-colors",
-              busy
-                ? "cursor-wait border-line bg-surface text-ink-3"
-                : listening
-                  ? "border-risk bg-risk/10 text-risk"
-                  : "border-brand/40 bg-brand/8 text-brand hover:bg-brand/14"
-            )}
-          >
-            <Icon
-              icon={busy ? faCircleNotch : listening ? faStop : faMicrophone}
-              className={cn("text-[30px]", busy && "animate-spin")}
-            />
-          </button>
-          <p className="mt-3 min-h-5 text-[12.5px] text-ink-3">
-            {busy
-              ? "חושב…"
-              : listening
-                ? "מקשיב… לחץ שוב כדי לסיים ולשלוח"
-                : mic.supported
-                  ? "או הקלד למטה"
-                  : "הכתבה לא זמינה כאן — הקלד למטה"}
-          </p>
-        </div>
-
-        {/* The transcript as it forms. Seeing the words appear is what tells
-            the speaker the mic is actually live. */}
-        {listening && (
-          <div className="rise mt-4 rounded-[12px] border border-risk/40 bg-risk/5 px-4 py-3">
-            <p className="flex items-center gap-2 text-[11px] font-medium text-risk">
-              <span className="size-1.5 animate-pulse rounded-full bg-risk" />
-              מקליט
-            </p>
-            <p className="mt-1.5 min-h-6 text-[15px] leading-relaxed text-ink">
-              {input || <span className="text-ink-3">דבר עכשיו…</span>}
-            </p>
+    <div className="flex h-dvh flex-col bg-bg">
+      {/* Header */}
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-surface px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+        <div className="flex items-center gap-2.5">
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#0d131b]">
+            <Image src="/ofek-logo.svg" alt="" width={26} height={10} priority />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-[14px] font-medium text-ink">המוח הארגוני</p>
+            <p className="truncate text-[11px] text-ink-3">הלוח של {owner}</p>
           </div>
-        )}
-
-        {/* Typed fallback */}
-        <div className="mt-4 flex items-center gap-1 rounded-full border border-line bg-surface p-1.5 focus-within:border-brand/70">
-          <input
-            ref={typed}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && void run(input)}
-            placeholder={listening ? "מקשיב…" : "שאל, או תגיד מה להוסיף…"}
-            className="min-h-10 min-w-0 flex-1 bg-transparent px-3 text-[14.5px] text-ink placeholder:text-ink-3 focus:outline-none"
-          />
-          <button
-            type="button"
-            onClick={() => void run(input)}
-            disabled={!input.trim() || busy}
-            aria-label="שלח"
-            className={cn(
-              "grid size-10 shrink-0 place-items-center rounded-full transition-colors",
-              input.trim() && !busy
-                ? "bg-brand text-brand-on hover:bg-brand-hi"
-                : "cursor-not-allowed bg-surface-2 text-ink-3"
-            )}
-          >
-            <Icon icon={faArrowUp} className="text-[14px]" />
-          </button>
         </div>
 
-        {thread.length === 0 && (
-          <ul className="mt-3 flex flex-wrap justify-center gap-2">
-            {IDEAS.map((i) => (
-              <li key={i}>
-                <button
-                  type="button"
-                  onClick={() => void run(i)}
-                  disabled={busy}
-                  className="rounded-full border border-line px-3 py-1.5 text-[12px] text-ink-2 transition-colors hover:border-line-strong hover:text-ink disabled:opacity-50"
-                >
-                  {i}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+        <button
+          type="button"
+          onClick={() => setBoard((b) => !b)}
+          aria-expanded={board}
+          className="flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border border-line px-3 text-[12px] text-ink-2 transition-colors hover:text-ink"
+        >
+          הלוח
+          <span className="num text-ink-3">{metrics.length}</span>
+          <Icon
+            icon={faChevronDown}
+            className={cn("text-[10px] transition-transform", board && "rotate-180")}
+          />
+        </button>
+      </header>
 
-        {problem && (
-          <p
-            role="alert"
-            className="mt-5 flex items-start gap-2 rounded-[10px] border border-risk/40 bg-risk/8 px-3 py-2.5 text-[13px] text-risk"
-          >
-            <Icon icon={faTriangleExclamation} className="mt-0.5 shrink-0" />
-            {problem}
-          </p>
-        )}
-
-        {/* The conversation — questions, answers and edit confirmations in one
-            place, because that is the order they actually happened in. */}
-        {thread.length > 0 && (
-          <section className="mt-7 space-y-3">
-            {thread.map((t, i) =>
-              t.role === "user" ? (
-                <p key={i} className="text-[12.5px] text-ink-3">
-                  {t.content}
-                </p>
-              ) : t.pending ? (
-                <p key={i} className="flex items-center gap-2 text-[13px] text-ink-3">
-                  <Icon icon={faCircleNotch} className="animate-spin" />
-                  חושב…
-                </p>
-              ) : (
-                <div
-                  key={i}
-                  className={cn(
-                    "rise rounded-[12px] border px-3 py-2.5",
-                    t.edited ? "border-ok/40 bg-ok/8" : "border-line bg-surface/60"
-                  )}
-                >
-                  {t.edited && (
-                    <p className="mb-1 flex items-center gap-1.5 text-[11px] font-medium text-ok">
-                      <Icon icon={faCheck} />
-                      הלוח עודכן
-                    </p>
-                  )}
-                  <Markdown text={t.content} className="text-[13.5px] text-ink" />
-                </div>
-              )
-            )}
-            <div ref={tail} />
-          </section>
-        )}
-
-        {/* What's on the board now, with one-tap removal. */}
-        <section className="mt-9">
-          <h2 className="mb-2 text-[12.5px] font-medium text-ink-2">
-            על הלוח כרגע <span className="num text-ink-3">({metrics.length})</span>
-          </h2>
+      {/* Board panel — collapsed by default; the conversation is the main event. */}
+      {board && (
+        <div className="max-h-[38vh] shrink-0 overflow-y-auto border-b border-line bg-bg-2 px-4 py-3">
           <ul className="space-y-2">
             {metrics.map((m) => (
               <li
                 key={m.id}
-                className="flex items-center gap-3 rounded-[10px] border border-line bg-surface/60 px-3 py-2.5"
+                className="flex items-center gap-3 rounded-[10px] border border-line bg-surface px-3 py-2.5"
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[13px] text-ink">{m.title}</p>
@@ -326,8 +207,155 @@ export function RemoteClient({
               </li>
             )}
           </ul>
-        </section>
+        </div>
+      )}
+
+      {/* Conversation */}
+      <div className="relative min-h-0 flex-1 overflow-y-auto px-4 py-4">
+        <div className="horizon-wash" />
+
+        {thread.length === 0 && (
+          <div className="relative mt-6 text-center">
+            <h1 className="text-[20px] font-light tracking-tight text-ink">איך אפשר לעזור?</h1>
+            <ul className="mt-5 flex flex-wrap justify-center gap-2">
+              {IDEAS.map((i) => (
+                <li key={i}>
+                  <button
+                    type="button"
+                    onClick={() => void run(i)}
+                    disabled={busy}
+                    className="rounded-full border border-line bg-surface px-3 py-2 text-[12.5px] text-ink-2 transition-colors hover:text-ink disabled:opacity-50"
+                  >
+                    {i}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="relative flex flex-col gap-2">
+          {thread.map((t, i) =>
+            t.role === "user" ? (
+              // self-end is inline-end, which under dir="rtl" is the left —
+              // where WhatsApp puts your own messages in Hebrew.
+              <div
+                key={i}
+                className="bubble-out max-w-[85%] self-end rounded-[14px] rounded-ee-[4px] px-3 py-2 text-[14.5px] leading-relaxed shadow-sm"
+              >
+                {t.content}
+              </div>
+            ) : t.pending ? (
+              <div
+                key={i}
+                className="bubble-in flex max-w-[85%] items-center gap-2 self-start rounded-[14px] rounded-es-[4px] px-3 py-2.5 text-[13px] text-ink-3 shadow-sm"
+              >
+                <Icon icon={faCircleNotch} className="animate-spin" />
+                חושב…
+              </div>
+            ) : (
+              <div
+                key={i}
+                className={cn(
+                  "bubble-in max-w-[85%] self-start rounded-[14px] rounded-es-[4px] px-3 py-2 shadow-sm",
+                  t.edited && "border-ok/50"
+                )}
+              >
+                {t.edited && (
+                  <p className="mb-1 flex items-center gap-1.5 text-[11px] font-medium text-ok">
+                    <Icon icon={faCheck} />
+                    הלוח עודכן
+                  </p>
+                )}
+                <Markdown text={t.content} className="text-[14.5px]" />
+              </div>
+            )
+          )}
+          <div ref={tail} />
+        </div>
+
+        {problem && (
+          <p
+            role="alert"
+            className="relative mt-3 flex items-start gap-2 rounded-[10px] border border-risk/40 bg-risk/8 px-3 py-2.5 text-[12.5px] text-risk"
+          >
+            <Icon icon={faTriangleExclamation} className="mt-0.5 shrink-0" />
+            {problem}
+          </p>
+        )}
       </div>
-    </main>
+
+      {/* Composer — pinned, like a messaging app. */}
+      <div className="shrink-0 border-t border-line bg-surface px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2.5">
+        {listening ? (
+          // Recording bar: discard on the left, timer in the middle, send on
+          // the right. Stopping and sending are the same action, deliberately —
+          // a separate "stop" then "send" is the step people forget.
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={mic.cancel}
+              aria-label="בטל הקלטה"
+              className="grid size-11 shrink-0 place-items-center rounded-full text-ink-3 transition-colors hover:bg-risk/10 hover:text-risk"
+            >
+              <Icon icon={faTrashCan} className="text-[16px]" />
+            </button>
+
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <span className="size-2 shrink-0 animate-pulse rounded-full bg-risk" />
+              <span className="num shrink-0 text-[13px] text-risk">{clock(elapsed)}</span>
+              <span className="truncate text-[13px] text-ink-2">
+                {input || "מקשיב…"}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={mic.stop}
+              aria-label="סיים ושלח"
+              className="grid size-11 shrink-0 place-items-center rounded-full bg-ok text-white transition-colors"
+            >
+              <Icon icon={faPaperPlane} className="text-[15px]" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-end gap-2">
+            <div className="flex min-h-11 flex-1 items-center rounded-full border border-line bg-bg-2 px-4 focus-within:border-brand/70">
+              <input
+                ref={typed}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && void run(input)}
+                placeholder="הודעה"
+                className="min-h-11 min-w-0 flex-1 bg-transparent text-[14.5px] text-ink placeholder:text-ink-3 focus:outline-none"
+              />
+            </div>
+
+            {/* One button that becomes send once there is something to send —
+                the WhatsApp swap, and it keeps the thumb in one place. */}
+            <button
+              type="button"
+              onClick={() => {
+                if (canSend) return void run(input);
+                setError(null);
+                if (!mic.supported) return typed.current?.focus();
+                mic.start();
+              }}
+              disabled={busy}
+              aria-label={canSend ? "שלח" : "הקלט"}
+              className={cn(
+                "grid size-11 shrink-0 place-items-center rounded-full transition-colors",
+                busy ? "bg-surface-2 text-ink-3" : "bg-ok text-white"
+              )}
+            >
+              <Icon
+                icon={busy ? faCircleNotch : canSend ? faPaperPlane : faMicrophone}
+                className={cn("text-[16px]", busy && "animate-spin")}
+              />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
