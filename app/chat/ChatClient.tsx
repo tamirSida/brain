@@ -17,6 +17,7 @@ import { Composer } from "@/components/Composer";
 import { Icon } from "@/components/Icon";
 import { Markdown } from "@/components/Markdown";
 import { withAttachment } from "@/lib/attach";
+import { beginThinking } from "@/lib/thinking";
 import { cn } from "@/lib/cn";
 import type { ChatMessage, ConversationMeta } from "@/lib/chat/types";
 
@@ -104,6 +105,7 @@ export function ChatClient({ firstName }: { firstName: string }) {
       { id: `tmp-${Date.now()}`, role: "user", content: body, ts: new Date().toISOString(), voice },
     ]);
 
+    const endThinking = beginThinking();
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -122,6 +124,7 @@ export function ChatClient({ firstName }: { firstName: string }) {
       setInput(body);
       setError(err instanceof Error ? err.message : "שגיאה");
     } finally {
+      endThinking();
       setBusy(false);
     }
   }

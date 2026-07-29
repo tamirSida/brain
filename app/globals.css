@@ -279,6 +279,26 @@ body {
   animation: breathe 2.8s ease-in-out infinite;
 }
 
+/* While a question is in flight the core breathes faster and harder, so the
+   graph reads as the thing doing the work rather than decoration. */
+@keyframes breathe-hard {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+.pulse-fast {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: breathe-hard 900ms ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -292,7 +312,8 @@ body {
     transform: none;
   }
   /* Freeze on a chosen frame, not an arbitrary one. */
-  .pulse {
+  .pulse,
+  .pulse-fast {
     opacity: 0.6;
   }
   .edge-flow {

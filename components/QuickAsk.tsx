@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import {
-  faArrowUpRightFromSquare,
   faCircleNotch,
   faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
@@ -12,6 +10,7 @@ import { Composer } from "@/components/Composer";
 import { Icon } from "@/components/Icon";
 import { Markdown } from "@/components/Markdown";
 import { withAttachment } from "@/lib/attach";
+import { beginThinking } from "@/lib/thinking";
 import { cn } from "@/lib/cn";
 
 
@@ -36,6 +35,8 @@ export function QuickAsk() {
     setAsked(q);
     setAnswer(null);
     setInput("");
+    // The connector graph animates while this is in flight.
+    const endThinking = beginThinking();
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -50,6 +51,7 @@ export function QuickAsk() {
       setError(e instanceof Error ? e.message : "שגיאה");
       setAsked(null);
     } finally {
+      endThinking();
       setBusy(false);
     }
   }
@@ -101,7 +103,9 @@ export function QuickAsk() {
       className={cn(
         "z-30",
         "fixed inset-x-0 bottom-0 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]",
-        "lg:static lg:z-auto lg:mt-3 lg:p-0"
+        // Sits well clear of the metric row above it rather than tucked
+        // under it — the composer should read as its own invitation.
+        "lg:static lg:z-auto lg:mt-10 lg:p-0"
       )}
     >
       <div className="mx-auto w-full max-w-[440px] lg:max-w-none">
@@ -114,7 +118,7 @@ export function QuickAsk() {
           busy={busy}
           listening={listening}
           onMic={toggleMic}
-          placeholder="שאל אותי משהו על היומן או הדואר…"
+          placeholder="איך אפשר לעזור?"
         />
       </div>
 
@@ -142,20 +146,7 @@ export function QuickAsk() {
               חושב…
             </p>
           ) : (
-            answer && (
-              <>
-                <Markdown text={answer} className="mt-2 text-[13.5px] text-ink" />
-                {convoId && (
-                  <Link
-                    href="/chat"
-                    className="mt-3 inline-flex items-center gap-1.5 text-[12.5px] text-brand hover:underline"
-                  >
-                    המשך בשיחה מלאה
-                    <Icon icon={faArrowUpRightFromSquare} className="text-[10px]" />
-                  </Link>
-                )}
-              </>
-            )
+            answer && <Markdown text={answer} className="mt-2 text-[13.5px] text-ink" />
           )}
         </div>
       )}

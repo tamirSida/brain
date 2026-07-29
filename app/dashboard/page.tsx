@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { faArrowRightFromBracket, faCommentDots } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 
 import { Agenda } from "@/components/Agenda";
 import { Greeting } from "@/components/Greeting";
@@ -55,13 +54,6 @@ export default async function DashboardPage() {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href="/chat"
-              className="flex min-h-11 items-center gap-2 rounded-full border border-line px-4 text-[12.5px] text-ink-2 transition-colors hover:border-line-strong hover:text-ink"
-            >
-              <Icon icon={faCommentDots} className="text-[12px]" />
-              שאל אותי
-            </Link>
             <ThemeToggle />
             <form action={signOut}>
             <button

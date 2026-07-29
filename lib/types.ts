@@ -32,6 +32,8 @@ export interface Connector {
   /** Some supplied brand assets are white-on-dark; those need a dark chip. */
   chip: "light" | "dark";
   kind: string;
+  /** Entity names this system holds, used to ground answers about it. */
+  entities: string[];
   status: ConnectorStatus;
   /** Indexed object count; null when not configured. */
   objects: number | null;

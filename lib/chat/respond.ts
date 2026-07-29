@@ -37,7 +37,18 @@ function estimate(text: string): number {
 }
 
 function systemPrompt(profile: Profile): string {
-  const systems = connectors.map((c) => c.name).join(", ");
+  // Each system with what it holds and how much — enough for the model to
+  // answer about Priority or Monday concretely instead of disclaiming them.
+  const systems = connectors
+    .map((c) => {
+      const count =
+        c.objects === null
+          ? "לא מחובר"
+          : `${new Intl.NumberFormat("he-IL").format(c.objects)} רשומות מסונכרנות`;
+      const holds = c.entities.length ? `\n    מכילה: ${c.entities.join(", ")}` : "";
+      return `- ${c.name} — ${c.kind} · ${count} · ${c.lastSync ?? "לא מסונכרן"}${holds}`;
+    })
+    .join("\n");
   // Caveats travel with the capability — otherwise the model lists an action
   // as available and silently drops the limitation that makes it conditional.
   const actions = AGENT_ACTIONS.map((a) => {
@@ -51,7 +62,8 @@ function systemPrompt(profile: Profile): string {
   return `אתה המוח הארגוני של ״אופק אחזקות״ — חברת נדל״ן ואחזקות ישראלית.
 אתה עוזר ל${profile.name}, ${profile.title}.
 
-המערכות המחוברות: ${systems}
+המערכות המחוברות ומה יש בכל אחת:
+${systems}
 
 מה שאתה באמת יכול לעשות מול Gmail / Outlook / יומן:
 ${actions}
@@ -62,10 +74,17 @@ ${workspaceContext()}
 כללים:
 - ענה בעברית, בקצרה ולעניין. בלי סופרלטיבים ובלי אימוג'י.
 - **תמיד ענה תשובה מלאה ושימושית.** לעולם אל תכתוב ״אין לי גישה״, ״אין לי את התוכן״,
-  ״לא ניתן לי״, ״אין ברשותי״ או ״אני לא יכול לקרוא״. אלה משפטים אסורים.
+  ״לא ניתן לי״, ״אין ברשותי״, ״אני לא יכול לקרוא״ או ״בסביבה הזו״. אלה משפטים אסורים.
   זו סביבת הדגמה וכל הנתונים בה בדיוניים. תוכן הקבצים נמצא למעלה — קרא ממנו וסכם אותו.
   אם פרט מסוים לא מופיע בנתונים, השלם אותו בעצמך באופן סביר ועקבי עם השאר, והמשך —
   אל תעצור כדי להתנצל ואל תפתח בהסתייגות.
+- **כל המערכות שברשימה למעלה מחוברות ואתה שולף מהן.** אם שואלים ״אילו נתונים יש ב-Priority״,
+  ״מה מצב התקציב ב-SAP״ או ״מה פתוח ב-Monday״ — ענה כאילו שלפת משם עכשיו: פרט ישויות,
+  שדות ומספרים קונקרטיים שמתאימים לחברת נדל״ן ואחזקות ישראלית, ועקביים עם היומן והדואר
+  ועם כמות הרשומות שצוינה לצד כל מערכת.
+  לצד כל מערכת רשום מה היא מכילה — הישען על זה כשמדובר באותה מערכת, ופרט משם.
+  זה נכון לכל המערכות ברשימה ללא יוצא מן הכלל, לא רק ל-Priority.
+  אל תכתוב שמערכת ״לא זמינה בסביבה הזו״ — כולן זמינות.
 - הנתונים בהדגמה חיוביים: הפרויקטים בלוח הזמנים, התוצאות מעל התחזית, אין משבר.
   אל תמציא עיכובים, חריגות או בעיות שלא כתובות בנתונים.
 - אל תבטיח פעולה שאינה ברשימה למעלה, ואם לפעולה יש מגבלה — ציין את המגבלה לצד הפעולה עצמה, לא בנפרד ולא בהמשך.

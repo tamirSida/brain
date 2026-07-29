@@ -59,7 +59,14 @@ export function MetricCard({
       // No h-full: a grid item already stretches to its row by default, and an
       // explicit 100% would resolve against the row height even under
       // items-start — which is exactly what the hero layout needs to avoid.
-      className={cn("notif rise", compact ? "p-3.5" : "p-4", className)}
+      className={cn(
+        "notif rise",
+        // Compact tiles sit in a stretched grid row, so they already measure
+        // the same; the column lets the chart take the slack instead of every
+        // shorter tile ending in dead space.
+        compact ? "flex flex-col p-3.5" : "p-4",
+        className
+      )}
       style={{ animationDelay: `${index * 90}ms` }}
     >
       {/* Notification header — app tile, source, state */}
@@ -128,8 +135,10 @@ export function MetricCard({
       )}
 
       {showViz && (
-        <div className={compact ? "mt-2.5" : "mt-3"}>
-          <MetricViz metric={metric} compact={compact} />
+        <div className={compact ? "mt-2.5 flex flex-1 items-center" : "mt-3"}>
+          <div className="w-full">
+            <MetricViz metric={metric} compact={compact} />
+          </div>
         </div>
       )}
 

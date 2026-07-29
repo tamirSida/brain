@@ -20,7 +20,9 @@
 export const LAYOUTS = ["stack", "hero", "grid"] as const;
 export type LayoutId = (typeof LAYOUTS)[number];
 
-export const DEFAULT_LAYOUT: LayoutId = "stack";
+// Compact by default: three equal, directly comparable tiles is the safest
+// first impression, and the layout can be changed from the dashboard.
+export const DEFAULT_LAYOUT: LayoutId = "grid";
 
 export interface LayoutOption {
   id: LayoutId;

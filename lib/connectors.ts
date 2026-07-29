@@ -14,6 +14,8 @@ const ConnectorSchema = z.object({
   logo: z.string(),
   chip: z.enum(["light", "dark"]),
   kind: z.string(),
+  /** What the system holds — grounds the model when asked about it. */
+  entities: z.array(z.string()).default([]),
   status: z.enum(["live", "syncing", "error", "unconfigured"]),
   objects: z.number().nullable(),
   lastSync: z.string().nullable(),

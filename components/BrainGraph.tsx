@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { Connector, ConnectorStatus } from "@/lib/types";
 import { cn } from "@/lib/cn";
+import { useThinking } from "@/lib/thinking";
 
 /**
  * Connector state as a brain.
@@ -77,6 +78,7 @@ export function BrainGraph({ connectors }: { connectors: Connector[] }) {
   const nodes = useMemo(() => build(connectors), [connectors]);
   const [active, setActive] = useState<string | null>(null);
   const [motion, setMotion] = useState(false);
+  const thinking = useThinking();
 
   useEffect(() => {
     const q = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -131,29 +133,42 @@ export function BrainGraph({ connectors }: { connectors: Connector[] }) {
                   href={`#p-${n.conn.id}`}
                   fill="none"
                   stroke={s.stroke}
-                  strokeWidth={on ? 2.4 : 1.4}
-                  strokeOpacity={on ? 0.95 : 0.45}
+                  strokeWidth={on ? 2.4 : thinking ? 2 : 1.4}
+                  strokeOpacity={on ? 0.95 : thinking ? 0.8 : 0.45}
                   strokeLinecap="round"
                   style={{ transition: "stroke-width 220ms, stroke-opacity 220ms" }}
                 />
 
                 {/* One signal per pathway, travelling node → core. Staggered so
                     they never march in lockstep. */}
-                {motion && flowing && (
-                  <circle r={on ? 3.2 : 2.2} fill={s.stroke} opacity={on ? 1 : 0.75}>
-                    <animateMotion
-                      dur={n.conn.status === "syncing" ? "1.9s" : "3.4s"}
-                      begin={`${i * 0.42}s`}
-                      repeatCount="indefinite"
-                      keyPoints="0;1"
-                      keyTimes="0;1"
-                      calcMode="spline"
-                      keySplines="0.4 0 0.6 1"
+                {/* Signals speed up and double while the brain is working.
+                    Keyed on `thinking` so SMIL restarts cleanly — mutating
+                    `dur` in place leaves the running animation on the old
+                    timing. */}
+                {motion &&
+                  flowing &&
+                  (thinking ? [0, 0.5] : [0]).map((offset) => (
+                    <circle
+                      key={`${thinking}-${offset}`}
+                      r={on ? 3.2 : thinking ? 2.8 : 2.2}
+                      fill={s.stroke}
+                      opacity={on ? 1 : 0.75}
                     >
-                      <mpath href={`#p-${n.conn.id}`} />
-                    </animateMotion>
-                  </circle>
-                )}
+                      <animateMotion
+                        dur={
+                          thinking ? "1.1s" : n.conn.status === "syncing" ? "1.9s" : "3.4s"
+                        }
+                        begin={`${i * (thinking ? 0.12 : 0.42) + offset}s`}
+                        repeatCount="indefinite"
+                        keyPoints="0;1"
+                        keyTimes="0;1"
+                        calcMode="spline"
+                        keySplines="0.4 0 0.6 1"
+                      >
+                        <mpath href={`#p-${n.conn.id}`} />
+                      </animateMotion>
+                    </circle>
+                  ))}
               </g>
             );
           })}
@@ -167,10 +182,25 @@ export function BrainGraph({ connectors }: { connectors: Connector[] }) {
             r={CORE_R + 13}
             fill="none"
             stroke="var(--brand)"
-            strokeOpacity="0.16"
-            strokeWidth="1"
-            className="pulse"
+            strokeOpacity={thinking ? 0.5 : 0.16}
+            strokeWidth={thinking ? 1.6 : 1}
+            className={thinking ? "pulse-fast" : "pulse"}
           />
+          {/* A second ring only while working, offset so the two read as a
+              ripple leaving the core rather than one thicker ring. */}
+          {thinking && (
+            <circle
+              cx={C}
+              cy={C}
+              r={CORE_R + 26}
+              fill="none"
+              stroke="var(--brand)"
+              strokeOpacity="0.28"
+              strokeWidth="1"
+              className="pulse-fast"
+              style={{ animationDelay: "450ms" }}
+            />
+          )}
         </svg>
 
         {/* Core mark — the Ofek logo ships white-on-dark, so it keeps its own
