@@ -53,7 +53,6 @@ cache headers.
 | Variable | Required | Notes |
 | --- | --- | --- |
 | `ANTHROPIC_API_KEY` | yes | Server-only. Never prefix with `NEXT_PUBLIC_`. |
-| `DEMO_PASSWORD` | **yes, on any public URL** | The shared demo password. Unset means no gate at all. |
 | `CLAUDE_MODEL` | no | Defaults to `claude-sonnet-5`. |
 | `NEXT_PUBLIC_FIREBASE_*` | no | Defaults to the `ofek-brain` project, baked into `lib/store.ts`. |
 | `NEXT_PUBLIC_TUNNEL_URL` | **no — leave unset** | Local-only escape hatch. In production the QR uses the real origin. |
@@ -64,32 +63,44 @@ Firestore rules live in `firestore.rules` and deploy separately:
 npx firebase deploy --only firestore:rules
 ```
 
-### The demo gate
+### Authentication
 
-`DEMO_PASSWORD` puts one shared password in front of everything. It is site
-access, not identity: passing it grants no session, and onboarding still asks
-who you are. Nothing is stored per visitor — the cookie is the whole record.
+Firebase Authentication, email/password, with **no service account**. Users are
+created in the Firebase console; being a user there is the whole of the
+authorisation model.
 
-The QR carries the token, so scanning it from the dashboard admits the phone
-without anyone typing a password in front of the room. The token is stripped
-from the URL immediately and moved into a cookie, so it does not linger in
-browser history or in a screenshot of the address bar.
+Sign-in happens in the browser with the public web config. The resulting ID
+token is posted to `/api/auth/session`, which *verifies* it — against Google's
+published signing keys, for this project, and for expiry — before setting an
+httpOnly cookie. The proxy re-verifies that cookie on every request, so a
+forged one is worthless. The Admin SDK is the usual way to check a token and it
+needs a service-account key; it is not required, because Firebase signs ID
+tokens with keys whose public halves Google publishes.
 
-Leaving `DEMO_PASSWORD` unset disables the gate. That keeps local development
-frictionless and means a missing variable fails open rather than locking
-everyone out mid-demo — so **set it deliberately on anything public.**
+ID tokens expire after an hour. `AuthKeeper` mirrors the SDK's own refreshes
+into the cookie, so a session doesn't drop to the login screen mid-demo.
+
+**First-time project setup** — in the Firebase console:
+
+1. Authentication → **Get started**
+2. Sign-in method → **Email/Password** → Enable
+3. Users → **Add user** — this is how everyone who should have access gets in
 
 ### Things to know before it goes public
 
-- **The gate is the only authentication.** Behind it there are no accounts: an
-  email address is the session key, and the Firestore rules are open on the
-  three collections the app uses. Anyone who reaches the database directly —
-  the rules are public, and the project ID is in the client bundle — can read
-  and write every session over the REST API. The gate stops strangers reaching
-  the *site*; it does not protect the data.
-- **The phone remote is unauthenticated by design.** Possession of the
-  seven-character board ID is the credential; the only way to obtain one is to
-  scan the QR on screen. Treat a board as public to anyone who has seen it.
+- **Sign-in guards the app, not the database.** The Firestore rules are still
+  open, and the project ID ships in the client bundle, so anyone going at
+  Firestore directly is unaffected by the login. Tightening the rules would
+  break the app as written, because the server writes sessions with the web
+  SDK unauthenticated.
+- **The phone remote is deliberately exempt from login.** It is reached by
+  scanning a QR that only a signed-in dashboard can display, and the
+  unguessable board ID is its credential — requiring a Firebase login on a
+  handset mid-demo would defeat the handoff. The trade is real: a leaked board
+  link works for anyone holding it.
+- **The dashboard identity is still the onboarding email**, which is separate
+  from the Firebase account. Signing in as one Firebase user and onboarding as
+  a different email is possible and is not prevented.
 - **All data is fictional.** The calendar, mailbox, connector inventory and
   every figure the model produces are demo content. The prompts explicitly
   instruct the model to answer from them rather than disclaim, so nothing on

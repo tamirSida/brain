@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Heebo } from "next/font/google";
 import "./globals.css";
+import { AuthKeeper } from "@/components/AuthKeeper";
 
 const heebo = Heebo({
   subsets: ["hebrew", "latin"],
@@ -39,7 +40,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {/* Mirrors Firebase token refreshes into the server cookie. */}
+        <AuthKeeper />
+        {children}
+      </body>
     </html>
   );
 }

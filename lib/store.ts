@@ -8,6 +8,7 @@ import {
   setDoc,
   type Firestore,
 } from "firebase/firestore";
+import { firebaseConfig } from "@/lib/firebase/config";
 import type { SessionState } from "@/lib/types";
 
 /**
@@ -25,14 +26,6 @@ import type { SessionState } from "@/lib/types";
  * never hard-fails during a demo.
  */
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? "AIzaSyBB4Ikbm82dCC7iSNlzfoDd13M3Z768mTY",
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? "ofek-brain.firebaseapp.com",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "ofek-brain",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? "ofek-brain.firebasestorage.app",
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_SENDER_ID ?? "270481503406",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? "1:270481503406:web:5ad98a036f0e0f90ca693f",
-};
 
 const COLLECTION = process.env.NEXT_PUBLIC_FIRESTORE_COLLECTION ?? "brain_sessions";
 /** boardId → email, so the phone remote can find a session it never logged into. */

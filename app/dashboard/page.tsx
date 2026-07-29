@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 
 import { Agenda } from "@/components/Agenda";
 import { Greeting } from "@/components/Greeting";
@@ -8,11 +7,10 @@ import { EditDashboard } from "@/components/EditDashboard";
 import { QuickAsk } from "@/components/QuickAsk";
 import { BrainGraph } from "@/components/BrainGraph";
 import { SidePanel } from "@/components/SidePanel";
-import { Icon } from "@/components/Icon";
+import { SignOut } from "@/components/SignOut";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LiveMetrics } from "@/components/LiveMetrics";
 import { QrPanel } from "@/components/QrPanel";
-import { gateToken } from "@/lib/gate";
 import { DEFAULT_LAYOUT } from "@/lib/layouts";
 import { currentEmail } from "@/lib/session";
 import { linkBoard, newBoardId, readSession, writeSession } from "@/lib/store";
@@ -40,10 +38,6 @@ export default async function DashboardPage() {
     // link on every render — it is a cheap idempotent write.
     await linkBoard(boardId, session.email);
   }
-
-  // Embedded in the QR so a scan admits the phone without anyone typing the
-  // demo password in front of the room. Null when no gate is configured.
-  const access = await gateToken();
 
   const { profile, brief } = session;
   const firstName = profile.name.trim().split(/\s+/)[0];
@@ -73,17 +67,9 @@ export default async function DashboardPage() {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <QrPanel boardId={boardId} accessToken={access} />
+            <QrPanel boardId={boardId} />
             <ThemeToggle />
-            <form action={signOut}>
-            <button
-              type="submit"
-              className="flex min-h-11 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] text-ink-2 transition-colors hover:border-line-strong hover:text-ink-2"
-            >
-              <Icon icon={faArrowRightFromBracket} className="text-[10px]" />
-              יציאה
-            </button>
-            </form>
+            <SignOut />
           </div>
         </div>
 
@@ -150,11 +136,4 @@ export default async function DashboardPage() {
       </div>
     </main>
   );
-}
-
-async function signOut() {
-  "use server";
-  const { clearCurrentEmail } = await import("@/lib/session");
-  await clearCurrentEmail();
-  redirect("/onboarding");
 }
