@@ -40,8 +40,9 @@ export function SidePanel({ children }: { children: React.ReactNode }) {
         היומן והמערכות המחוברות
       </button>
 
-      {/* Desktop: static column */}
-      <div className="hidden lg:block">{children}</div>
+      {/* Desktop: static column that fills the shell so its contents can
+          own their own scrolling. */}
+      <div className="hidden lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">{children}</div>
 
       {/* Mobile: slide-over */}
       {open && (

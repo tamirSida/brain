@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { buildBrief } from "@/lib/ai/brief";
+import { DEFAULT_LAYOUT, LAYOUTS } from "@/lib/layouts";
 import { hasApiKey } from "@/lib/ai/client";
 import { demoBrief } from "@/lib/ai/demo";
 import { setCurrentEmail } from "@/lib/session";
@@ -15,6 +16,7 @@ const Body = z.object({
   email: z.email("כתובת הדוא״ל אינה תקינה"),
   title: z.string().trim().min(2, "תפקיד קצר מדי"),
   focus: z.string().trim().min(12, "עוד קצת פירוט יעזור"),
+  layout: z.enum(LAYOUTS).default(DEFAULT_LAYOUT),
 });
 
 export async function POST(req: Request) {

@@ -9,9 +9,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Icon } from "@/components/Icon";
+import { LayoutBlurb, LayoutPicker } from "@/components/LayoutPicker";
+import { DEFAULT_LAYOUT, type LayoutId } from "@/lib/layouts";
 import { cn } from "@/lib/cn";
 
-type Values = { name: string; email: string; title: string; focus: string };
+type Values = { name: string; email: string; title: string; focus: string; layout: LayoutId };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -23,7 +25,7 @@ const STAGES = [
 
 export function OnboardingForm() {
   const router = useRouter();
-  const [v, setV] = useState<Values>({ name: "", email: "", title: "", focus: "" });
+  const [v, setV] = useState<Values>({ name: "", email: "", title: "", focus: "", layout: DEFAULT_LAYOUT });
   const [touched, setTouched] = useState<Partial<Record<keyof Values, boolean>>>({});
   const [busy, setBusy] = useState(false);
   const [stage, setStage] = useState(0);
@@ -140,6 +142,17 @@ export function OnboardingForm() {
         </p>
       </Field>
 
+      {/* Layout comes last: it's a presentation choice, and it only makes
+          sense once the user has said what they want to see. */}
+      <Field
+        label="איך להציג את המדדים?"
+        show={showFocus}
+        help="אפשר לשנות בכל רגע מהמסך הראשי."
+      >
+        <LayoutPicker value={v.layout} onChange={(layout) => setV({ ...v, layout })} />
+        <LayoutBlurb value={v.layout} />
+      </Field>
+
       {error && (
         <p
           ref={errorRef}
@@ -192,17 +205,23 @@ function Field({
   children,
 }: {
   label: string;
-  htmlFor: string;
+  /** Omitted for groups of buttons — a <label> must point at a form control. */
+  htmlFor?: string;
   show: boolean;
   help?: string;
   children: React.ReactNode;
 }) {
   if (!show) return null;
+  const cls = "mb-2 block text-[14px] font-medium text-ink";
   return (
     <div className="rise">
-      <label htmlFor={htmlFor} className="mb-2 block text-[14px] font-medium text-ink">
-        {label}
-      </label>
+      {htmlFor ? (
+        <label htmlFor={htmlFor} className={cls}>
+          {label}
+        </label>
+      ) : (
+        <p className={cls}>{label}</p>
+      )}
       {help && <p className="mb-2 -mt-1 text-[12.5px] text-ink-3">{help}</p>}
       {children}
     </div>

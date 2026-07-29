@@ -1,4 +1,5 @@
 import type { Brief } from "@/lib/ai/schemas";
+import type { LayoutId } from "@/lib/layouts";
 
 export interface Profile {
   name: string;
@@ -6,6 +7,9 @@ export interface Profile {
   title: string;
   /** Free-text: which three metrics they care about. */
   focus: string;
+  /** How the three metrics are arranged. Optional: sessions written before
+   *  layouts existed fall back to DEFAULT_LAYOUT. */
+  layout?: LayoutId;
 }
 
 export interface SessionState {

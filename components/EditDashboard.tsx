@@ -10,7 +10,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Icon } from "@/components/Icon";
+import { LayoutBlurb, LayoutPicker } from "@/components/LayoutPicker";
 import { cn } from "@/lib/cn";
+import type { LayoutId } from "@/lib/layouts";
 
 const IDEAS = [
   "תזרים מזומנים, חריגות תקציב, ואחוזי אכלוס",
@@ -22,10 +24,11 @@ const IDEAS = [
  * Re-prompt the dashboard: the user restates what matters and the three
  * metrics are regenerated from scratch.
  */
-export function EditDashboard({ focus }: { focus: string }) {
+export function EditDashboard({ focus, layout }: { focus: string; layout: LayoutId }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState(focus);
+  const [pick, setPick] = useState<LayoutId>(layout);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,6 +44,8 @@ export function EditDashboard({ focus }: { focus: string }) {
     };
   }, [open, busy]);
 
+  const rebuilding = text.trim() !== focus.trim();
+
   async function save() {
     if (text.trim().length < 12 || busy) return;
     setBusy(true);
@@ -49,7 +54,7 @@ export function EditDashboard({ focus }: { focus: string }) {
       const res = await fetch("/api/brief", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ focus: text }),
+        body: JSON.stringify({ focus: text, layout: pick }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "העדכון נכשל");
@@ -68,6 +73,7 @@ export function EditDashboard({ focus }: { focus: string }) {
         type="button"
         onClick={() => {
           setText(focus);
+          setPick(layout);
           setError(null);
           setOpen(true);
         }}
@@ -118,7 +124,15 @@ export function EditDashboard({ focus }: { focus: string }) {
               placeholder="למשל: תזרים חודשי, חריגות תקציב בפרויקטים הפעילים, ואחוזי אכלוס"
             />
 
-            <ul className="mt-3 flex flex-wrap gap-2">
+            <div className="mt-5">
+              <p className="text-[12.5px] font-medium text-ink-2">פריסת המסך</p>
+              <div className="mt-2">
+                <LayoutPicker value={pick} onChange={setPick} disabled={busy} />
+              </div>
+              <LayoutBlurb value={pick} />
+            </div>
+
+            <ul className="mt-4 flex flex-wrap gap-2">
               {IDEAS.map((i) => (
                 <li key={i}>
                   <button
@@ -153,7 +167,7 @@ export function EditDashboard({ focus }: { focus: string }) {
               )}
             >
               {busy && <Icon icon={faCircleNotch} className="animate-spin text-[13px]" />}
-              {busy ? "חושב…" : "עדכן את המדדים"}
+              {busy ? "חושב…" : rebuilding ? "עדכן את המדדים" : "החל את הפריסה"}
             </button>
           </div>
         </div>

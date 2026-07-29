@@ -54,7 +54,7 @@ function LineChart({ series, color }: { series: Point[]; color: string }) {
   const gid = `g-${series.length}-${Math.round(max)}`;
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[68px]" preserveAspectRatio="none" aria-hidden>
+    <svg viewBox={`0 0 ${W} ${H}`} className="h-[52px] w-full" preserveAspectRatio="none" aria-hidden>
       <defs>
         <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.26" />
@@ -129,7 +129,7 @@ function DonutChart({ series, color }: { series: Point[]; color: string }) {
 
   return (
     <div className="flex items-center gap-4">
-      <svg viewBox="0 0 88 88" className="h-[88px] w-[88px] shrink-0 -rotate-90" aria-hidden>
+      <svg viewBox="0 0 88 88" className="size-[70px] shrink-0 -rotate-90" aria-hidden>
         <circle cx="44" cy="44" r={R} fill="none" stroke="var(--color-line)" strokeWidth="10" />
         {slices.map((s, i) => (
           <circle
@@ -189,14 +189,16 @@ function ProgressChart({ series, color }: { series: Point[]; color: string }) {
 
 /* ------------------------------------------------------------------------- */
 
-export function MetricViz({ metric }: { metric: Metric }) {
+export function MetricViz({ metric, compact = false }: { metric: Metric; compact?: boolean }) {
   const color = TREND_VAR[metric.trend];
   const s = metric.series ?? [];
 
   if (metric.viz === "number" || s.length === 0) return null;
   if (metric.viz === "line" && s.length >= 2) return <LineChart series={s} color={color} />;
-  if (metric.viz === "bar") return <BarChart series={s} color={color} />;
+  // In a narrow tile a category chart's labels collapse to ellipses, so show
+  // the leaders only rather than a column of truncated rows.
+  if (metric.viz === "bar") return <BarChart series={compact ? s.slice(0, 3) : s} color={color} />;
   if (metric.viz === "donut") return <DonutChart series={s} color={color} />;
   if (metric.viz === "progress") return <ProgressChart series={s} color={color} />;
-  return <BarChart series={s} color={color} />;
+  return <BarChart series={compact ? s.slice(0, 3) : s} color={color} />;
 }

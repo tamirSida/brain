@@ -46,9 +46,11 @@ export function Agenda({ events }: { events: WorkspaceEvent[] }) {
   }
 
   return (
-    <div className="space-y-6">
-      <section>
-        <div className="mb-3 flex items-center justify-between">
+    // Fills its pane and scrolls inside it on desktop; on mobile there is no
+    // height constraint, so flex-1 just resolves to content height.
+    <div className="flex min-h-0 flex-1 flex-col">
+      <section className="flex min-h-0 flex-1 flex-col">
+        <div className="mb-3 flex shrink-0 items-center justify-between">
           <h2 className="text-[14px] font-medium text-ink">היומן שלך</h2>
           {days.length > 1 && (
             <div className="flex gap-1">
@@ -75,15 +77,17 @@ export function Agenda({ events }: { events: WorkspaceEvent[] }) {
         {/* Horizontal day panes — native swipe on mobile, arrows on desktop. */}
         <div
           ref={scroller}
-          className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="-mx-1 flex min-h-0 flex-1 snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden scroll-smooth px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {days.map((d) => (
-            <div key={d.date} className="w-full shrink-0 snap-start">
-              <p className="mb-2 flex items-baseline gap-2 text-[12px] font-medium text-ink-2">
+            <div key={d.date} className="flex min-h-0 w-full shrink-0 snap-start flex-col">
+              <p className="mb-2 flex shrink-0 items-baseline gap-2 text-[12px] font-medium text-ink-2">
                 {d.label}
                 <span className="num text-[11px] text-ink-3">{d.date}</span>
               </p>
-              <ul className="space-y-2">
+              {/* The day's events are what actually scrolls — the day header
+                  and the pager above it stay put. */}
+              <ul className="min-h-0 flex-1 space-y-2 overflow-y-auto pb-1 [scrollbar-width:thin]">
                 {d.items.map((e) => (
                   <EventCard key={e.id} event={e} />
                 ))}
@@ -93,7 +97,7 @@ export function Agenda({ events }: { events: WorkspaceEvent[] }) {
         </div>
       </section>
 
-      <p className="text-center text-[11.5px] leading-relaxed text-ink-3">
+      <p className="mt-3 shrink-0 text-center text-[11.5px] leading-relaxed text-ink-3">
         יומן לדוגמה, משותף לכל המשתמשים.
       </p>
     </div>

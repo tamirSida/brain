@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { faArrowRightFromBracket, faBolt, faCommentDots } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRightFromBracket, faCommentDots } from "@fortawesome/free-solid-svg-icons";
 
 import { Agenda } from "@/components/Agenda";
 import { Greeting } from "@/components/Greeting";
@@ -11,7 +11,8 @@ import { BrainGraph } from "@/components/BrainGraph";
 import { SidePanel } from "@/components/SidePanel";
 import { Icon } from "@/components/Icon";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { MetricCard } from "@/components/MetricCard";
+import { MetricLayout } from "@/components/MetricLayout";
+import { DEFAULT_LAYOUT } from "@/lib/layouts";
 import { currentEmail } from "@/lib/session";
 import { readSession } from "@/lib/store";
 import { connectors } from "@/lib/connectors";
@@ -31,12 +32,17 @@ export default async function DashboardPage() {
   const liveCount = connectors.filter((c) => c.status === "live").length;
 
   return (
-    <main className="relative min-h-dvh overflow-x-clip pb-40 lg:pb-16">
+    // Desktop is an app shell: the page itself never scrolls, each pane does.
+    // Mobile keeps normal page scroll — there is far too much content for a
+    // fixed viewport on a phone, and nested scroll areas there are miserable.
+    <main className="relative flex min-h-dvh flex-col overflow-x-clip pb-40 lg:h-dvh lg:min-h-0 lg:overflow-hidden lg:pb-0">
       <div className="horizon-wash" />
 
-      <div className="relative mx-auto w-full max-w-[440px] px-4 pt-[max(1.75rem,env(safe-area-inset-top))] lg:max-w-[980px] lg:px-8">
+      {/* Widths step up rather than stopping at one desktop size: on a large
+          display or a wall screen the metric row should fill the glass. */}
+      <div className="relative mx-auto flex w-full max-w-[440px] flex-col px-4 pt-[max(1.75rem,env(safe-area-inset-top))] lg:min-h-0 lg:flex-1 lg:max-w-[1120px] lg:px-8 xl:max-w-[1440px] 2xl:max-w-[1840px] 2xl:px-12">
         {/* Status bar */}
-        <div className="flex items-center justify-between">
+        <div className="flex shrink-0 items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Image src="/ofek-logo.svg" alt="אופק אחזקות" width={78} height={28} priority className="brand-mark opacity-90" />
             {session.source === "demo" && (
@@ -69,50 +75,38 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10">
-          <div className="min-w-0">
+        {/* grid-rows minmax(0,1fr): without it the single row sizes to its
+            content and overflows the shell instead of letting the panes scroll. */}
+        <div className="lg:grid lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-8 lg:pb-8 xl:grid-cols-[minmax(0,1fr)_440px] xl:gap-10 2xl:grid-cols-[minmax(0,1fr)_520px] 2xl:gap-14">
+          {/* Scrolls on its own if the cards outrun the viewport height. */}
+          <div className="min-w-0 lg:min-h-0 lg:overflow-y-auto lg:pe-1">
             {/* Lock screen head */}
-            <section className="mt-10 sm:mt-12">
+            <section className="mt-10 sm:mt-12 lg:mt-6">
               <Greeting firstName={firstName} />
             </section>
-
-            <QuickAsk />
 
             {/* Notifications */}
             <section className="mt-8" aria-label="המדדים שלך">
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-[13px] font-medium text-ink-2">המדדים שלך</h2>
-                <EditDashboard focus={profile.focus} />
+                <EditDashboard focus={profile.focus} layout={profile.layout ?? DEFAULT_LAYOUT} />
               </div>
-              <div className="space-y-3">
-                {brief.metrics.map((m, i) => (
-                  <MetricCard key={m.id ?? i} metric={m} index={i} />
-                ))}
-              </div>
+              <MetricLayout metrics={brief.metrics} layout={profile.layout ?? DEFAULT_LAYOUT} />
             </section>
 
-            {/* Briefing */}
-            {brief.briefing && (
-              <section
-                className="rise notif mt-3 flex gap-3 p-4 sm:p-5"
-                style={{ animationDelay: "290ms" }}
-              >
-                <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-[8px] bg-brand/12 text-[12px] text-brand-hi">
-                  <Icon icon={faBolt} />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[13px] font-medium text-ink-2">התמונה המלאה</p>
-                  <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink">{brief.briefing}</p>
-                </div>
-              </section>
-            )}
+            {/* Below the metrics: read first, then ask. */}
+            <QuickAsk />
+
           </div>
 
           {/* Connectors + agenda — static column on desktop, sheet on mobile */}
-          <aside className="lg:mt-10">
+          <aside className="lg:mt-6 lg:flex lg:min-h-0 lg:flex-col">
             <SidePanel>
-              <div className="rise" style={{ animationDelay: "380ms" }}>
-                <div className="flex items-baseline justify-between">
+              <div
+                className="rise lg:flex lg:min-h-0 lg:flex-1 lg:flex-col"
+                style={{ animationDelay: "380ms" }}
+              >
+                <div className="flex shrink-0 items-baseline justify-between">
                   <h2 className="text-[14px] font-medium text-ink">המערכות המחוברות</h2>
                   <p className="text-[12px] text-ink-3">
                     <span className="num">{liveCount}</span>
@@ -122,17 +116,17 @@ export default async function DashboardPage() {
                   </p>
                 </div>
 
-                <div className="mt-4">
+                <div className="mt-4 shrink-0">
                   <BrainGraph connectors={connectors} />
                 </div>
 
-                <div className="mt-8">
+                {/* The agenda takes whatever height is left and scrolls inside
+                    it, so the graph above it never gets pushed off screen.
+                    Must be a flex column itself — as a plain block its child
+                    would overflow the box instead of shrinking into it. */}
+                <div className="mt-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
                   <Agenda events={getEvents()} />
                 </div>
-
-                <p className="mt-6 text-center text-[12.5px] leading-relaxed text-ink-2">
-                  המסך נבנה עבור <span className="bidi">{profile.title}</span> לפי מה שהגדרת.
-                </p>
               </div>
             </SidePanel>
           </aside>

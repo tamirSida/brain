@@ -15,11 +15,6 @@ import { Icon } from "@/components/Icon";
 import { Markdown } from "@/components/Markdown";
 import { cn } from "@/lib/cn";
 
-const PROMPTS = [
-  "מה מחכה לי היום?",
-  "מה פתוח מול מזרחי טפחות?",
-  "מי לא אישר את הדירקטוריון?",
-];
 
 /**
  * Inline "quick ask" on the home screen. Answers land here; the full thread
@@ -150,24 +145,6 @@ export function QuickAsk() {
           <Icon icon={faArrowUp} className="text-[14px]" />
         </button>
       </div>
-
-      {!asked && !error && (
-        // Mobile: the pinned bar stays a single composer row — suggestion
-        // chips would eat thumb space and push content off screen.
-        <ul className="order-2 mt-3 hidden flex-wrap gap-2 lg:flex">
-          {PROMPTS.map((p) => (
-            <li key={p}>
-              <button
-                type="button"
-                onClick={() => void ask(p)}
-                className="rounded-full border border-line px-3 py-1.5 text-[12px] text-ink-2 transition-colors hover:border-line-strong hover:text-ink"
-              >
-                {p}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
 
       {error && (
         <p role="alert" className="order-3 mt-3 flex items-start gap-2 text-[12.5px] text-risk">

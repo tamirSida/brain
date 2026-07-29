@@ -32,14 +32,34 @@ const VIZ_ICON: Record<Metric["viz"], IconDefinition> = {
   progress: faGaugeHigh,
 };
 
-export function MetricCard({ metric, index }: { metric: Metric; index: number }) {
+/**
+ * `full` shows chart and written insight; `compact` drops the prose and shrinks
+ * the value, for layouts that put comparability ahead of depth. The compact
+ * form keeps the chart — a number without its shape is not a metric.
+ */
+export function MetricCard({
+  metric,
+  index,
+  variant = "full",
+  className,
+}: {
+  metric: Metric;
+  index: number;
+  variant?: "full" | "compact";
+  /** Grid placement from the parent layout — span, self-alignment. */
+  className?: string;
+}) {
   const t = TREND[metric.trend] ?? TREND.neutral;
   const up = metric.delta >= 0;
   const showViz = metric.viz !== "number" && (metric.series?.length ?? 0) > 0;
+  const compact = variant === "compact";
 
   return (
     <article
-      className="notif rise p-4 sm:p-5"
+      // No h-full: a grid item already stretches to its row by default, and an
+      // explicit 100% would resolve against the row height even under
+      // items-start — which is exactly what the hero layout needs to avoid.
+      className={cn("notif rise", compact ? "p-3.5" : "p-4", className)}
       style={{ animationDelay: `${index * 90}ms` }}
     >
       {/* Notification header — app tile, source, state */}
@@ -53,7 +73,9 @@ export function MetricCard({ metric, index }: { metric: Metric; index: number })
           <Icon icon={VIZ_ICON[metric.viz] ?? faHashtag} />
         </span>
 
-        <h2 className="truncate text-[14px] font-medium text-ink-2">{metric.title}</h2>
+        <h2 className={cn("truncate font-medium text-ink-2", compact ? "text-[12.5px]" : "text-[14px]")}>
+          {metric.title}
+        </h2>
 
         <span
           className={cn(
@@ -62,13 +84,22 @@ export function MetricCard({ metric, index }: { metric: Metric; index: number })
           )}
         >
           <Icon icon={t.icon} className="text-[11px]" />
-          {t.label}
+          {/* In a two-up tile the label competes with the title for width;
+              the icon already carries the state. */}
+          {!compact && t.label}
         </span>
       </header>
 
       {/* Headline value */}
-      <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <p className="num text-[34px] leading-none font-light tracking-tight text-ink sm:text-[40px]">
+      <div className="mt-2.5 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+        <p
+          className={cn(
+            "num leading-none font-light tracking-tight text-ink",
+            // Three tiles share the row, so the headline is sized to fit the
+            // narrowest of them rather than to fill a full-width card.
+            compact ? "text-[24px]" : "text-[28px] sm:text-[30px]"
+          )}
+        >
           {metric.value}
         </p>
 
@@ -88,8 +119,8 @@ export function MetricCard({ metric, index }: { metric: Metric; index: number })
         )}
       </div>
 
-      {(metric.caption || metric.deltaLabel) && (
-        <p className="mt-1.5 text-[12.5px] text-ink-3">
+      {!compact && (metric.caption || metric.deltaLabel) && (
+        <p className="mt-1 text-[12px] text-ink-3">
           <span className="bidi">{metric.caption}</span>
           {metric.caption && metric.deltaLabel && <span className="mx-1.5 text-line-strong">·</span>}
           <span className="bidi">{metric.deltaLabel}</span>
@@ -97,13 +128,13 @@ export function MetricCard({ metric, index }: { metric: Metric; index: number })
       )}
 
       {showViz && (
-        <div className="mt-4">
-          <MetricViz metric={metric} />
+        <div className={compact ? "mt-2.5" : "mt-3"}>
+          <MetricViz metric={metric} compact={compact} />
         </div>
       )}
 
-      {metric.insight && (
-        <p className="mt-4 border-t border-line pt-3 text-[13.5px] leading-relaxed text-ink-2">
+      {!compact && metric.insight && (
+        <p className="mt-3 border-t border-line pt-2.5 text-[13px] leading-relaxed text-ink-2">
           {metric.insight}
         </p>
       )}
