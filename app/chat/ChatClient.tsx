@@ -21,6 +21,7 @@ import { beginThinking } from "@/lib/thinking";
 import { cn } from "@/lib/cn";
 import type { ChatMessage, ConversationMeta } from "@/lib/chat/types";
 
+import { apiFetch } from "@/lib/http";
 interface ContextInfo {
   compacted: boolean;
   windowSize: number;
@@ -71,13 +72,13 @@ export function ChatClient({ firstName }: { firstName: string }) {
   }, [messages, busy]);
 
   async function refreshThreads() {
-    const res = await fetch("/api/chat");
+    const res = await apiFetch("/api/chat");
     if (res.ok) setThreads((await res.json()).conversations ?? []);
   }
 
   async function openThread(id: string) {
     setDrawer(false);
-    const res = await fetch(`/api/chat?id=${encodeURIComponent(id)}`);
+    const res = await apiFetch(`/api/chat?id=${encodeURIComponent(id)}`);
     if (!res.ok) return;
     const { conversation } = await res.json();
     setConvoId(conversation.id);
@@ -107,7 +108,7 @@ export function ChatClient({ firstName }: { firstName: string }) {
 
     const endThinking = beginThinking();
     try {
-      const res = await fetch("/api/chat", {
+      const res = await apiFetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ conversationId: convoId, message: body, voice }),

@@ -11,6 +11,7 @@ import { Icon } from "@/components/Icon";
 import { Markdown } from "@/components/Markdown";
 import { withAttachment } from "@/lib/attach";
 import { beginThinking } from "@/lib/thinking";
+import { apiFetch } from "@/lib/http";
 import { cn } from "@/lib/cn";
 
 
@@ -38,7 +39,7 @@ export function QuickAsk() {
     // The connector graph animates while this is in flight.
     const endThinking = beginThinking();
     try {
-      const res = await fetch("/api/chat", {
+      const res = await apiFetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ conversationId: convoId, message: q, voice }),

@@ -6,7 +6,7 @@ import { DEFAULT_LAYOUT, LAYOUTS } from "@/lib/layouts";
 import { hasApiKey } from "@/lib/ai/client";
 import { demoBrief } from "@/lib/ai/demo";
 import { setCurrentEmail } from "@/lib/session";
-import { writeSession } from "@/lib/store";
+import { linkBoard, newBoardId, writeSession } from "@/lib/store";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -37,8 +37,12 @@ export async function POST(req: Request) {
     const brief = live ? await buildBrief(profile) : demoBrief();
     const now = new Date().toISOString();
 
+    const boardId = newBoardId();
+    await linkBoard(boardId, profile.email);
+
     await writeSession({
       email: profile.email,
+      boardId,
       profile,
       brief,
       source: live ? "model" : "demo",

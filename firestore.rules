@@ -18,6 +18,12 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // boardId -> email pointers for the phone remote. Same posture as above:
+    // the board id is the only credential, and it is meant to be scanned.
+    match /brain_boards/{boardId} {
+      allow read, write: if true;
+    }
+
     // Everything else stays closed.
     match /{document=**} {
       allow read, write: if false;

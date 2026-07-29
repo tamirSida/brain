@@ -14,6 +14,7 @@ import { LayoutBlurb, LayoutPicker } from "@/components/LayoutPicker";
 import { cn } from "@/lib/cn";
 import type { LayoutId } from "@/lib/layouts";
 
+import { apiFetch } from "@/lib/http";
 const IDEAS = [
   "תזרים מזומנים, חריגות תקציב, ואחוזי אכלוס",
   "סטטוס היתרים, לוחות זמנים בביצוע, וחשיפת ערבויות",
@@ -51,7 +52,7 @@ export function EditDashboard({ focus, layout }: { focus: string; layout: Layout
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch("/api/brief", {
+      const res = await apiFetch("/api/brief", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ focus: text, layout: pick }),

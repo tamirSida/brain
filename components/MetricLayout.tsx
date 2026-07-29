@@ -22,8 +22,8 @@ export function MetricLayout({ metrics, layout }: { metrics: Metric[]; layout: L
       // caption and written insight — not by taking more of the row. Equal
       // tiles read as one instrument panel rather than a feature and two
       // afterthoughts.
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {lead && <MetricCard metric={lead} index={0} className="sm:col-span-2 lg:col-span-1" />}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-3">
+        {lead && <MetricCard metric={lead} index={0} />}
         {rest.map((m, i) => (
           <MetricCard key={m.id ?? i} metric={m} index={i + 1} variant="compact" />
         ))}
@@ -33,30 +33,22 @@ export function MetricLayout({ metrics, layout }: { metrics: Metric[]; layout: L
 
   if (layout === "grid") {
     return (
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      // auto-fit rather than a fixed three: the board can hold any number of
+      // metrics now that it is editable from the phone, and columns should
+      // pack to the width instead of leaving a ragged tail.
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-3">
         {metrics.map((m, i) => (
           // The card is the grid item itself — wrapping it in a div would let
           // the wrapper stretch to the row while the card kept its own height,
           // leaving the tiles visibly unequal.
-          //
-          // Three tiles in a two-column grid leave a hole, so the last one
-          // spans it. At `lg` there are three columns and nothing to fill.
-          <MetricCard
-            key={m.id ?? i}
-            metric={m}
-            index={i}
-            variant="compact"
-            className={
-              i === metrics.length - 1 && i % 2 === 0 ? "sm:col-span-2 lg:col-span-1" : undefined
-            }
-          />
+          <MetricCard key={m.id ?? i} metric={m} index={i} variant="compact" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="grid gap-3 lg:grid-cols-3">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-3">
       {metrics.map((m, i) => (
         <MetricCard key={m.id ?? i} metric={m} index={i} />
       ))}

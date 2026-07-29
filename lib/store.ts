@@ -35,6 +35,8 @@ const firebaseConfig = {
 };
 
 const COLLECTION = process.env.NEXT_PUBLIC_FIRESTORE_COLLECTION ?? "brain_sessions";
+/** boardId → email, so the phone remote can find a session it never logged into. */
+const BOARDS = "brain_boards";
 
 let db: Firestore | null = null;
 
@@ -51,8 +53,10 @@ export function firestore(): Firestore {
  */
 const globalForStore = globalThis as typeof globalThis & {
   __ofekBrainStore?: Map<string, SessionState>;
+  __ofekBrainBoards?: Map<string, string>;
 };
 const memory = (globalForStore.__ofekBrainStore ??= new Map<string, SessionState>());
+const boardMemory = (globalForStore.__ofekBrainBoards ??= new Map<string, string>());
 
 const key = (email: string) => email.trim().toLowerCase();
 
@@ -82,4 +86,41 @@ export async function writeSession(state: SessionState): Promise<void> {
   } catch (err) {
     console.warn("[store] Firestore write failed, kept in memory:", (err as Error).message);
   }
+}
+
+/** Short, unambiguous board id — no vowels or lookalike characters, since it
+ *  ends up in a URL that people read off a screen when the camera misfires. */
+export function newBoardId(): string {
+  const alphabet = "23456789bcdfghjkmnpqrstvwxz";
+  let out = "";
+  for (let i = 0; i < 7; i++) {
+    out += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return out;
+}
+
+export async function linkBoard(boardId: string, email: string): Promise<void> {
+  boardMemory.set(boardId, key(email));
+  try {
+    await setDoc(doc(firestore(), BOARDS, boardId), { email: key(email) });
+  } catch (err) {
+    console.warn("[store] board link failed, kept in memory:", (err as Error).message);
+  }
+}
+
+/** Resolve a board id back to its session. Returns null for an unknown board. */
+export async function readBoard(boardId: string): Promise<SessionState | null> {
+  let email = boardMemory.get(boardId) ?? null;
+  if (!email) {
+    try {
+      const snap = await getDoc(doc(firestore(), BOARDS, boardId));
+      if (snap.exists()) {
+        email = (snap.data() as { email?: string }).email ?? null;
+        if (email) boardMemory.set(boardId, email);
+      }
+    } catch (err) {
+      console.warn("[store] board read failed:", (err as Error).message);
+    }
+  }
+  return email ? readSession(email) : null;
 }

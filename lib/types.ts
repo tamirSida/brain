@@ -14,6 +14,10 @@ export interface Profile {
 
 export interface SessionState {
   email: string;
+  /** Short public id for this dashboard. The phone remote addresses the board
+   *  by this alone — it carries no auth, which is the point: scanning the QR
+   *  is the only credential the demo has or needs. */
+  boardId: string;
   profile: Profile;
   brief: Brief;
   /** Where the brief came from — surfaced in the UI so canned data is never mistaken for a live model response. */

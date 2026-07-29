@@ -17,6 +17,7 @@ import { Markdown } from "@/components/Markdown";
 import { cn } from "@/lib/cn";
 import type { WorkspaceEvent, WorkspaceFile } from "@/lib/workspace";
 
+import { apiFetch } from "@/lib/http";
 const PLATFORM = {
   google: { bar: "bg-[#4285F4]", label: "Google Calendar" },
   microsoft: { bar: "bg-[#0078D4]", label: "Outlook" },
@@ -116,7 +117,7 @@ function EventCard({ event }: { event: WorkspaceEvent }) {
     setBusy(true);
     setErr(null);
     try {
-      const res = await fetch("/api/prep", {
+      const res = await apiFetch("/api/prep", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ eventId: event.id }),

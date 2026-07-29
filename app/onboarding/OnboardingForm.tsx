@@ -11,6 +11,7 @@ import {
 import { Icon } from "@/components/Icon";
 import { cn } from "@/lib/cn";
 
+import { apiFetch } from "@/lib/http";
 type Values = { name: string; email: string; title: string; focus: string };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -55,7 +56,7 @@ export function OnboardingForm() {
     setStage(0);
     setError(null);
     try {
-      const res = await fetch("/api/onboard", {
+      const res = await apiFetch("/api/onboard", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(v),

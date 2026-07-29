@@ -10,10 +10,11 @@ import { BrainGraph } from "@/components/BrainGraph";
 import { SidePanel } from "@/components/SidePanel";
 import { Icon } from "@/components/Icon";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { MetricLayout } from "@/components/MetricLayout";
+import { LiveMetrics } from "@/components/LiveMetrics";
+import { QrPanel } from "@/components/QrPanel";
 import { DEFAULT_LAYOUT } from "@/lib/layouts";
 import { currentEmail } from "@/lib/session";
-import { readSession } from "@/lib/store";
+import { linkBoard, newBoardId, readSession, writeSession } from "@/lib/store";
 import { connectors } from "@/lib/connectors";
 import { getEvents } from "@/lib/workspace";
 
@@ -25,6 +26,19 @@ export default async function DashboardPage() {
 
   const session = await readSession(email);
   if (!session) redirect("/onboarding");
+
+  // Sessions written before boards existed have no id; mint one on first view
+  // rather than making the QR a feature only new users get.
+  let boardId = session.boardId;
+  if (!boardId) {
+    boardId = newBoardId();
+    await linkBoard(boardId, session.email);
+    await writeSession({ ...session, boardId });
+  } else {
+    // The in-memory board map is empty after a dev reload, so re-assert the
+    // link on every render — it is a cheap idempotent write.
+    await linkBoard(boardId, session.email);
+  }
 
   const { profile, brief } = session;
   const firstName = profile.name.trim().split(/\s+/)[0];
@@ -54,6 +68,7 @@ export default async function DashboardPage() {
             )}
           </div>
           <div className="flex items-center gap-2">
+            <QrPanel boardId={boardId} />
             <ThemeToggle />
             <form action={signOut}>
             <button
@@ -83,7 +98,11 @@ export default async function DashboardPage() {
                 <h2 className="text-[13px] font-medium text-ink-2">המדדים שלך</h2>
                 <EditDashboard focus={profile.focus} layout={profile.layout ?? DEFAULT_LAYOUT} />
               </div>
-              <MetricLayout metrics={brief.metrics} layout={profile.layout ?? DEFAULT_LAYOUT} />
+              <LiveMetrics
+                boardId={boardId}
+                initial={brief.metrics}
+                layout={profile.layout ?? DEFAULT_LAYOUT}
+              />
             </section>
 
             {/* Below the metrics: read first, then ask. */}
