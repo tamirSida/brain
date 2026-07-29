@@ -144,6 +144,7 @@ export function useDictation({
     r.maxAlternatives = 1;
     r.interimResults = true;
 
+    // Rebuilt from scratch on every result event — see onresult.
     let final = "";
     started.current = false;
     discarded.current = false;
@@ -154,13 +155,23 @@ export function useDictation({
     };
 
     r.onresult = (e: any) => {
+      // Rebuild the whole transcript from the full result list every time,
+      // rather than appending the slice from `e.resultIndex`.
+      //
+      // `results` is cumulative, and Chrome re-emits segments it has already
+      // marked final as it keeps refining them. Appending each event's slice
+      // therefore counts those segments again and again — the failure looks
+      // like "תוסיףתוסיףתוסיף לי גם…", growing with every pause. Recomputing
+      // is idempotent, so a re-delivered segment changes nothing.
+      let done = "";
       let interim = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) {
+      for (let i = 0; i < e.results.length; i++) {
         const t = e.results[i][0].transcript;
-        if (e.results[i].isFinal) final += t;
+        if (e.results[i].isFinal) done += t;
         else interim += t;
       }
-      partialRef.current?.((final + interim).trim());
+      final = done;
+      partialRef.current?.((done + interim).trim());
     };
 
     r.onerror = (e: any) => {

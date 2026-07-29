@@ -17,6 +17,7 @@ import { Composer } from "@/components/Composer";
 import { Icon } from "@/components/Icon";
 import { Markdown } from "@/components/Markdown";
 import { withAttachment } from "@/lib/attach";
+import { useDictation } from "@/lib/useDictation";
 import { beginThinking } from "@/lib/thinking";
 import { cn } from "@/lib/cn";
 import type { ChatMessage, ConversationMeta } from "@/lib/chat/types";
@@ -46,10 +47,8 @@ export function ChatClient({ firstName }: { firstName: string }) {
   const [error, setError] = useState<string | null>(null);
   const [ctx, setCtx] = useState<ContextInfo | null>(null);
   const [drawer, setDrawer] = useState(false);
-  const [listening, setListening] = useState(false);
 
   const endRef = useRef<HTMLDivElement>(null);
-  const recogRef = useRef<{ stop: () => void } | null>(null);
 
   const params = useSearchParams();
   const prefill = params.get("q");
@@ -130,52 +129,13 @@ export function ChatClient({ firstName }: { firstName: string }) {
     }
   }
 
-  /* --- Voice: Web Speech API, Hebrew. Degrades to a disabled button. ------ */
-  function toggleMic() {
-    if (listening) {
-      recogRef.current?.stop();
-      return;
-    }
-    const W = window as unknown as {
-      SpeechRecognition?: new () => never;
-      webkitSpeechRecognition?: new () => never;
-    };
-    const Ctor = W.SpeechRecognition ?? W.webkitSpeechRecognition;
-    if (!Ctor) {
-      setError("הדפדפן הזה לא תומך בהכתבה קולית. נסה Chrome.");
-      return;
-    }
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const r: any = new (Ctor as any)();
-    r.lang = "he-IL";
-    r.interimResults = true;
-    r.continuous = false;
+  const mic = useDictation({
+    onPartial: setInput,
+    onFinal: (text) => void send(text, true),
+  });
 
-    let finalText = "";
-    r.onresult = (e: any) => {
-      let interim = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript;
-        if (e.results[i].isFinal) finalText += t;
-        else interim += t;
-      }
-      setInput((finalText + interim).trim());
-    };
-    r.onerror = () => {
-      setListening(false);
-      setError("ההכתבה נכשלה. בדוק הרשאת מיקרופון.");
-    };
-    r.onend = () => {
-      setListening(false);
-      const t = finalText.trim();
-      if (t) void send(t, true);
-    };
-    /* eslint-enable @typescript-eslint/no-explicit-any */
+  const listening = mic.listening;
 
-    recogRef.current = r;
-    setListening(true);
-    r.start();
-  }
 
   const empty = messages.length === 0;
 
@@ -347,7 +307,7 @@ export function ChatClient({ firstName }: { firstName: string }) {
                 onSubmit={(text, att) => void send(withAttachment(text, att))}
                 busy={busy}
                 listening={listening}
-                onMic={toggleMic}
+                onMic={mic.start}
                 placeholder="שאל אותי משהו…"
                 multiline
               />

@@ -10,6 +10,7 @@ import { Composer } from "@/components/Composer";
 import { Icon } from "@/components/Icon";
 import { Markdown } from "@/components/Markdown";
 import { withAttachment } from "@/lib/attach";
+import { useDictation } from "@/lib/useDictation";
 import { beginThinking } from "@/lib/thinking";
 import { apiFetch } from "@/lib/http";
 import { cn } from "@/lib/cn";
@@ -26,7 +27,6 @@ export function QuickAsk() {
   const [convoId, setConvoId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [listening, setListening] = useState(false);
 
   async function ask(text: string, voice = false) {
     const q = text.trim();
@@ -57,43 +57,12 @@ export function QuickAsk() {
     }
   }
 
-  function toggleMic() {
-    if (listening) return;
-    const W = window as unknown as { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown };
-    const Ctor = (W.SpeechRecognition ?? W.webkitSpeechRecognition) as
-      | (new () => Record<string, unknown>)
-      | undefined;
-    if (!Ctor) {
-      setError("הדפדפן הזה לא תומך בהכתבה קולית. נסה Chrome.");
-      return;
-    }
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const r: any = new (Ctor as any)();
-    r.lang = "he-IL";
-    r.interimResults = true;
-    let finalText = "";
-    r.onresult = (e: any) => {
-      let interim = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript;
-        if (e.results[i].isFinal) finalText += t;
-        else interim += t;
-      }
-      setInput((finalText + interim).trim());
-    };
-    r.onerror = () => {
-      setListening(false);
-      setError("ההכתבה נכשלה. בדוק הרשאת מיקרופון.");
-    };
-    r.onend = () => {
-      setListening(false);
-      const t = finalText.trim();
-      if (t) void ask(t, true);
-    };
-    /* eslint-enable @typescript-eslint/no-explicit-any */
-    setListening(true);
-    r.start();
-  }
+  const mic = useDictation({
+    onPartial: setInput,
+    onFinal: (text) => void ask(text, true),
+  });
+
+  const listening = mic.listening;
 
   return (
     // Mobile: pinned to the bottom of the viewport, thumb-reachable and always
@@ -118,15 +87,15 @@ export function QuickAsk() {
           onSubmit={(text, att) => void ask(withAttachment(text, att), false)}
           busy={busy}
           listening={listening}
-          onMic={toggleMic}
+          onMic={mic.start}
           placeholder="איך אפשר לעזור?"
         />
       </div>
 
-      {error && (
+      {(error ?? mic.error) && (
         <p role="alert" className="order-3 mt-3 flex items-start gap-2 text-[12.5px] text-risk">
           <Icon icon={faTriangleExclamation} className="mt-0.5" />
-          {error}
+          {error ?? mic.error}
         </p>
       )}
 
