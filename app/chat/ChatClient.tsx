@@ -4,19 +4,19 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
-  faArrowUp,
   faBars,
   faChevronRight,
   faCircleNotch,
   faLayerGroup,
   faMicrophone,
   faPenToSquare,
-  faStop,
   faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { Composer } from "@/components/Composer";
 import { Icon } from "@/components/Icon";
 import { Markdown } from "@/components/Markdown";
+import { withAttachment } from "@/lib/attach";
 import { cn } from "@/lib/cn";
 import type { ChatMessage, ConversationMeta } from "@/lib/chat/types";
 
@@ -47,7 +47,6 @@ export function ChatClient({ firstName }: { firstName: string }) {
   const [listening, setListening] = useState(false);
 
   const endRef = useRef<HTMLDivElement>(null);
-  const boxRef = useRef<HTMLTextAreaElement>(null);
   const recogRef = useRef<{ stop: () => void } | null>(null);
 
   const params = useSearchParams();
@@ -91,7 +90,6 @@ export function ChatClient({ firstName }: { firstName: string }) {
     setMessages([]);
     setCtx(null);
     setError(null);
-    boxRef.current?.focus();
   }
 
   async function send(text: string, voice = false) {
@@ -339,51 +337,16 @@ export function ChatClient({ firstName }: { firstName: string }) {
                 </p>
               )}
 
-              <div className="flex items-end gap-2">
-                <button
-                  type="button"
-                  onClick={toggleMic}
-                  aria-label={listening ? "עצור הכתבה" : "הכתבה קולית"}
-                  className={cn(
-                    "grid size-11 shrink-0 place-items-center rounded-full border transition-colors",
-                    listening
-                      ? "border-risk bg-risk/10 text-risk"
-                      : "border-line text-ink-2 hover:border-line-strong hover:text-ink"
-                  )}
-                >
-                  <Icon icon={listening ? faStop : faMicrophone} className="text-[15px]" />
-                </button>
-
-                <textarea
-                  ref={boxRef}
-                  rows={1}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      void send(input);
-                    }
-                  }}
-                  placeholder={listening ? "מקשיב…" : "שאל אותי משהו…"}
-                  className="max-h-40 min-h-11 flex-1 resize-none rounded-[var(--radius-ctl)] border border-line bg-surface px-4 py-3 text-[14.5px] text-ink placeholder:text-ink-3 focus:border-brand/70 focus:outline-none"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => void send(input)}
-                  disabled={!input.trim() || busy}
-                  aria-label="שלח"
-                  className={cn(
-                    "grid size-11 shrink-0 place-items-center rounded-full transition-colors",
-                    input.trim() && !busy
-                      ? "bg-brand text-brand-on hover:bg-brand-hi"
-                      : "cursor-not-allowed bg-surface-2 text-ink-3"
-                  )}
-                >
-                  <Icon icon={faArrowUp} className="text-[15px]" />
-                </button>
-              </div>
+              <Composer
+                value={input}
+                onChange={setInput}
+                onSubmit={(text, att) => void send(withAttachment(text, att))}
+                busy={busy}
+                listening={listening}
+                onMic={toggleMic}
+                placeholder="שאל אותי משהו…"
+                multiline
+              />
 
               {/* Context accounting — real numbers from the API, not estimates */}
               {ctx && (

@@ -3,16 +3,15 @@
 import Link from "next/link";
 import { useState } from "react";
 import {
-  faArrowUp,
   faArrowUpRightFromSquare,
   faCircleNotch,
-  faMicrophone,
-  faStop,
   faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { Composer } from "@/components/Composer";
 import { Icon } from "@/components/Icon";
 import { Markdown } from "@/components/Markdown";
+import { withAttachment } from "@/lib/attach";
 import { cn } from "@/lib/cn";
 
 
@@ -107,43 +106,16 @@ export function QuickAsk() {
     >
       <div className="mx-auto w-full max-w-[440px] lg:max-w-none">
         <div className="notif flex flex-col p-4 shadow-lg shadow-black/10 sm:p-5 lg:shadow-none">
-      <div className="order-1 flex items-end gap-2">
-        <button
-          type="button"
-          onClick={toggleMic}
-          aria-label={listening ? "מקשיב" : "הכתבה קולית"}
-          className={cn(
-            "grid size-11 shrink-0 place-items-center rounded-full border transition-colors",
-            listening
-              ? "border-risk bg-risk/10 text-risk"
-              : "border-line text-ink-2 hover:border-line-strong hover:text-ink"
-          )}
-        >
-          <Icon icon={listening ? faStop : faMicrophone} className="text-[14px]" />
-        </button>
-
-        <input
+      <div className="order-1">
+        <Composer
           value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && void ask(input)}
-          placeholder={listening ? "מקשיב…" : "שאל אותי משהו על היומן או הדואר…"}
-          className="min-h-11 flex-1 rounded-[var(--radius-ctl)] border border-line bg-bg-2/60 px-4 text-[14px] text-ink placeholder:text-ink-3 focus:border-brand/70 focus:outline-none"
+          onChange={setInput}
+          onSubmit={(text, att) => void ask(withAttachment(text, att), false)}
+          busy={busy}
+          listening={listening}
+          onMic={toggleMic}
+          placeholder="שאל אותי משהו על היומן או הדואר…"
         />
-
-        <button
-          type="button"
-          onClick={() => void ask(input)}
-          disabled={!input.trim() || busy}
-          aria-label="שלח"
-          className={cn(
-            "grid size-11 shrink-0 place-items-center rounded-full transition-colors",
-            input.trim() && !busy
-              ? "bg-brand text-brand-on hover:bg-brand-hi"
-              : "cursor-not-allowed bg-surface-2 text-ink-3"
-          )}
-        >
-          <Icon icon={faArrowUp} className="text-[14px]" />
-        </button>
       </div>
 
       {error && (

@@ -56,7 +56,9 @@ export function Greeting({ firstName }: { firstName: string }) {
 
   // Reserve the row's height before `hour` resolves so nothing below it jumps.
   return (
-    <div className="flex min-h-10 items-center justify-center gap-3">
+    // justify-start, not right-*: under dir="rtl" the start edge is the right
+    // one, and the same class stays correct if this ever renders LTR.
+    <div className="flex min-h-10 items-center justify-start gap-3">
       {t && (
         <>
           <span className={`grid size-9 place-items-center rounded-full ${t.glow} ${t.tint}`}>
