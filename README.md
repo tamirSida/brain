@@ -32,6 +32,12 @@ ngrok http 3000
 # put the https URL in .env.local as NEXT_PUBLIC_TUNNEL_URL, then restart dev
 ```
 
+The tunnel is consulted **only** when the dashboard itself is open on
+localhost. Deployed, the QR always uses the address you are looking at —
+custom domain, `*.netlify.app`, or a deploy preview — so there is nothing to
+switch when you go live, and leaving the variable set does no harm. The panel
+prints the destination host under the code if you want to confirm it.
+
 `next.config.ts` allows tunnel hosts as dev origins. Without that, Next blocks
 cross-origin requests to `/_next/*` and the page renders with none of its
 JavaScript — it looks correct and nothing works.
@@ -55,7 +61,7 @@ cache headers.
 | `ANTHROPIC_API_KEY` | yes | Server-only. Never prefix with `NEXT_PUBLIC_`. |
 | `CLAUDE_MODEL` | no | Defaults to `claude-sonnet-5`. |
 | `NEXT_PUBLIC_FIREBASE_*` | no | Defaults to the `ofek-brain` project, baked into `lib/store.ts`. |
-| `NEXT_PUBLIC_TUNNEL_URL` | **no — leave unset** | Local-only escape hatch. In production the QR uses the real origin. |
+| `NEXT_PUBLIC_TUNNEL_URL` | no | Ignored unless the dashboard is open on localhost, so it is safe either way. |
 
 Firestore rules live in `firestore.rules` and deploy separately:
 

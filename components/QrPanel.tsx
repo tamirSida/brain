@@ -117,14 +117,18 @@ export function QrPanel({ boardId }: { boardId: string }) {
               <canvas ref={canvas} className="block" />
             </div>
 
-            {/* The code read out loud, for when the camera won't cooperate. */}
-            <p className="mt-3 text-center text-[11px] text-ink-3">
-              או פתח <span className="num text-ink-2">/r/{boardId}</span>
+            {/* The destination, spelled out. During a demo this is the one
+                thing worth being able to confirm without scanning: whether the
+                phone is about to be sent to the live site or to a tunnel. */}
+            <p className="mt-3 break-all text-center text-[11px] text-ink-3">
+              <span className="num text-ink-2" dir="ltr">
+                {url ? `${new URL(url).host}/r/${boardId}` : `/r/${boardId}`}
+              </span>
             </p>
 
             {tunnelled && (
               <p className="mt-2 text-center text-[10.5px] leading-relaxed text-ink-3">
-                דרך מנהרת ngrok
+                דרך מנהרת ngrok — כי המסך פתוח מקומית
               </p>
             )}
 
