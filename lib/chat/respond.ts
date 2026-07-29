@@ -36,7 +36,9 @@ function estimate(text: string): number {
   return Math.ceil(text.length / 3.5);
 }
 
-function systemPrompt(profile: Profile): string {
+/** Exported so the phone remote answers from exactly the same grounding as
+ *  the desktop chat — one prompt, not two that drift apart. */
+export function systemPrompt(profile: Profile): string {
   // Each system with what it holds and how much — enough for the model to
   // answer about Priority or Monday concretely instead of disclaiming them.
   const systems = connectors

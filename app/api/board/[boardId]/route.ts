@@ -17,8 +17,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ boardId
   const session = await readBoard(boardId);
   if (!session) return NextResponse.json({ error: "board not found" }, { status: 404 });
 
+  // Bounded: a crashed request would otherwise leave the dashboard claiming
+  // an edit is arriving forever.
+  const pending = session.pendingSince ? Date.parse(session.pendingSince) : 0;
+  const receiving = pending > 0 && Date.now() - pending < 90_000;
+
   return NextResponse.json(
     {
+      receiving,
       metrics: session.brief.metrics,
       layout: session.profile.layout ?? null,
       owner: session.profile.name,

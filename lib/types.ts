@@ -22,6 +22,9 @@ export interface SessionState {
   brief: Brief;
   /** Where the brief came from — surfaced in the UI so canned data is never mistaken for a live model response. */
   source: "model" | "demo";
+  /** Set while a phone command is being processed, so the desktop can show
+   *  that an edit is arriving. Cleared when the command finishes. */
+  pendingSince?: string | null;
   createdAt: string;
   updatedAt: string;
 }

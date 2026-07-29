@@ -1,0 +1,80 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+
+import { hasApiKey } from "@/lib/ai/client";
+import { runTurn } from "@/lib/ai/turn";
+import { readBoard, writeSession } from "@/lib/store";
+
+export const runtime = "nodejs";
+export const maxDuration = 120;
+
+const Body = z.object({
+  text: z.string().trim().min(2, "לא הבנתי את הבקשה"),
+  /** Recent turns, replayed by the phone so follow-ups resolve. */
+  history: z
+    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() }))
+    .max(24)
+    .optional(),
+});
+
+/**
+ * One turn from the phone: a question or a board edit, decided by the model.
+ *
+ * No auth. Possession of the board id is the credential, and the only way to
+ * get it is to be in the room looking at the screen.
+ */
+export async function POST(req: Request, { params }: { params: Promise<{ boardId: string }> }) {
+  const { boardId } = await params;
+  const session = await readBoard(boardId);
+  if (!session) return NextResponse.json({ error: "הלוח לא נמצא" }, { status: 404 });
+
+  if (!hasApiKey()) {
+    return NextResponse.json({ error: "חסר ANTHROPIC_API_KEY" }, { status: 503 });
+  }
+
+  const parsed = Body.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "קלט לא תקין" },
+      { status: 400 }
+    );
+  }
+
+  // Announce before the slow part so the dashboard reacts while the model is
+  // still working, not only once it finishes.
+  await writeSession({ ...session, pendingSince: new Date().toISOString() });
+
+  try {
+    const result = await runTurn(
+      parsed.data.text,
+      // Bounded: a phone left open on a table shouldn't grow an unbounded prompt.
+      (parsed.data.history ?? []).slice(-10),
+      session.brief.metrics,
+      session.profile
+    );
+
+    await writeSession({
+      ...session,
+      brief: result.metrics
+        ? { ...session.brief, metrics: result.metrics }
+        : session.brief,
+      pendingSince: null,
+      // Only bump the clock on a real change, so the dashboard's poll doesn't
+      // treat an answered question as a board update.
+      updatedAt: result.metrics ? new Date().toISOString() : session.updatedAt,
+    });
+
+    return NextResponse.json({
+      ok: true,
+      intent: result.intent,
+      reply: result.reply,
+      metrics: result.metrics,
+    });
+  } catch (err) {
+    console.error("[board turn]", err);
+    // Clear the marker, or the dashboard claims an edit is arriving until it
+    // times out.
+    await writeSession({ ...session, pendingSince: null });
+    return NextResponse.json({ error: "הבקשה נכשלה. נסה לנסח אחרת." }, { status: 502 });
+  }
+}
