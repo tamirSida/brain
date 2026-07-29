@@ -53,6 +53,7 @@ cache headers.
 | Variable | Required | Notes |
 | --- | --- | --- |
 | `ANTHROPIC_API_KEY` | yes | Server-only. Never prefix with `NEXT_PUBLIC_`. |
+| `DEMO_PASSWORD` | **yes, on any public URL** | The shared demo password. Unset means no gate at all. |
 | `CLAUDE_MODEL` | no | Defaults to `claude-sonnet-5`. |
 | `NEXT_PUBLIC_FIREBASE_*` | no | Defaults to the `ofek-brain` project, baked into `lib/store.ts`. |
 | `NEXT_PUBLIC_TUNNEL_URL` | **no — leave unset** | Local-only escape hatch. In production the QR uses the real origin. |
@@ -63,12 +64,29 @@ Firestore rules live in `firestore.rules` and deploy separately:
 npx firebase deploy --only firestore:rules
 ```
 
+### The demo gate
+
+`DEMO_PASSWORD` puts one shared password in front of everything. It is site
+access, not identity: passing it grants no session, and onboarding still asks
+who you are. Nothing is stored per visitor — the cookie is the whole record.
+
+The QR carries the token, so scanning it from the dashboard admits the phone
+without anyone typing a password in front of the room. The token is stripped
+from the URL immediately and moved into a cookie, so it does not linger in
+browser history or in a screenshot of the address bar.
+
+Leaving `DEMO_PASSWORD` unset disables the gate. That keeps local development
+frictionless and means a missing variable fails open rather than locking
+everyone out mid-demo — so **set it deliberately on anything public.**
+
 ### Things to know before it goes public
 
-- **There is no authentication.** An email address is the session key, and the
-  Firestore rules are open on the three collections the app uses. Anyone with
-  the project ID can read and write every session over the REST API. That is
-  deliberate for a prototype and must not survive contact with real data.
+- **The gate is the only authentication.** Behind it there are no accounts: an
+  email address is the session key, and the Firestore rules are open on the
+  three collections the app uses. Anyone who reaches the database directly —
+  the rules are public, and the project ID is in the client bundle — can read
+  and write every session over the REST API. The gate stops strangers reaching
+  the *site*; it does not protect the data.
 - **The phone remote is unauthenticated by design.** Possession of the
   seven-character board ID is the credential; the only way to obtain one is to
   scan the QR on screen. Treat a board as public to anyone who has seen it.

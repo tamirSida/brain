@@ -12,6 +12,7 @@ import { Icon } from "@/components/Icon";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LiveMetrics } from "@/components/LiveMetrics";
 import { QrPanel } from "@/components/QrPanel";
+import { gateToken } from "@/lib/gate";
 import { DEFAULT_LAYOUT } from "@/lib/layouts";
 import { currentEmail } from "@/lib/session";
 import { linkBoard, newBoardId, readSession, writeSession } from "@/lib/store";
@@ -39,6 +40,10 @@ export default async function DashboardPage() {
     // link on every render — it is a cheap idempotent write.
     await linkBoard(boardId, session.email);
   }
+
+  // Embedded in the QR so a scan admits the phone without anyone typing the
+  // demo password in front of the room. Null when no gate is configured.
+  const access = await gateToken();
 
   const { profile, brief } = session;
   const firstName = profile.name.trim().split(/\s+/)[0];
@@ -68,7 +73,7 @@ export default async function DashboardPage() {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <QrPanel boardId={boardId} />
+            <QrPanel boardId={boardId} accessToken={access} />
             <ThemeToggle />
             <form action={signOut}>
             <button

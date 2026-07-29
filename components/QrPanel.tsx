@@ -6,6 +6,7 @@ import { faMobileScreenButton, faXmark } from "@fortawesome/free-solid-svg-icons
 
 import { Icon } from "@/components/Icon";
 import { cn } from "@/lib/cn";
+import { GATE_PARAM } from "@/lib/gate";
 
 /**
  * The phone handoff.
@@ -21,7 +22,14 @@ const LOCAL = /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(:|$)/;
 /** Configured tunnel, trimmed of a trailing slash so paths don't double up. */
 const TUNNEL = (process.env.NEXT_PUBLIC_TUNNEL_URL ?? "").trim().replace(/\/+$/, "");
 
-export function QrPanel({ boardId }: { boardId: string }) {
+export function QrPanel({
+  boardId,
+  accessToken,
+}: {
+  boardId: string;
+  /** Demo-gate token, folded into the link so scanning is enough to get in. */
+  accessToken?: string | null;
+}) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState<string | null>(null);
   const [tunnelled, setTunnelled] = useState(false);
@@ -38,9 +46,11 @@ export function QrPanel({ boardId }: { boardId: string }) {
     const useTunnel = LOCAL.test(here) && TUNNEL.length > 0;
     /* eslint-disable react-hooks/set-state-in-effect */
     setTunnelled(useTunnel);
-    setUrl(`${useTunnel ? TUNNEL : here}/r/${boardId}`);
+    const origin = useTunnel ? TUNNEL : here;
+    const key = accessToken ? `?${GATE_PARAM}=${encodeURIComponent(accessToken)}` : "";
+    setUrl(`${origin}/r/${boardId}${key}`);
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, [boardId]);
+  }, [boardId, accessToken]);
 
   useEffect(() => {
     if (!open || !url || !canvas.current) return;
