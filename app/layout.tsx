@@ -20,8 +20,13 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  // Never disable zoom — accessibility.
+  // Never disable zoom — accessibility. The auto-zoom on focusing an input is
+  // dealt with by font size in globals.css, not by taking pinch-zoom away.
   maximumScale: 5,
+  // The on-screen keyboard shrinks the layout viewport rather than sliding
+  // over it, so a pinned composer stays pinned above the keys instead of the
+  // whole page scrolling out from under the user.
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({

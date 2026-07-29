@@ -149,7 +149,7 @@ export function RemoteClient({
   const canSend = input.trim().length > 0 && !busy;
 
   return (
-    <div className="flex h-dvh flex-col bg-bg">
+    <div className="flex h-dvh flex-col overflow-hidden overscroll-none bg-bg">
       {/* Header */}
       <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-surface px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="flex items-center gap-2.5">
@@ -211,7 +211,7 @@ export function RemoteClient({
       )}
 
       {/* Conversation */}
-      <div className="relative min-h-0 flex-1 overflow-y-auto px-4 py-4">
+      <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
         <div className="horizon-wash" />
 
         {thread.length === 0 && (

@@ -158,6 +158,17 @@ body {
   overflow-x: clip;
 }
 
+/* iOS Safari zooms the page when a focused field is under 16px, and never
+   zooms back out. Enforcing 16px on touch devices is the fix; the alternative
+   — maximum-scale=1 — would take pinch-zoom away from everyone. */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
 /* Numerals, dates and currency stay LTR inside RTL text and never reflow.
    Every mixed Hebrew/Latin run must be isolated or it renders scrambled. */
 .num {

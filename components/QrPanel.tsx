@@ -97,12 +97,7 @@ export function QrPanel({ boardId }: { boardId: string }) {
             className="rise absolute top-full z-50 mt-2 w-[268px] rounded-[var(--radius-card)] border border-line bg-bg p-4 shadow-2xl start-0"
           >
             <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="text-[13.5px] font-medium text-ink">סרוק כדי לערוך</p>
-                <p className="mt-0.5 text-[11.5px] leading-relaxed text-ink-2">
-                  דבר לטלפון ותוסיף או תסיר מדדים — הלוח כאן יתעדכן מיד.
-                </p>
-              </div>
+              <p className="text-[13.5px] font-medium text-ink">סרוק כדי לערוך</p>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
