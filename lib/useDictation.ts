@@ -78,6 +78,10 @@ export function useDictation({
   const discarded = useRef(false);
   const watchdog = useRef<ReturnType<typeof setTimeout> | null>(null);
   const started = useRef(false);
+  /** Finalized text carried across internal restarts of one recording. */
+  const accumulated = useRef("");
+  /** Set by stop()/cancel(): tells onend this is a real end, not a restart. */
+  const stopping = useRef(false);
 
   // Callbacks live in refs so the recognition handlers always see the current
   // ones without re-creating the recogniser on every render.
@@ -103,6 +107,7 @@ export function useDictation({
 
   const stop = useCallback(() => {
     discarded.current = false;
+    stopping.current = true;
     try {
       recog.current?.stop?.();
     } catch {
@@ -112,6 +117,7 @@ export function useDictation({
 
   const cancel = useCallback(() => {
     discarded.current = true;
+    stopping.current = true;
     try {
       // abort(), not stop(): stop() still emits whatever it heard.
       recog.current?.abort?.();
@@ -120,6 +126,133 @@ export function useDictation({
     }
     setListening(false);
   }, []);
+
+  // Recursive restarts go through a ref rather than calling `launch` from
+  // inside its own body, which the exhaustive-deps rule can't reason about.
+  const launchRef = useRef<(withWatchdog: boolean) => void>(() => {});
+
+  // Launches one recognition burst. `continuous` mode is never handed to the
+  // browser — Android Chrome's native continuous recognition silently
+  // restarts and can emit duplicate finalized segments as distinct `results`
+  // entries, which no amount of re-reading `results` can undo (that failure
+  // looked like "תוסיףתוסיףתוסיף לי גם…", growing with every pause). Instead
+  // we run reliable single-utterance bursts and restart them ourselves in
+  // `onend`, carrying the finalized text forward in `accumulated`.
+  const launch = useCallback(
+    (withWatchdog: boolean) => {
+      const Ctor = ctor();
+      if (!Ctor) {
+        setSupported(false);
+        setError("הדפדפן הזה לא תומך בהכתבה. אפשר להקליד במקום.");
+        setListening(false);
+        return;
+      }
+
+      const r = new Ctor();
+      recog.current = r;
+      r.lang = "he-IL";
+      r.continuous = false;
+      r.maxAlternatives = 1;
+      r.interimResults = true;
+
+      // Rebuilt from scratch on every result event, rather than appending
+      // the slice from `e.resultIndex` — see the comment above `launch`.
+      let burstFinal = "";
+
+      r.onstart = () => {
+        started.current = true;
+        if (watchdog.current) clearTimeout(watchdog.current);
+      };
+
+      r.onresult = (e: any) => {
+        if (recog.current !== r) return;
+        let done = "";
+        let interim = "";
+        for (let i = 0; i < e.results.length; i++) {
+          const t = e.results[i][0].transcript;
+          if (e.results[i].isFinal) done += t;
+          else interim += t;
+        }
+        burstFinal = done;
+        const whole = [accumulated.current, (done + interim).trim()]
+          .filter(Boolean)
+          .join(" ");
+        partialRef.current?.(whole);
+      };
+
+      r.onerror = (e: any) => {
+        if (recog.current !== r) return;
+        // In continuous mode, silence between bursts ("no-speech") and our
+        // own restart-driven "aborted" are routine, not failures — onend
+        // decides whether to restart or finalize whatever was accumulated.
+        if (continuous && (e?.error === "no-speech" || e?.error === "aborted")) {
+          return;
+        }
+        // A genuine error (network, permission, no mic…): stop the burst loop
+        // so onend finalizes what we have instead of restarting straight back
+        // into the same failure.
+        stopping.current = true;
+        if (watchdog.current) clearTimeout(watchdog.current);
+        setListening(false);
+        // The user stopping deliberately is not a failure.
+        if (e?.error === "aborted") return;
+        setError(ERRORS[e?.error] ?? `ההכתבה נכשלה (${e?.error ?? "לא ידוע"}).`);
+      };
+
+      r.onend = () => {
+        if (recog.current !== r) return;
+        if (discarded.current) {
+          if (watchdog.current) clearTimeout(watchdog.current);
+          return;
+        }
+
+        const text = burstFinal.trim();
+        accumulated.current = [accumulated.current, text].filter(Boolean).join(" ");
+
+        if (continuous && !stopping.current) {
+          // The burst ended on its own (a pause, or the recognizer's own
+          // limits) — keep listening, carrying the accumulated text forward.
+          launchRef.current(false);
+          return;
+        }
+
+        if (watchdog.current) clearTimeout(watchdog.current);
+        setListening(false);
+        const whole = accumulated.current.trim();
+        if (whole) finalRef.current(whole);
+      };
+
+      try {
+        setListening(true);
+        r.start();
+      } catch (err) {
+        setListening(false);
+        setError(`לא הצלחתי להפעיל את ההכתבה (${(err as Error).name}).`);
+        return;
+      }
+
+      if (withWatchdog) {
+        // Nothing ever fired: the API exists but is inert. Common on iOS
+        // with dictation disabled, where no error event arrives either.
+        watchdog.current = setTimeout(() => {
+          if (started.current) return;
+          try {
+            r.abort?.();
+          } catch {
+            /* already gone */
+          }
+          setListening(false);
+          setError(
+            "ההכתבה לא נענתה. ודא שהכתבה מופעלת (הגדרות ← כללי ← מקלדת) ושיש הרשאת מיקרופון, או הקלד."
+          );
+        }, 2500);
+      }
+    },
+    [continuous]
+  );
+  useEffect(() => {
+    launchRef.current = launch;
+  });
 
   const start = useCallback(() => {
     const Ctor = ctor();
@@ -137,84 +270,14 @@ export function useDictation({
       /* nothing to abort */
     }
 
-    const r = new Ctor();
-    recog.current = r;
-    r.lang = "he-IL";
-    r.continuous = continuous;
-    r.maxAlternatives = 1;
-    r.interimResults = true;
-
-    // Rebuilt from scratch on every result event — see onresult.
-    let final = "";
+    accumulated.current = "";
     started.current = false;
     discarded.current = false;
+    stopping.current = false;
+    setError(null);
 
-    r.onstart = () => {
-      started.current = true;
-      if (watchdog.current) clearTimeout(watchdog.current);
-    };
-
-    r.onresult = (e: any) => {
-      // Rebuild the whole transcript from the full result list every time,
-      // rather than appending the slice from `e.resultIndex`.
-      //
-      // `results` is cumulative, and Chrome re-emits segments it has already
-      // marked final as it keeps refining them. Appending each event's slice
-      // therefore counts those segments again and again — the failure looks
-      // like "תוסיףתוסיףתוסיף לי גם…", growing with every pause. Recomputing
-      // is idempotent, so a re-delivered segment changes nothing.
-      let done = "";
-      let interim = "";
-      for (let i = 0; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript;
-        if (e.results[i].isFinal) done += t;
-        else interim += t;
-      }
-      final = done;
-      partialRef.current?.((done + interim).trim());
-    };
-
-    r.onerror = (e: any) => {
-      if (watchdog.current) clearTimeout(watchdog.current);
-      setListening(false);
-      // The user stopping deliberately is not a failure.
-      if (e?.error === "aborted") return;
-      setError(ERRORS[e?.error] ?? `ההכתבה נכשלה (${e?.error ?? "לא ידוע"}).`);
-    };
-
-    r.onend = () => {
-      if (watchdog.current) clearTimeout(watchdog.current);
-      setListening(false);
-      if (discarded.current) return;
-      const text = final.trim();
-      if (text) finalRef.current(text);
-    };
-
-    try {
-      setError(null);
-      setListening(true);
-      r.start();
-    } catch (err) {
-      setListening(false);
-      setError(`לא הצלחתי להפעיל את ההכתבה (${(err as Error).name}).`);
-      return;
-    }
-
-    // Nothing ever fired: the API exists but is inert. Common on iOS with
-    // dictation disabled, where no error event arrives either.
-    watchdog.current = setTimeout(() => {
-      if (started.current) return;
-      try {
-        r.abort?.();
-      } catch {
-        /* already gone */
-      }
-      setListening(false);
-      setError(
-        "ההכתבה לא נענתה. ודא שהכתבה מופעלת (הגדרות ← כללי ← מקלדת) ושיש הרשאת מיקרופון, או הקלד."
-      );
-    }, 2500);
-  }, [listening, stop, continuous]);
+    launch(true);
+  }, [listening, stop, launch]);
 
   return {
     supported,
