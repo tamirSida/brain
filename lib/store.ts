@@ -6,6 +6,7 @@ import {
   doc,
   getDoc,
   setDoc,
+  deleteDoc,
   type Firestore,
 } from "firebase/firestore";
 import { firebaseConfig } from "@/lib/firebase/config";
@@ -78,6 +79,22 @@ export async function writeSession(state: SessionState): Promise<void> {
     await setDoc(doc(firestore(), COLLECTION, id), payload, { merge: true });
   } catch (err) {
     console.warn("[store] Firestore write failed, kept in memory:", (err as Error).message);
+  }
+}
+
+/**
+ * Drop a session entirely, so a fresh onboarding rebuilds from a clean slate
+ * instead of merging onto stale fields (writeSession uses merge: true). The
+ * board-link doc is left as-is: it is keyed by a random board id nobody else
+ * holds, and readBoard resolves a dangling link to null on its own.
+ */
+export async function deleteSession(email: string): Promise<void> {
+  const id = key(email);
+  memory.delete(id);
+  try {
+    await deleteDoc(doc(firestore(), COLLECTION, id));
+  } catch (err) {
+    console.warn("[store] Firestore delete failed:", (err as Error).message);
   }
 }
 

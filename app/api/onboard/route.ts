@@ -5,8 +5,8 @@ import { buildBrief } from "@/lib/ai/brief";
 import { DEFAULT_LAYOUT, LAYOUTS } from "@/lib/layouts";
 import { hasApiKey } from "@/lib/ai/client";
 import { demoBrief } from "@/lib/ai/demo";
-import { setCurrentEmail } from "@/lib/session";
-import { linkBoard, newBoardId, writeSession } from "@/lib/store";
+import { currentEmail, setCurrentEmail } from "@/lib/session";
+import { deleteSession, linkBoard, newBoardId, writeSession } from "@/lib/store";
 
 export const runtime = "nodejs";
 // Netlify caps synchronous functions at 60s and does not allow raising it.
@@ -37,6 +37,13 @@ export async function POST(req: Request) {
     const live = hasApiKey();
     const brief = live ? await buildBrief(profile) : demoBrief();
     const now = new Date().toISOString();
+
+    // Re-onboarding overwrites: clear whatever session the current cookie
+    // pointed at first, so a rebuild never merges onto a stale board and a
+    // changed email never leaves the old record orphaned. On a first-time
+    // onboarding there is no cookie yet, so this is a no-op.
+    const prev = await currentEmail();
+    if (prev) await deleteSession(prev);
 
     const boardId = newBoardId();
     await linkBoard(boardId, profile.email);

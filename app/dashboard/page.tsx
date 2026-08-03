@@ -8,6 +8,7 @@ import { QuickAsk } from "@/components/QuickAsk";
 import { BrainGraph } from "@/components/BrainGraph";
 import { SidePanel } from "@/components/SidePanel";
 import { SignOut } from "@/components/SignOut";
+import { ReonboardButton } from "@/components/ReonboardButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LiveMetrics } from "@/components/LiveMetrics";
 import { QrPanel } from "@/components/QrPanel";
@@ -69,6 +70,7 @@ export default async function DashboardPage() {
           <div className="flex items-center gap-2">
             <QrPanel boardId={boardId} />
             <ThemeToggle />
+            <ReonboardButton />
             <SignOut />
           </div>
         </div>

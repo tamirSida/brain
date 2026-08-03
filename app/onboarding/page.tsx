@@ -5,9 +5,17 @@ import { OnboardingForm } from "./OnboardingForm";
 import { currentEmail } from "@/lib/session";
 import { readSession } from "@/lib/store";
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ fresh?: string }>;
+}) {
+  // `?fresh=1` is the "start over" entry from the dashboard: an already
+  // onboarded user deliberately rebuilding their board. Without it, an
+  // onboarded user is bounced straight back to the dashboard.
+  const { fresh } = await searchParams;
   const email = await currentEmail();
-  if (email && (await readSession(email))) redirect("/dashboard");
+  if (!fresh && email && (await readSession(email))) redirect("/dashboard");
 
   return (
     <main className="relative min-h-dvh overflow-hidden">
