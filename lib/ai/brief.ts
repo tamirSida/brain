@@ -25,19 +25,20 @@ const PlanSchema = z.object({
   specs: z.array(z.string()),
 });
 
-const PLAN_SYSTEM = `אתה המוח הארגוני של ״אלמוגים״ — חברת נדל״ן ואחזקות ישראלית.
-המשתמש תיאר בטקסט חופשי אילו מדדים מעניינים אותו.
-תרגם את זה לשלושה מפרטים, לפי סדר החשיבות עבור התפקיד.
+const PLAN_SYSTEM = `You are the Organization Brain for Lightstone, a US real estate
+investment, development and management firm.
+The user has described in free text which metrics matter to them.
+Turn that into three specs, ordered by importance to their role.
 
-כל מפרט הוא שורה אחת בעברית שאומרת:
-- מה המדד
-- איזו תצוגה מתאימה לו (ערך בודד / מגמה לאורך זמן / השוואה בין פריטים /
-  התפלגות / התקדמות מול יעד)
-- אילו נתוני הדגמה סבירים הוא צריך לשאת, כולל סדר גודל
+Each spec is a single line saying:
+- what the metric is
+- which visual suits it (single value / trend over time / comparison across
+  items / distribution / progress against a target)
+- what plausible demo data it should carry, including order of magnitude
 
-דוגמה: ״תזרים מזומנים חודשי — מגמה לאורך שישה חודשים, בסביבות ₪6M ובעלייה״.
+Example: "Monthly cash flow — a trend across six months, around $6M and rising".
 
-בדיוק שלושה מפרטים, בלי כפילויות ביניהם. הכל בעברית.`;
+Exactly three specs, none duplicating another. Write in English.`;
 
 export async function buildBrief(profile: Profile): Promise<Brief> {
   const systems = connectors
@@ -48,11 +49,11 @@ export async function buildBrief(profile: Profile): Promise<Brief> {
   const plan = await structuredCall({
     system: PLAN_SYSTEM,
     prompt: [
-      `שם: ${profile.name}`,
-      `תפקיד: ${profile.title}`,
-      `המערכות המחוברות: ${systems}`,
+      `Name: ${profile.name}`,
+      `Role: ${profile.title}`,
+      `Connected systems: ${systems}`,
       "",
-      "מה שנכתב כחשוב:",
+      "What they said matters:",
       profile.focus,
     ].join("\n"),
     schema: PlanSchema,
@@ -64,7 +65,7 @@ export async function buildBrief(profile: Profile): Promise<Brief> {
   // so pin it here. The prompt asks for exactly three.
   const specs = plan.specs.filter((s) => s.trim().length > 0).slice(0, 3);
   if (specs.length < 3) {
-    throw new Error(`המודל החזיר ${specs.length} מדדים במקום שלושה.`);
+    throw new Error(`The model returned ${specs.length} metrics instead of three.`);
   }
 
   const built = await Promise.all(specs.map((spec) => buildMetric(spec, [])));

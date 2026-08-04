@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { faArrowLeft, faCircleNotch, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faCircleNotch, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 import { BrandLogo } from "@/components/Brand";
 import { Icon } from "@/components/Icon";
@@ -11,13 +11,13 @@ import { firebaseAuth } from "@/lib/firebase/client";
 import { apiFetch } from "@/lib/http";
 import { cn } from "@/lib/cn";
 
-/** Firebase's error codes, said in Hebrew and without leaking which part was wrong. */
+/** Firebase's error codes, said plainly and without leaking which part was wrong. */
 const MESSAGES: Record<string, string> = {
-  "auth/invalid-credential": "האימייל או הסיסמה שגויים.",
-  "auth/invalid-email": "כתובת הדוא״ל אינה תקינה.",
-  "auth/user-disabled": "המשתמש הזה מושבת.",
-  "auth/too-many-requests": "יותר מדי ניסיונות. נסה שוב בעוד כמה דקות.",
-  "auth/network-request-failed": "אין חיבור לרשת.",
+  "auth/invalid-credential": "That email or password is incorrect.",
+  "auth/invalid-email": "That email address is not valid.",
+  "auth/user-disabled": "That account is disabled.",
+  "auth/too-many-requests": "Too many attempts. Try again in a few minutes.",
+  "auth/network-request-failed": "No network connection.",
 };
 
 export function LoginForm() {
@@ -51,7 +51,7 @@ export function LoginForm() {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "ההתחברות נכשלה");
+        throw new Error(body.error ?? "Sign-in failed");
       }
 
       router.replace(next);
@@ -62,7 +62,7 @@ export function LoginForm() {
       const code = (err as { code?: string })?.code;
       setError(
         (code && MESSAGES[code]) ||
-          (err instanceof Error ? err.message : "שגיאה לא צפויה")
+          (err instanceof Error ? err.message : "Unexpected error")
       );
       setPassword("");
       setBusy(false);
@@ -75,17 +75,17 @@ export function LoginForm() {
         <span className="group inline-flex text-ink">
           <BrandLogo className="h-9 w-auto" />
         </span>
-        <p className="mt-4 text-[15px] text-ink-2">המוח הארגוני</p>
+        <p className="mt-4 text-[15px] text-ink-2">Organization Brain</p>
       </div>
 
       <form onSubmit={submit} className="notif mt-8 p-5" noValidate>
-        <h1 className="text-[15px] font-medium text-ink">כניסה</h1>
+        <h1 className="text-[15px] font-medium text-ink">Sign in</h1>
         <p className="mt-1 text-[12.5px] leading-relaxed text-ink-2">
-          אב-טיפוס להדגמה. כל הנתונים בו בדיוניים.
+          A demo prototype. Every figure in it is fictional.
         </p>
 
         <label htmlFor="email" className="mt-4 block text-[13px] text-ink-2">
-          דוא״ל
+          Email
         </label>
         <input
           id="email"
@@ -97,11 +97,11 @@ export function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           disabled={busy}
           className="mt-1.5 min-h-12 w-full rounded-[var(--radius-ctl)] border border-line bg-surface px-4 text-start text-[15px] text-ink placeholder:text-ink-3 focus:border-brand/70 focus:outline-none disabled:opacity-60"
-          placeholder="name@almogim.co.il"
+          placeholder="name@lightstonegroup.com"
         />
 
         <label htmlFor="password" className="mt-3 block text-[13px] text-ink-2">
-          סיסמה
+          Password
         </label>
         <input
           id="password"
@@ -131,12 +131,12 @@ export function LoginForm() {
           )}
         >
           {busy && <Icon icon={faCircleNotch} className="animate-spin text-[13px]" />}
-          {busy ? "מתחבר…" : "כניסה"}
-          {!busy && <Icon icon={faArrowLeft} className="text-[13px]" />}
+          {busy ? "Signing in…" : "Sign in"}
+          {!busy && <Icon icon={faArrowRight} className="text-[13px]" />}
         </button>
 
         <p className="mt-4 text-center text-[11.5px] leading-relaxed text-ink-3">
-          המשתמשים מנוהלים ב-Firebase Authentication.
+          Users are managed in Firebase Authentication.
         </p>
       </form>
     </div>

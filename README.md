@@ -1,8 +1,8 @@
-# אלמוגים · המוח הארגוני — mock
+# Lightstone · Organization Brain — mock
 
-A working prototype of the Organization Brain for Almogim: a Hebrew,
-RTL, mobile-first dashboard over a company's connected systems, with a phone
-remote that edits it by voice.
+A working prototype of the Organization Brain for Lightstone: a mobile-first
+dashboard over a company's connected systems, with a phone remote that edits it
+by voice.
 
 Next.js 16 (App Router) · Claude Sonnet 5 · Firestore · Tailwind v4.
 
@@ -17,7 +17,7 @@ npm run dev                    # http://localhost:3000
 ```
 
 Without `ANTHROPIC_API_KEY` the app still runs: onboarding falls back to a
-fixed sample board so the UI is clickable, and the badge **נתוני הדגמה** says
+fixed sample board so the UI is clickable, and the badge **Demo data** says
 so on screen. Everything that calls the model — chat, meeting prep, the phone
 remote — returns a clear error instead.
 
@@ -60,7 +60,7 @@ cache headers.
 | --- | --- | --- |
 | `ANTHROPIC_API_KEY` | yes | Server-only. Never prefix with `NEXT_PUBLIC_`. |
 | `CLAUDE_MODEL` | no | Defaults to `claude-sonnet-5`. |
-| `NEXT_PUBLIC_FIREBASE_*` | no | Defaults to the `ofek-brain` Firebase project. That is the infrastructure name, not branding — renaming it would point the app at a project that does not exist. |
+| `NEXT_PUBLIC_FIREBASE_*` | no | Defaults to the `ofek-brain` Firebase project. That is the infrastructure name, not branding — it predates both rebrands and renaming it would point the app at a project that does not exist. |
 | `NEXT_PUBLIC_TUNNEL_URL` | no | Ignored unless the dashboard is open on localhost, so it is safe either way. |
 
 Firestore rules live in `firestore.rules` and deploy separately:

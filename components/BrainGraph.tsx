@@ -26,10 +26,10 @@ import { useThinking } from "@/lib/thinking";
  */
 
 const STATE: Record<ConnectorStatus, { stroke: string; dot: string; label: string }> = {
-  live: { stroke: "var(--ok)", dot: "bg-ok", label: "פעיל" },
-  syncing: { stroke: "var(--warn)", dot: "bg-warn", label: "מסנכרן" },
-  error: { stroke: "var(--risk)", dot: "bg-risk", label: "תקלה" },
-  unconfigured: { stroke: "var(--line-strong)", dot: "bg-ink-faint", label: "לא מחובר" },
+  live: { stroke: "var(--ok)", dot: "bg-ok", label: "Live" },
+  syncing: { stroke: "var(--warn)", dot: "bg-warn", label: "Syncing" },
+  error: { stroke: "var(--risk)", dot: "bg-risk", label: "Error" },
+  unconfigured: { stroke: "var(--line-strong)", dot: "bg-ink-faint", label: "Not connected" },
 };
 
 const SIZE = 360;
@@ -275,15 +275,15 @@ export function BrainGraph({ connectors }: { connectors: Connector[] }) {
               {shown.objects !== null && (
                 <>
                   {" · "}
-                  <span className="num">{new Intl.NumberFormat("he-IL").format(shown.objects)}</span>
-                  {" רשומות"}
+                  <span className="num">{new Intl.NumberFormat("en-US").format(shown.objects)}</span>
+                  {" records"}
                 </>
               )}
             </p>
           </div>
         ) : (
           <p className="pt-1.5 text-center text-[11.5px] text-ink-3">
-            בחר מערכת כדי לראות מה זורם ממנה
+            Select a system to see what flows from it
           </p>
         )}
       </div>

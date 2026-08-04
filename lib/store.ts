@@ -46,11 +46,11 @@ export function firestore(): Firestore {
  * requests in dev, so a plain module-level Map silently loses every write.
  */
 const globalForStore = globalThis as typeof globalThis & {
-  __almogimBrainStore?: Map<string, SessionState>;
-  __almogimBrainBoards?: Map<string, string>;
+  __lightstoneBrainStore?: Map<string, SessionState>;
+  __lightstoneBrainBoards?: Map<string, string>;
 };
-const memory = (globalForStore.__almogimBrainStore ??= new Map<string, SessionState>());
-const boardMemory = (globalForStore.__almogimBrainBoards ??= new Map<string, string>());
+const memory = (globalForStore.__lightstoneBrainStore ??= new Map<string, SessionState>());
+const boardMemory = (globalForStore.__lightstoneBrainBoards ??= new Map<string, string>());
 
 const key = (email: string) => email.trim().toLowerCase();
 

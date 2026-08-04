@@ -16,9 +16,9 @@ import type { LayoutId } from "@/lib/layouts";
 
 import { apiFetch } from "@/lib/http";
 const IDEAS = [
-  "תזרים מזומנים, חריגות תקציב, ואחוזי אכלוס",
-  "סטטוס היתרים, לוחות זמנים בביצוע, וחשיפת ערבויות",
-  "NOI לפי נכס, גבייה פתוחה, ותמהיל השוכרים",
+  "Cash flow, budget variance, and occupancy",
+  "Permit status, construction schedules, and guarantee exposure",
+  "NOI by asset, open collections, and tenant mix",
 ];
 
 /**
@@ -58,11 +58,11 @@ export function EditDashboard({ focus, layout }: { focus: string; layout: Layout
         body: JSON.stringify({ focus: text, layout: pick }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "העדכון נכשל");
+      if (!res.ok) throw new Error(data.error ?? "The update failed");
       setOpen(false);
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "שגיאה");
+      setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setBusy(false);
     }
@@ -81,14 +81,14 @@ export function EditDashboard({ focus, layout }: { focus: string; layout: Layout
         className="flex min-h-9 items-center gap-1.5 rounded-full border border-line px-3 text-[12px] text-ink-2 transition-colors hover:border-line-strong hover:text-ink"
       >
         <Icon icon={faSliders} className="text-[11px]" />
-        ערוך מדדים
+        Edit metrics
       </button>
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
           <button
             type="button"
-            aria-label="סגור"
+            aria-label="Close"
             onClick={() => !busy && setOpen(false)}
             className="absolute inset-0 bg-black/55"
           />
@@ -96,20 +96,20 @@ export function EditDashboard({ focus, layout }: { focus: string; layout: Layout
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="עריכת המדדים"
+            aria-label="Editing metrics"
             className="rise relative w-full max-w-[520px] rounded-t-[var(--radius-card)] border border-line bg-bg p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl sm:rounded-[var(--radius-card)]"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-[16px] font-medium text-ink">מה חשוב לך לראות?</h2>
+                <h2 className="text-[16px] font-medium text-ink">What matters to you?</h2>
                 <p className="mt-1 text-[12.5px] leading-relaxed text-ink-2">
-                  שנה את הטקסט ואבנה מחדש את שלושת המדדים ואת סוגי התצוגה שלהם.
+                  Change the text and I’ll rebuild all three metrics and how each one is shown.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => !busy && setOpen(false)}
-                aria-label="סגור"
+                aria-label="Close"
                 className="grid size-11 shrink-0 place-items-center rounded-full text-ink-2 transition-colors hover:bg-surface-2"
               >
                 <Icon icon={faXmark} className="text-[16px]" />
@@ -122,11 +122,11 @@ export function EditDashboard({ focus, layout }: { focus: string; layout: Layout
               onChange={(e) => setText(e.target.value)}
               disabled={busy}
               className="mt-4 w-full resize-none rounded-[var(--radius-ctl)] border border-line bg-surface px-4 py-3 text-[14.5px] leading-relaxed text-ink placeholder:text-ink-3 focus:border-brand/70 focus:outline-none disabled:opacity-60"
-              placeholder="למשל: תזרים חודשי, חריגות תקציב בפרויקטים הפעילים, ואחוזי אכלוס"
+              placeholder="For example: monthly cash flow, budget variance across active projects, and occupancy"
             />
 
             <div className="mt-5">
-              <p className="text-[12.5px] font-medium text-ink-2">פריסת המסך</p>
+              <p className="text-[12.5px] font-medium text-ink-2">Layout</p>
               <div className="mt-2">
                 <LayoutPicker value={pick} onChange={setPick} disabled={busy} />
               </div>
@@ -168,7 +168,7 @@ export function EditDashboard({ focus, layout }: { focus: string; layout: Layout
               )}
             >
               {busy && <Icon icon={faCircleNotch} className="animate-spin text-[13px]" />}
-              {busy ? "חושב…" : rebuilding ? "עדכן את המדדים" : "החל את הפריסה"}
+              {busy ? "Thinking…" : rebuilding ? "Update the metrics" : "Apply the layout"}
             </button>
           </div>
         </div>

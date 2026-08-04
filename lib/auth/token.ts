@@ -19,7 +19,7 @@ const JWKS = createRemoteJWKSet(
   new URL("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com")
 );
 
-export const AUTH_COOKIE = "almogim_id_token";
+export const AUTH_COOKIE = "lightstone_id_token";
 
 export interface Identity {
   uid: string;

@@ -60,14 +60,14 @@ export function Composer({
     if (!file) return;
     setFileError(null);
     if (file.size > MAX_BYTES) {
-      setFileError(`הקובץ גדול מ-${formatSize(MAX_BYTES)}`);
+      setFileError(`That file is larger than ${formatSize(MAX_BYTES)}`);
       return;
     }
     setReading(true);
     try {
       setAttachment(await readAttachment(file));
     } catch {
-      setFileError("קריאת הקובץ נכשלה");
+      setFileError("Reading the file failed");
     } finally {
       setReading(false);
     }
@@ -90,13 +90,13 @@ export function Composer({
             // Say so rather than letting the model be asked to read bytes it
             // was never given.
             <span className="shrink-0 rounded-full bg-bg-2 px-1.5 text-[10.5px] text-ink-3">
-              שם בלבד
+              name only
             </span>
           )}
           <button
             type="button"
             onClick={() => setAttachment(null)}
-            aria-label="הסר קובץ"
+            aria-label="Remove file"
             className="ms-auto grid size-6 shrink-0 place-items-center rounded-full text-ink-3 transition-colors hover:bg-bg-2 hover:text-ink"
           >
             <Icon icon={faXmark} className="text-[11px]" />
@@ -132,7 +132,7 @@ export function Composer({
           type="button"
           onClick={() => fileInput.current?.click()}
           disabled={reading}
-          aria-label="צרף קובץ"
+          aria-label="Attach a file"
           className="grid size-10 shrink-0 place-items-center rounded-full text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink disabled:opacity-50"
         >
           <Icon icon={reading ? faCircleNotch : faPlus} className={cn("text-[15px]", reading && "animate-spin")} />
@@ -150,7 +150,7 @@ export function Composer({
                 submit();
               }
             }}
-            placeholder={listening ? "מקשיב…" : placeholder}
+            placeholder={listening ? "Listening…" : placeholder}
             className="max-h-40 min-h-10 flex-1 resize-none bg-transparent px-2 py-2.5 text-[14.5px] text-ink placeholder:text-ink-3 focus:outline-none"
           />
         ) : (
@@ -159,7 +159,7 @@ export function Composer({
             autoFocus={autoFocus}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submit()}
-            placeholder={listening ? "מקשיב…" : placeholder}
+            placeholder={listening ? "Listening…" : placeholder}
             className="min-h-10 min-w-0 flex-1 bg-transparent px-2 text-[14.5px] text-ink placeholder:text-ink-3 focus:outline-none"
           />
         )}
@@ -168,7 +168,7 @@ export function Composer({
           <button
             type="button"
             onClick={onMic}
-            aria-label={listening ? "עצור הכתבה" : "הכתבה קולית"}
+            aria-label={listening ? "Stop dictation" : "Voice dictation"}
             className={cn(
               "grid size-10 shrink-0 place-items-center rounded-full transition-colors",
               listening ? "bg-risk/10 text-risk" : "text-ink-2 hover:bg-surface-2 hover:text-ink"
@@ -182,7 +182,7 @@ export function Composer({
           type="button"
           onClick={submit}
           disabled={!canSend}
-          aria-label="שלח"
+          aria-label="Send"
           className={cn(
             "grid size-10 shrink-0 place-items-center rounded-full transition-colors",
             canSend ? "bg-brand text-brand-on hover:bg-brand-hi" : "cursor-not-allowed bg-surface-2 text-ink-3"

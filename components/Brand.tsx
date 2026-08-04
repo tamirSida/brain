@@ -1,24 +1,26 @@
 "use client";
 
-import { AlmogimLogo, AlmogimMark } from "@/components/brand/Almogim";
+import { LightstoneLogo, LightstoneMark } from "@/components/brand/Lightstone";
 import { cn } from "@/lib/cn";
 import { useThinking } from "@/lib/thinking";
 
 /**
  * The brand marks, wired to the app's state.
  *
- * The six dots already have a second, colourful life on almogim.co.il — this
- * borrows it twice: on hover, and while the brain is working, where the ring
- * also spins. Using the identity as the loading indicator means there is one
- * fewer invented visual language on the screen.
+ * Lightstone owns a single red and a letterform, so the thinking state cannot
+ * be a colour change across parts the way a multi-coloured mark allows. It is
+ * carried instead by an arc that orbits the mark: the identity stays still and
+ * legible, and the motion sits beside it rather than being applied to it.
+ * Using the mark as the loading indicator still means one fewer invented
+ * visual language on the screen.
  */
 
-/** The dot ring. Spins in colour whenever anything is thinking. */
+/** The mark. An arc orbits it whenever anything is thinking. */
 export function BrandMark({
   className,
-  /** Force the coloured spin regardless of the global thinking state. */
+  /** Force the orbiting arc regardless of the global thinking state. */
   busy = false,
-  /** Colour the dots on hover — needs `group` on an ancestor. */
+  /** Tint the mark on hover — needs `group` on an ancestor. */
   hover = false,
 }: {
   className?: string;
@@ -29,36 +31,27 @@ export function BrandMark({
   const active = busy || thinking;
 
   return (
-    <AlmogimMark
+    <LightstoneMark
       className={cn(
-        active && "is-colour is-spinning",
-        // Hover colour is CSS-only, so it costs nothing when unused.
-        hover && "group-hover:[&_.dot]:fill-[var(--dot)]",
+        active && "is-thinking",
+        // Hover tint is CSS-only, so it costs nothing when unused.
+        hover && "group-hover:text-[#D01E3B]",
         className
       )}
     />
   );
 }
 
-/** Wordmark and mark. The dots colour on hover; the letters stay as they are. */
-export function BrandLogo({
-  className,
-  hover = true,
-}: {
-  className?: string;
-  hover?: boolean;
-}) {
+/**
+ * The wordmark. Always the brand red, and it never moves.
+ *
+ * Not `currentColor` like the mark: Lightstone's wordmark is red everywhere it
+ * appears, and rendering it in the page's ink would be showing someone a
+ * recoloured version of their own logo. It breathes while thinking, which is
+ * the most a wordmark can do without becoming unreadable.
+ */
+export function BrandLogo({ className }: { className?: string }) {
   const thinking = useThinking();
 
-  return (
-    <AlmogimLogo
-      className={cn(
-        // The logo picks up colour while thinking too, but never spins — a
-        // rotating wordmark would be unreadable.
-        thinking && "is-colour",
-        hover && "group-hover:[&_.dot]:fill-[var(--dot)]",
-        className
-      )}
-    />
-  );
+  return <LightstoneLogo className={cn("is-brand", thinking && "is-thinking", className)} />;
 }

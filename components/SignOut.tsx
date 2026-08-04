@@ -49,7 +49,7 @@ export function SignOut() {
         icon={busy ? faCircleNotch : faArrowRightFromBracket}
         className={cn("text-[10px]", busy && "animate-spin")}
       />
-      יציאה
+      Sign out
     </button>
   );
 }

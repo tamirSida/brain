@@ -31,7 +31,7 @@ function smoothPath(pts: { x: number; y: number }[]): string {
 }
 
 /* --------------------------------------------------------------- line ---- */
-/* Time flows left→right even in RTL — the Israeli enterprise convention.
+/* Time flows left→right.
    Applied consistently across every time-series chart in the product. */
 
 function LineChart({ series, color }: { series: Point[]; color: string }) {
@@ -71,7 +71,7 @@ function LineChart({ series, color }: { series: Point[]; color: string }) {
 
 /* ---------------------------------------------------------------- bars ---- */
 /* Horizontal bars anchored to the right — the natural reading direction for
-   labelled categorical comparison in Hebrew. */
+   labelled categorical comparison. */
 
 function BarChart({ series, color }: { series: Point[]; color: string }) {
   const max = Math.max(...series.map((s) => Math.abs(s.value))) || 1;
@@ -87,7 +87,7 @@ function BarChart({ series, color }: { series: Point[]; color: string }) {
                 {s.value}
               </span>
             </div>
-            {/* Bars grow from the inline-start edge — the right, in RTL.
+            {/* Bars grow from the inline-start edge — the left, in LTR.
                 No auto margin: that would push the fill to the wrong end.
 
                 Negatives get a distinct hue, not just lower opacity: in a
@@ -173,14 +173,14 @@ function ProgressChart({ series, color }: { series: Point[]; color: string }) {
   return (
     <div>
       <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-line">
-        {/* start-0, not end-0: the fill must grow from the right in RTL. */}
+        {/* start-0, not end-0: the fill grows from the inline-start edge. */}
         <div
           className="absolute inset-y-0 start-0 rounded-full transition-[width] duration-700 ease-out"
           style={{ width: `${pct}%`, background: color }}
         />
       </div>
       <div className="mt-2 flex items-center justify-between text-[12px] text-ink-3">
-        <span>{series[0]?.label ?? "יעד"}</span>
+        <span>{series[0]?.label ?? "Target"}</span>
         <span className="num">{Math.round(pct)}%</span>
       </div>
     </div>

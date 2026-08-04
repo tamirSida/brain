@@ -41,7 +41,7 @@ export async function proxy(request: NextRequest) {
   // API callers get a status they can act on, not HTML they can't parse. 401
   // also tells the client to refresh its token and retry.
   if (pathname.startsWith("/api/")) {
-    return NextResponse.json({ error: "נדרשת התחברות" }, { status: 401 });
+    return NextResponse.json({ error: "Sign-in required" }, { status: 401 });
   }
 
   const login = request.nextUrl.clone();

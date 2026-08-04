@@ -18,9 +18,9 @@ const COLLECTION = "brain_conversations";
 
 /** Mirrors lib/store.ts — survives Next's dev-mode module re-evaluation. */
 const globalForChat = globalThis as typeof globalThis & {
-  __almogimChats?: Map<string, Conversation>;
+  __lightstoneChats?: Map<string, Conversation>;
 };
-const memory = (globalForChat.__almogimChats ??= new Map<string, Conversation>());
+const memory = (globalForChat.__lightstoneChats ??= new Map<string, Conversation>());
 
 function clean<T>(v: T): T {
   return JSON.parse(JSON.stringify(v)) as T;

@@ -37,7 +37,7 @@ export function SidePanel({ children }: { children: React.ReactNode }) {
         className="mt-10 flex min-h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-ctl)] border border-line text-[14px] text-ink-2 transition-colors hover:border-line-strong hover:text-ink lg:hidden"
       >
         <Icon icon={faCalendarDay} className="text-[13px]" />
-        היומן והמערכות המחוברות
+        Calendar and connected systems
       </button>
 
       {/* Desktop: static column that fills the shell so its contents can
@@ -49,25 +49,25 @@ export function SidePanel({ children }: { children: React.ReactNode }) {
         <div className="fixed inset-0 z-40 lg:hidden">
           <button
             type="button"
-            aria-label="סגור"
+            aria-label="Close"
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-black/55"
           />
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="היומן והמערכות המחוברות"
+            aria-label="Calendar and connected systems"
             className={cn(
               "rise absolute inset-y-0 start-0 w-[min(24rem,92vw)] overflow-y-auto",
               "border-e border-line bg-bg p-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-2xl"
             )}
           >
             <div className="mb-4 flex items-center justify-between">
-              <p className="text-[14px] font-medium text-ink">היומן והמערכות</p>
+              <p className="text-[14px] font-medium text-ink">Calendar and systems</p>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="סגור"
+                aria-label="Close"
                 className="grid size-11 place-items-center rounded-full text-ink-2 transition-colors hover:bg-surface-2"
               >
                 <Icon icon={faXmark} className="text-[16px]" />

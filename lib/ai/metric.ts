@@ -11,31 +11,31 @@ import { MetricSchema, type Metric } from "./schemas";
  * renderable live in exactly one place.
  */
 
-export const METRIC_RULES = `אתה בונה מדד יחיד ללוח מדדים של חברת נדל״ן ואחזקות ישראלית.
+export const METRIC_RULES = `You build a single metric card for the dashboard of a US real estate investment and development firm.
 
-- id: slug באנגלית, אותיות קטנות ומקפים, שלא קיים ברשימת ה-id התפוסים.
-- title: תווית עברית קצרה, עד ארבע מילים.
-- viz לפי סוג הנתון:
-  · number — ערך בודד בלי מגמה
-  · line — מגמה לאורך זמן (5–8 נקודות)
-  · bar — השוואה בין פריטים (3–6)
-  · donut — התפלגות ל-2 עד 4 חלקים
-  · progress — התקדמות מול יעד (נקודה אחת, 0–100)
-- value מעוצב ומוכן לתצוגה, כולל ₪ / % / M לפי העניין.
-- אם המפרט כולל מספרים — השתמש בהם בדיוק, אל תמציא אחרים.
-- insight: משפט עברי אחד, עובדתי, בלי סופרלטיבים ובלי אימוג'י.
-- נתוני הדגמה חיוביים: delta חיובי, trend הוא "ok" או "neutral".
+- id: lowercase English slug with hyphens, not already in the list of taken ids.
+- title: a short label, four words at most.
+- viz, by the kind of data:
+  · number — a single value with no trend
+  · line — a trend over time (5-8 points)
+  · bar — a comparison across items (3-6)
+  · donut — a split into 2 to 4 parts
+  · progress — progress against a target (one point, 0-100)
+- value is formatted and ready to display, with $ / % / M as appropriate.
+- If the spec carries numbers, use them exactly. Do not invent different ones.
+- insight: one factual sentence, no superlatives, no emoji.
+- Demo data reads positive: delta positive, trend "ok" or "neutral".
 
-כל הטקסט בעברית. שמות מערכות באנגלית נשארים באנגלית.`;
+Write everything in English.`;
 
 /** Generate a single metric from a one-line spec. */
 export async function buildMetric(spec: string, takenIds: string[]): Promise<Metric> {
   const built = await structuredCall({
     system: METRIC_RULES,
     prompt: [
-      `id-ים תפוסים: ${takenIds.join(", ") || "(אין)"}`,
+      `Taken ids: ${takenIds.join(", ") || "(none)"}`,
       "",
-      "המדד לבנייה:",
+      "The metric to build:",
       spec,
     ].join("\n"),
     schema: MetricSchema,
@@ -65,7 +65,7 @@ export function normaliseMetric(m: Metric, taken: Iterable<string>): Metric {
     // Keep the largest three, fold the rest into one "other" slice.
     const sorted = [...series].sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
     const rest = sorted.slice(3).reduce((sum, p) => sum + Math.abs(p.value), 0);
-    points = [...sorted.slice(0, 3), { label: "אחר", value: rest }];
+    points = [...sorted.slice(0, 3), { label: "Other", value: rest }];
   }
   if (viz === "bar" && series.length > 6) points = series.slice(0, 6);
   if (viz === "progress" && series.length) {

@@ -101,7 +101,7 @@ export function LiveMetrics({
       {receiving && (
         <p className="rise mb-3 flex items-center gap-2 rounded-full border border-brand/40 bg-brand/8 px-3 py-1.5 text-[12px] font-medium text-brand-hi">
           <Icon icon={faMobileScreenButton} className="text-[11px]" />
-          מקבל עדכון מהטלפון…
+          Receiving an update from your phone…
         </p>
       )}
 
@@ -152,7 +152,7 @@ export function LiveMetrics({
               <Icon icon={faMobileScreenButton} className="text-[15px] text-brand-hi" />
             </span>
             <span className="rounded-full bg-bg/80 px-3 py-1 text-[12px] font-medium text-ink-2 backdrop-blur-sm">
-              מטפל בבקשה שלך מהנייד
+              Working on your request from mobile
             </span>
           </div>
         </div>

@@ -1,135 +1,147 @@
 {
-  "$comment": "Connector registry. Add a system by dropping an SVG in /public/connectors and adding a row here. status: live | syncing | error | unconfigured",
+  "$comment": "Connector registry. Add a system by dropping a logo in /public/connectors and adding a row here. status: live | syncing | error | unconfigured",
   "connectors": [
     {
-      "id": "priority",
-      "name": "Priority ERP",
-      "nameHe": "פריוריטי",
-      "logo": "/connectors/priority.svg",
-      "kind": "ERP · פיננסים ופרויקטים",
+      "id": "yardi",
+      "name": "Yardi Voyager",
+      "logo": "/connectors/yardi.svg",
+      "kind": "Property management · Accounting",
       "status": "live",
       "objects": 184320,
-      "lastSync": "לפני 4 דקות",
+      "lastSync": "4 minutes ago",
       "chip": "light",
       "entities": [
-        "לקוחות",
-        "ספקים",
-        "הזמנות רכש",
-        "חשבוניות",
-        "כרטסת הנהלת חשבונות",
-        "תקציבי פרויקטים",
-        "מרכזי רווח",
-        "אבני דרך לחיוב",
-        "כרטיסי עובד"
+        "Properties and units",
+        "Leases and renewals",
+        "Tenant ledgers",
+        "Rent roll",
+        "Accounts payable",
+        "General ledger",
+        "Job cost and draws",
+        "Vendor contracts",
+        "Owner statements"
+      ]
+    },
+    {
+      "id": "appfolio",
+      "name": "AppFolio",
+      "logo": "/connectors/appfolio.png",
+      "kind": "Multifamily operations",
+      "status": "live",
+      "objects": 63840,
+      "lastSync": "6 minutes ago",
+      "chip": "light",
+      "entities": [
+        "Applications and screening",
+        "Move-ins and move-outs",
+        "Maintenance work orders",
+        "Online rent payments",
+        "Delinquency and collections",
+        "Unit turn tracking",
+        "Resident communications"
       ]
     },
     {
       "id": "microsoft-365",
       "name": "Microsoft 365",
-      "nameHe": "מיקרוסופט 365",
       "logo": "/connectors/microsoft-365.png",
-      "kind": "מסמכים · דוא״ל · הרשאות",
+      "kind": "Documents · Mail · Permissions",
       "status": "live",
       "objects": 512884,
-      "lastSync": "לפני 2 דקות",
+      "lastSync": "2 minutes ago",
       "chip": "light",
       "entities": [
-        "מסמכים ב-SharePoint",
-        "תיקיות OneDrive",
-        "הרשאות לפי קובץ",
-        "צוותים ב-Teams",
-        "גיליונות Excel",
-        "מצגות"
+        "SharePoint documents",
+        "OneDrive folders",
+        "Per-file permissions",
+        "Teams channels",
+        "Excel models",
+        "Investor decks"
       ]
     },
     {
       "id": "monday",
       "name": "monday.com",
-      "nameHe": "מאנדיי",
       "logo": "/connectors/monday.png",
-      "kind": "ניהול פרויקטים",
+      "kind": "Project management",
       "status": "live",
       "objects": 9412,
-      "lastSync": "לפני 11 דקות",
+      "lastSync": "11 minutes ago",
       "chip": "light",
       "entities": [
-        "לוחות פרויקטים",
-        "משימות ואחראים",
-        "סטטוסים ותאריכי יעד",
-        "אוטומציות",
-        "לוחות ספקים"
+        "Development boards",
+        "Tasks and owners",
+        "Statuses and due dates",
+        "Automations",
+        "Vendor boards"
       ]
     },
     {
       "id": "sap",
       "name": "SAP",
-      "nameHe": "סאפ",
       "logo": "/connectors/sap.svg",
-      "kind": "ERP · חברות בנות",
+      "kind": "ERP · Subsidiaries",
       "status": "syncing",
       "objects": 47190,
-      "lastSync": "מסנכרן כעת",
+      "lastSync": "Syncing now",
       "chip": "light",
       "entities": [
-        "ספר ראשי של חברות בנות",
-        "רכש",
-        "נכסים קבועים",
-        "דוחות מאוחדים",
-        "מטבעות ושערי המרה"
+        "Subsidiary general ledger",
+        "Procurement",
+        "Fixed assets",
+        "Consolidated reporting",
+        "Intercompany entries"
       ]
     },
     {
       "id": "autodesk",
       "name": "Autodesk Build",
-      "nameHe": "אוטודסק",
       "logo": "/connectors/autodesk.svg",
-      "kind": "תוכניות · פיקוח ביצוע",
+      "kind": "Drawings · Construction oversight",
       "status": "live",
       "objects": 21668,
-      "lastSync": "לפני 18 דקות",
+      "lastSync": "18 minutes ago",
       "chip": "light",
       "entities": [
-        "תוכניות ושרטוטים",
-        "גרסאות מסמכי ביצוע",
-        "דוחות פיקוח באתר",
-        "ליקויים ותיקונים",
-        "יומני עבודה"
+        "Drawings and plan sets",
+        "Construction document revisions",
+        "Field inspection reports",
+        "Punch lists",
+        "Daily logs"
       ]
     },
     {
       "id": "docusign",
       "name": "DocuSign",
-      "nameHe": "דוקיוסיין",
       "logo": "/connectors/docusign.png",
-      "kind": "חוזים · חתימות",
+      "kind": "Contracts · Signatures",
       "status": "live",
       "objects": 6240,
-      "lastSync": "לפני 9 דקות",
+      "lastSync": "9 minutes ago",
       "chip": "light",
       "entities": [
-        "מעטפות חתימה",
-        "חוזי שכירות",
-        "הסכמי קבלן",
-        "סטטוס חתימות",
-        "תאריכי תפוגה"
+        "Signature envelopes",
+        "Leases",
+        "Contractor agreements",
+        "Signature status",
+        "Expiration dates"
       ]
     },
     {
       "id": "outlook",
       "name": "Microsoft Outlook",
-      "nameHe": "אאוטלוק",
       "logo": "/connectors/outlook.svg",
-      "kind": "דוא״ל · יומן",
+      "kind": "Mail · Calendar",
       "status": "live",
       "objects": 128940,
-      "lastSync": "לפני דקה",
+      "lastSync": "1 minute ago",
       "chip": "light",
       "entities": [
-        "הודעות דואר",
-        "יומן פגישות",
-        "אנשי קשר",
-        "זמינות משתתפים",
-        "כללי תיבה"
+        "Mail messages",
+        "Meeting calendar",
+        "Contacts",
+        "Attendee availability",
+        "Inbox rules"
       ]
     }
   ]

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   faBars,
-  faChevronRight,
+  faChevronLeft,
   faCircleNotch,
   faLayerGroup,
   faMicrophone,
@@ -32,10 +32,10 @@ interface ContextInfo {
 }
 
 const SUGGESTIONS = [
-  "מה יש לי ביומן מחר ומי אישר הגעה?",
-  "מצא את הקובץ שצורף לפגישת ההנהלה",
-  "נסח טיוטת מייל לכל מי שאישר הגעה לישיבת התקציב",
-  "מתי כולנו פנויים לפגישה של שעה השבוע?",
+  "What's on my calendar tomorrow and who has accepted?",
+  "Find the file attached to the executive meeting",
+  "Draft an email to everyone who accepted the budget meeting",
+  "When are we all free for an hour this week?",
 ];
 
 export function ChatClient({ firstName }: { firstName: string }) {
@@ -113,7 +113,7 @@ export function ChatClient({ firstName }: { firstName: string }) {
         body: JSON.stringify({ conversationId: convoId, message: body, voice }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "שליחה נכשלה");
+      if (!res.ok) throw new Error(data.error ?? "Sending failed");
 
       setConvoId(data.conversationId);
       setMessages((m) => [...m.slice(0, -1), data.user, data.reply]);
@@ -122,7 +122,7 @@ export function ChatClient({ firstName }: { firstName: string }) {
     } catch (err) {
       setMessages((m) => m.slice(0, -1));
       setInput(body);
-      setError(err instanceof Error ? err.message : "שגיאה");
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       endThinking();
       setBusy(false);
@@ -146,20 +146,20 @@ export function ChatClient({ firstName }: { firstName: string }) {
         <button
           type="button"
           onClick={() => setDrawer(true)}
-          aria-label="שיחות קודמות"
+          aria-label="Past conversations"
           className="grid size-11 place-items-center rounded-full text-ink-2 transition-colors hover:bg-surface-2 lg:hidden"
         >
           <Icon icon={faBars} className="text-[15px]" />
         </button>
 
         <h1 className="min-w-0 flex-1 truncate text-[15px] font-medium">
-          {convoId ? threads.find((t) => t.id === convoId)?.title ?? "שיחה" : "שיחה חדשה"}
+          {convoId ? threads.find((t) => t.id === convoId)?.title ?? "Conversation" : "New conversation"}
         </h1>
 
         <button
           type="button"
           onClick={newThread}
-          aria-label="שיחה חדשה"
+          aria-label="New conversation"
           className="grid size-11 place-items-center rounded-full text-ink-2 transition-colors hover:bg-surface-2"
         >
           <Icon icon={faPenToSquare} className="text-[15px]" />
@@ -168,9 +168,9 @@ export function ChatClient({ firstName }: { firstName: string }) {
         <Link
           href="/dashboard"
           className="grid size-11 place-items-center rounded-full text-ink-2 transition-colors hover:bg-surface-2"
-          aria-label="חזרה למסך הבית"
+          aria-label="Back to the home screen"
         >
-          <Icon icon={faChevronRight} className="text-[15px]" />
+          <Icon icon={faChevronLeft} className="text-[15px]" />
         </Link>
       </header>
 
@@ -184,9 +184,9 @@ export function ChatClient({ firstName }: { firstName: string }) {
               : "hidden"
           )}
         >
-          <p className="px-2 pb-2 text-[12px] font-medium text-ink-3">שיחות קודמות</p>
+          <p className="px-2 pb-2 text-[12px] font-medium text-ink-3">Past conversations</p>
           {threads.length === 0 && (
-            <p className="px-2 text-[13px] text-ink-3">אין עדיין שיחות שמורות.</p>
+            <p className="px-2 text-[13px] text-ink-3">No saved conversations yet.</p>
           )}
           <ul className="space-y-1">
             {threads.map((t) => (
@@ -201,7 +201,7 @@ export function ChatClient({ firstName }: { firstName: string }) {
                 >
                   <span className="block truncate text-[13.5px]">{t.title}</span>
                   <span className="mt-0.5 block text-[11px] text-ink-3">
-                    <span className="num">{t.messageCount}</span> הודעות
+                    <span className="num">{t.messageCount}</span> messages
                   </span>
                 </button>
               </li>
@@ -212,7 +212,7 @@ export function ChatClient({ firstName }: { firstName: string }) {
         {drawer && (
           <button
             type="button"
-            aria-label="סגור"
+            aria-label="Close"
             onClick={() => setDrawer(false)}
             className="fixed inset-0 z-20 bg-black/50 lg:hidden"
           />
@@ -225,11 +225,11 @@ export function ChatClient({ firstName }: { firstName: string }) {
               {empty ? (
                 <div className="pt-10">
                   <p className="text-[20px] font-light text-ink">
-                    שלום {firstName}, מה נבדוק היום?
+                    Hello {firstName}, what should we look at today?
                   </p>
                   <p className="mt-2 text-[13.5px] leading-relaxed text-ink-2">
-                    אני מחובר ליומן ולדוא״ל של הקבוצה. אפשר לבקש ממני לחפש, לסכם או לנסח —
-                    כל פעולה ששולחת משהו החוצה תוצג לאישורך קודם.
+                    I’m connected to the group’s calendar and mail. Ask me to search, summarise
+                    or draft — anything that sends something out is shown to you for approval first.
                   </p>
                   <ul className="mt-6 space-y-2">
                     {SUGGESTIONS.map((s) => (
@@ -263,7 +263,7 @@ export function ChatClient({ firstName }: { firstName: string }) {
                         {m.voice && (
                           <span className="mb-1 flex items-center gap-1.5 text-[11px] opacity-70">
                             <Icon icon={faMicrophone} />
-                            הוכתב
+                            dictated
                           </span>
                         )}
                         {m.role === "assistant" ? (
@@ -278,7 +278,7 @@ export function ChatClient({ firstName }: { firstName: string }) {
                     <li className="flex justify-start">
                       <div className="flex items-center gap-2 rounded-[16px] border border-line bg-surface px-4 py-3 text-[13px] text-ink-3">
                         <Icon icon={faCircleNotch} className="animate-spin text-[13px]" />
-                        חושב…
+                        Thinking…
                       </div>
                     </li>
                   )}
@@ -308,7 +308,7 @@ export function ChatClient({ firstName }: { firstName: string }) {
                 busy={busy}
                 listening={listening}
                 onMic={mic.start}
-                placeholder="שאל אותי משהו…"
+                placeholder="Ask me anything…"
                 multiline
               />
 
@@ -317,15 +317,15 @@ export function ChatClient({ firstName }: { firstName: string }) {
                 <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-ink-3">
                   <span className="flex items-center gap-1">
                     <Icon icon={faLayerGroup} />
-                    נשלחו <span className="num">{ctx.windowSize}</span> מתוך{" "}
-                    <span className="num">{ctx.totalMessages}</span> הודעות
+                    Sent <span className="num">{ctx.windowSize}</span> of{" "}
+                    <span className="num">{ctx.totalMessages}</span> messages
                   </span>
                   {ctx.hasSummary && (
                     <span>
-                      <span className="num">{ctx.summarized}</span> הודעות סוכמו והוצאו מהחלון
+                      <span className="num">{ctx.summarized}</span> messages summarised and dropped from the window
                     </span>
                   )}
-                  {ctx.compacted && <span className="text-warn">ההקשר נדחס בפנייה הזו</span>}
+                  {ctx.compacted && <span className="text-warn">context was compacted on this turn</span>}
                 </p>
               )}
             </div>

@@ -1,50 +1,50 @@
 {
   "$comment": "Shared demo workspace — every user reads the same calendar and mailbox. Dates are stored as dayOffset relative to today and resolved at runtime, so 'yesterday's meeting' always works no matter when the demo runs.",
-  "organizer": { "name": "תמיר סידא", "email": "tamir@almogim.co.il" },
+  "organizer": { "name": "Tamir Sida", "email": "tamir@lightstonegroup.com" },
   "events": [
     {
       "id": "evt-exec-weekly",
-      "title": "ישיבת הנהלה שבועית",
+      "title": "Weekly executive meeting",
       "dayOffset": -1,
       "start": "09:00",
       "end": "10:15",
-      "location": "משרדי הקבוצה, רמת גן",
+      "location": "299 Park Avenue, New York",
       "platform": "google",
       "attendees": [
-        { "name": "תמיר סידא", "email": "tamir@almogim.co.il", "rsvp": "accepted", "organizer": true },
-        { "name": "רוי דרור", "email": "roy@almogim.co.il", "rsvp": "accepted" },
-        { "name": "מיכל ברנע", "email": "michal.b@almogim.co.il", "rsvp": "accepted" },
-        { "name": "אורי לוינסון", "email": "uri.l@almogim.co.il", "rsvp": "tentative" },
-        { "name": "נעה שגב", "email": "noa.s@almogim.co.il", "rsvp": "declined" }
+        { "name": "Tamir Sida", "email": "tamir@lightstonegroup.com", "rsvp": "accepted", "organizer": true },
+        { "name": "Roy Dror", "email": "roy@lightstonegroup.com", "rsvp": "accepted" },
+        { "name": "Michelle Barnes", "email": "michelle.b@lightstonegroup.com", "rsvp": "accepted" },
+        { "name": "Owen Levinson", "email": "owen.l@lightstonegroup.com", "rsvp": "tentative" },
+        { "name": "Nora Sagan", "email": "nora.s@lightstonegroup.com", "rsvp": "declined" }
       ],
       "attachments": [
         {
-          "name": "סטטוס פרויקטים – יולי.pptx",
+          "name": "Portfolio status - July.pptx",
           "kind": "pptx",
           "source": "attached",
-          "meta": "12 שקופיות · עודכן על ידי מיכל ברנע",
+          "meta": "12 slides · updated by Michelle Barnes",
           "sections": [
             {
-              "title": "תמונת מצב – יולי",
+              "title": "July at a glance",
               "lines": [
-                "12 פרויקטים פעילים, כולם בלוח הזמנים או מקדימים אותו.",
-                "שיעור התפוסה בנכסים המניבים עלה ל-94%.",
-                "אין פרויקט בסטטוס אדום ברבעון הנוכחי."
+                "12 active developments, all on or ahead of schedule.",
+                "Occupancy across stabilized multifamily rose to 94%.",
+                "No asset carries a red status this quarter."
               ]
             },
             {
-              "title": "מגדלי הים התיכון",
+              "title": "Fairmount Yards",
               "lines": [
-                "השלד מקדים את לוח הזמנים בכשבועיים.",
-                "היתר האכלוס הוגש; צפי אישור בתוך 30 יום.",
-                "83% מהיחידות נמכרו — מעל יעד השיווק."
+                "Structure is running about two weeks ahead of schedule.",
+                "Certificate of occupancy filed; approval expected within 30 days.",
+                "83% of units pre-leased — above the lease-up target."
               ]
             },
             {
-              "title": "פארק המושבה",
+              "title": "Brightline Commons",
               "lines": [
-                "התקציב נסגר 3.1% מתחת לאומדן המקורי.",
-                "תוכניות הביצוע מוכנות לאישור בישיבה הקרובה."
+                "Budget closed 3.1% under the original estimate.",
+                "Construction documents ready for sign-off at the next meeting."
               ]
             }
           ]
@@ -53,94 +53,94 @@
     },
     {
       "id": "evt-site-visit",
-      "title": "סיור באתר – מגדלי הים התיכון",
+      "title": "Site visit - Fairmount Yards",
       "dayOffset": -1,
       "start": "14:00",
       "end": "16:00",
-      "location": "רחוב הים 12, בת ים",
+      "location": "1420 Fairmount Ave, Charlotte, NC",
       "platform": "google",
       "attendees": [
-        { "name": "רוי דרור", "email": "roy@almogim.co.il", "rsvp": "accepted", "organizer": true },
-        { "name": "איתי כהן", "email": "itay@shikun-binui.co.il", "rsvp": "accepted" },
-        { "name": "מיכל ברנע", "email": "michal.b@almogim.co.il", "rsvp": "accepted" }
+        { "name": "Roy Dror", "email": "roy@lightstonegroup.com", "rsvp": "accepted", "organizer": true },
+        { "name": "Ethan Cole", "email": "ethan@whitfieldconstruction.com", "rsvp": "accepted" },
+        { "name": "Michelle Barnes", "email": "michelle.b@lightstonegroup.com", "rsvp": "accepted" }
       ],
       "attachments": []
     },
     {
       "id": "evt-investment-committee",
-      "title": "ועדת השקעות רבעונית",
+      "title": "Quarterly investment committee",
       "dayOffset": 0,
       "start": "10:00",
       "end": "12:00",
-      "location": "חדר ישיבות ראשי",
+      "location": "Main conference room",
       "platform": "microsoft",
       "attendees": [
-        { "name": "תמיר סידא", "email": "tamir@almogim.co.il", "rsvp": "accepted", "organizer": true },
-        { "name": "רוי דרור", "email": "roy@almogim.co.il", "rsvp": "accepted" },
-        { "name": "דנה אלמוג", "email": "dana@almogim.co.il", "rsvp": "accepted" },
-        { "name": "יוסי מרקוביץ'", "email": "yossi@meitar-law.co.il", "rsvp": "needsAction" }
+        { "name": "Tamir Sida", "email": "tamir@lightstonegroup.com", "rsvp": "accepted", "organizer": true },
+        { "name": "Roy Dror", "email": "roy@lightstonegroup.com", "rsvp": "accepted" },
+        { "name": "Dana Almog", "email": "dana@lightstonegroup.com", "rsvp": "accepted" },
+        { "name": "Joseph Markovitz", "email": "joseph@kesslerroth.com", "rsvp": "needsAction" }
       ],
       "attachments": [
         {
-          "name": "תיק השקעה – פארק המושבה.xlsx",
+          "name": "Investment memo - Brightline Commons.xlsx",
           "kind": "xlsx",
           "source": "attached",
-          "meta": "4 גיליונות · נבנה על ידי דנה אלמוג",
+          "meta": "4 sheets · built by Dana Almog",
           "sections": [
             {
-              "title": "פרמטרים כלכליים",
+              "title": "Deal economics",
               "lines": [
-                "היקף השקעה: ₪182M",
-                "NOI מייצג בשנה מלאה: ₪16.4M",
-                "תשואה על העלות: 9.0%",
-                "מכפיל יציאה מוערך: 7.4%"
+                "Total capitalization: $182M",
+                "Stabilized full-year NOI: $16.4M",
+                "Yield on cost: 9.0%",
+                "Estimated exit cap: 7.4%"
               ]
             },
             {
-              "title": "מימון",
+              "title": "Financing",
               "lines": [
-                "מסגרת בנקאית מאושרת: ₪120M (66% LTC)",
-                "ריבית: פריים + 0.9% — שיפור מול הפרויקט הקודם",
-                "הון עצמי נדרש: ₪62M, קיים במלואו בתזרים"
+                "Approved construction facility: $120M (66% LTC)",
+                "Rate: SOFR + 2.35% — improved on the prior deal",
+                "Equity required: $62M, fully covered from current cash"
               ]
             },
             {
-              "title": "רגישות",
+              "title": "Sensitivity",
               "lines": [
-                "ירידת 5% בשכ״ד — התשואה נותרת מעל 8%.",
-                "עלייה של 1% בריבית — הפרויקט נותר רווחי.",
-                "תרחיש הבסיס מניח אכלוס מלא תוך 14 חודשים."
+                "A 5% drop in rents — yield still holds above 8%.",
+                "A 100bp rate increase — the deal remains accretive.",
+                "Base case assumes full lease-up within 14 months."
               ]
             }
           ]
         },
         {
-          "name": "תמלול הישיבה הקודמת",
+          "name": "Prior meeting transcript",
           "kind": "doc",
           "source": "meet-transcript",
-          "meta": "נוצר אוטומטית · 1 שעה 47 דקות · 4 דוברים",
+          "meta": "auto-generated · 1 hour 47 minutes · 4 speakers",
           "sections": [
             {
-              "title": "החלטות שהתקבלו",
+              "title": "Decisions made",
               "lines": [
-                "אושר להמשיך לבדיקת נאותות מלאה בפארק המושבה.",
-                "אושרה הגדלת מסגרת האשראי בהרצליה ל-₪120M.",
-                "נקבע יעד תפוסה של 95% עד סוף השנה."
+                "Approved moving Brightline Commons to full diligence.",
+                "Approved increasing the Hudson Point facility to $120M.",
+                "Set a 95% occupancy target through year end."
               ]
             },
             {
-              "title": "עיקרי הדיון",
+              "title": "Discussion highlights",
               "lines": [
-                "דנה אלמוג: התזרים הרבעוני עקף את התחזית ב-8%.",
-                "רוי דרור: שני שוכרי עוגן הביעו עניין בהרחבת השטח.",
-                "יוסי מרקוביץ׳: אין חשיפה משפטית פתוחה בתיק."
+                "Dana Almog: quarterly cash flow beat forecast by 8%.",
+                "Roy Dror: two anchor tenants asked about expanding their footprint.",
+                "Joseph Markovitz: no open legal exposure in the file."
               ]
             },
             {
-              "title": "משימות להמשך",
+              "title": "Follow-ups",
               "lines": [
-                "דנה — להביא תיק השקעה מלא לוועדה הנוכחית. בוצע.",
-                "מיכל — לסגור את נוסח חוזה השוכר. בוצע."
+                "Dana — bring the full investment memo to this committee. Done.",
+                "Michelle — finalize the anchor lease language. Done."
               ]
             }
           ]
@@ -149,43 +149,43 @@
     },
     {
       "id": "evt-bank",
-      "title": "מזרחי טפחות – מסגרת אשראי לפרויקט הרצליה",
+      "title": "Harbor Trust - Hudson Point construction facility",
       "dayOffset": 0,
       "start": "15:30",
       "end": "16:30",
       "location": "Teams",
       "platform": "microsoft",
       "attendees": [
-        { "name": "תמיר סידא", "email": "tamir@almogim.co.il", "rsvp": "accepted", "organizer": true },
-        { "name": "שרון גלעד", "email": "sharon.gilad@mizrahi-tefahot.co.il", "rsvp": "accepted" },
-        { "name": "דנה אלמוג", "email": "dana@almogim.co.il", "rsvp": "accepted" }
+        { "name": "Tamir Sida", "email": "tamir@lightstonegroup.com", "rsvp": "accepted", "organizer": true },
+        { "name": "Sharon Gilad", "email": "sharon.gilad@harbortrust.com", "rsvp": "accepted" },
+        { "name": "Dana Almog", "email": "dana@lightstonegroup.com", "rsvp": "accepted" }
       ],
       "attachments": [
         {
-          "name": "דוחות כספיים Q2.pdf",
+          "name": "Q2 financial statements.pdf",
           "kind": "pdf",
           "source": "attached",
-          "meta": "28 עמודים · טיוטה לפני רו״ח חיצוני",
+          "meta": "28 pages · draft ahead of external audit",
           "sections": [
             {
-              "title": "עיקרי הרבעון",
+              "title": "Quarter highlights",
               "lines": [
-                "הכנסות: ₪84.2M — עלייה של 11% מול Q1.",
-                "NOI: ₪38.6M — עלייה של 9%.",
-                "יתרות נזילות: ₪96M.",
-                "יחס חוב ל-CAP: 48%, מתחת ליעד הפנימי."
+                "Revenue: $84.2M — up 11% against Q1.",
+                "NOI: $38.6M — up 9%.",
+                "Cash and equivalents: $96M.",
+                "Debt to total capitalization: 48%, inside the internal target."
               ]
             },
             {
-              "title": "ביאור 7 – פארק המושבה",
+              "title": "Note 7 - Brightline Commons",
               "lines": [
-                "העלות בפועל נמוכה ב-3.1% מהאומדן.",
-                "החיסכון נובע מהוזלת ברזל ומקיצור לוח הזמנים."
+                "Actual cost came in 3.1% below estimate.",
+                "The saving comes from steel pricing and a shorter schedule."
               ]
             },
             {
-              "title": "אמות מידה פיננסיות",
-              "lines": ["כל האמות מקוימות ברווח מול הדרישה הבנקאית."]
+              "title": "Financial covenants",
+              "lines": ["All covenants met with headroom against the lender's requirement."]
             }
           ]
         }
@@ -193,62 +193,62 @@
     },
     {
       "id": "evt-tenant",
-      "title": "חידוש חוזה שכירות – שוכר עוגן, הרצליה",
+      "title": "Lease renewal - anchor tenant, Hudson Point",
       "dayOffset": 1,
       "start": "11:00",
       "end": "12:00",
-      "location": "משרדי השוכר, הרצליה פיתוח",
+      "location": "Tenant offices, Jersey City",
       "platform": "google",
       "attendees": [
-        { "name": "מיכל ברנע", "email": "michal.b@almogim.co.il", "rsvp": "accepted", "organizer": true },
-        { "name": "רוי דרור", "email": "roy@almogim.co.il", "rsvp": "tentative" },
-        { "name": "יוסי מרקוביץ'", "email": "yossi@meitar-law.co.il", "rsvp": "accepted" }
+        { "name": "Michelle Barnes", "email": "michelle.b@lightstonegroup.com", "rsvp": "accepted", "organizer": true },
+        { "name": "Roy Dror", "email": "roy@lightstonegroup.com", "rsvp": "tentative" },
+        { "name": "Joseph Markovitz", "email": "joseph@kesslerroth.com", "rsvp": "accepted" }
       ],
       "attachments": []
     },
     {
       "id": "evt-board",
-      "title": "ישיבת דירקטוריון",
+      "title": "Board meeting",
       "dayOffset": 2,
       "start": "09:00",
       "end": "11:30",
-      "location": "משרדי הקבוצה, רמת גן",
+      "location": "299 Park Avenue, New York",
       "platform": "microsoft",
       "attendees": [
-        { "name": "תמיר סידא", "email": "tamir@almogim.co.il", "rsvp": "accepted", "organizer": true },
-        { "name": "רוי דרור", "email": "roy@almogim.co.il", "rsvp": "accepted" },
-        { "name": "דנה אלמוג", "email": "dana@almogim.co.il", "rsvp": "accepted" },
-        { "name": "אורי לוינסון", "email": "uri.l@almogim.co.il", "rsvp": "needsAction" },
-        { "name": "נעה שגב", "email": "noa.s@almogim.co.il", "rsvp": "accepted" }
+        { "name": "Tamir Sida", "email": "tamir@lightstonegroup.com", "rsvp": "accepted", "organizer": true },
+        { "name": "Roy Dror", "email": "roy@lightstonegroup.com", "rsvp": "accepted" },
+        { "name": "Dana Almog", "email": "dana@lightstonegroup.com", "rsvp": "accepted" },
+        { "name": "Owen Levinson", "email": "owen.l@lightstonegroup.com", "rsvp": "needsAction" },
+        { "name": "Nora Sagan", "email": "nora.s@lightstonegroup.com", "rsvp": "accepted" }
       ],
       "attachments": [
         {
-          "name": "חומר רקע לדירקטוריון.pdf",
+          "name": "Board briefing materials.pdf",
           "kind": "pdf",
           "source": "attached",
-          "meta": "16 עמודים · הופץ למשתתפים",
+          "meta": "16 pages · distributed to attendees",
           "sections": [
             {
-              "title": "על סדר היום",
+              "title": "On the agenda",
               "lines": [
-                "אישור דוחות Q2.",
-                "אישור השקעה בפארק המושבה.",
-                "עדכון תוכנית העבודה לשנה הבאה."
+                "Approve Q2 statements.",
+                "Approve the Brightline Commons investment.",
+                "Review next year's business plan."
               ]
             },
             {
-              "title": "מדדים מרכזיים",
+              "title": "Key metrics",
               "lines": [
-                "שווי תיק הנכסים: ₪1.31B — עלייה של 5.6% מתחילת השנה.",
-                "תפוסה ממוצעת: 94%.",
-                "גבייה: 99.2% מהחיובים נגבו במועד."
+                "Portfolio value: $1.31B — up 5.6% year to date.",
+                "Average occupancy: 94%.",
+                "Collections: 99.2% of billings collected on time."
               ]
             },
             {
-              "title": "המלצות ההנהלה",
+              "title": "Management recommendations",
               "lines": [
-                "לאשר את ההשקעה בפארק המושבה במלואה.",
-                "להקדים את תחילת השיווק במגדלי הים התיכון לרבעון הבא."
+                "Approve the Brightline Commons investment in full.",
+                "Pull Fairmount Yards lease-up forward into next quarter."
               ]
             }
           ]
@@ -257,16 +257,16 @@
     },
     {
       "id": "evt-plans",
-      "title": "אישור תוכניות ביצוע – פארק המושבה",
+      "title": "Construction document sign-off - Brightline Commons",
       "dayOffset": 3,
       "start": "13:00",
       "end": "14:30",
       "location": "Google Meet",
       "platform": "google",
       "attendees": [
-        { "name": "רוי דרור", "email": "roy@almogim.co.il", "rsvp": "accepted", "organizer": true },
-        { "name": "איתי כהן", "email": "itay@shikun-binui.co.il", "rsvp": "accepted" },
-        { "name": "ליאת פרידמן", "email": "liat@fa-architects.co.il", "rsvp": "accepted" }
+        { "name": "Roy Dror", "email": "roy@lightstonegroup.com", "rsvp": "accepted", "organizer": true },
+        { "name": "Ethan Cole", "email": "ethan@whitfieldconstruction.com", "rsvp": "accepted" },
+        { "name": "Lena Friedman", "email": "lena@aldridgestudio.com", "rsvp": "accepted" }
       ],
       "attachments": []
     }
@@ -274,20 +274,20 @@
   "mail": [
     {
       "id": "mail-lease",
-      "from": { "name": "יוסי מרקוביץ'", "email": "yossi@meitar-law.co.il" },
-      "subject": "טיוטת חוזה שכירות – שוכר עוגן הרצליה",
-      "preview": "מצורפת טיוטה מעודכנת לאחר הערות מיכל. סעיף 14 (מנגנון ההצמדה) סוכם לשביעות רצון שני הצדדים — מוכן לחתימה.",
+      "from": { "name": "Joseph Markovitz", "email": "joseph@kesslerroth.com" },
+      "subject": "Lease draft - Hudson Point anchor tenant",
+      "preview": "Updated draft attached following Michelle's comments. Section 14 (the escalation mechanism) landed to both sides' satisfaction — ready for signature.",
       "dayOffset": -1,
       "time": "17:42",
       "unread": true,
       "hasAttachment": true,
-      "attachment": "חוזה שכירות – טיוטה 3.docx"
+      "attachment": "Lease - draft 3.docx"
     },
     {
       "id": "mail-bank",
-      "from": { "name": "שרון גלעד", "email": "sharon.gilad@mizrahi-tefahot.co.il" },
-      "subject": "אישור עקרוני – מסגרת אשראי הרצליה",
-      "preview": "לקראת הפגישה היום: הוועדה אישרה את המסגרת במלואה, בריבית טובה מזו שסוכמה בפרויקט הקודם.",
+      "from": { "name": "Sharon Gilad", "email": "sharon.gilad@harbortrust.com" },
+      "subject": "Credit approval - Hudson Point facility",
+      "preview": "Ahead of today's call: committee approved the facility in full, at a better rate than the prior deal.",
       "dayOffset": 0,
       "time": "08:15",
       "unread": true,
@@ -295,25 +295,25 @@
     },
     {
       "id": "mail-contractor",
-      "from": { "name": "איתי כהן", "email": "itay@shikun-binui.co.il" },
-      "subject": "עדכון לוח זמנים – מגדלי הים התיכון",
-      "preview": "בעקבות הסיור אתמול: השלד צפוי להסתיים כשבועיים לפני המועד. מצורף גאנט מעודכן.",
+      "from": { "name": "Ethan Cole", "email": "ethan@whitfieldconstruction.com" },
+      "subject": "Schedule update - Fairmount Yards",
+      "preview": "Following yesterday's walk: structure should top out about two weeks early. Updated schedule attached.",
       "dayOffset": 0,
       "time": "07:30",
       "unread": false,
       "hasAttachment": true,
-      "attachment": "גאנט מעודכן – אוגוסט.xlsx"
+      "attachment": "Updated schedule - August.xlsx"
     },
     {
       "id": "mail-accountant",
-      "from": { "name": "דנה אלמוג", "email": "dana@almogim.co.il" },
-      "subject": "סגירת רבעון Q2 – טיוטה לבדיקה",
-      "preview": "מצורפים הדוחות לפני העברה לרו״ח החיצוני. הרבעון עקף את התחזית; החיסכון בפארק המושבה מוסבר בביאור 7.",
+      "from": { "name": "Dana Almog", "email": "dana@lightstonegroup.com" },
+      "subject": "Q2 close - draft for review",
+      "preview": "Statements attached before they go to the external auditor. The quarter beat forecast; the Brightline Commons saving is explained in Note 7.",
       "dayOffset": -2,
       "time": "19:05",
       "unread": false,
       "hasAttachment": true,
-      "attachment": "דוחות כספיים Q2.pdf"
+      "attachment": "Q2 financial statements.pdf"
     }
   ]
 }

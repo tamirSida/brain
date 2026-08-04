@@ -38,8 +38,8 @@ export interface LayoutOption {
 export const LAYOUT_OPTIONS: LayoutOption[] = [
   {
     id: "stack",
-    name: "מפורט",
-    blurb: "שלושת המדדים ברוחב שווה, כל אחד עם גרף והסבר כתוב. הכי מפורט.",
+    name: "Detailed",
+    blurb: "All three metrics at equal width, each with its chart and a written read. The fullest view.",
     sketch: [
       { w: 1, full: true },
       { w: 1, full: true },
@@ -48,8 +48,8 @@ export const LAYOUT_OPTIONS: LayoutOption[] = [
   },
   {
     id: "hero",
-    name: "מדד מוביל",
-    blurb: "המדד החשוב עם הסבר מלא, ושניים לצידו כהקשר. תשובה במבט אחד.",
+    name: "Lead metric",
+    blurb: "The metric that matters gets the full read, with two beside it for context. An answer at a glance.",
     sketch: [
       { w: 1, full: true },
       { w: 1, full: false },
@@ -58,8 +58,8 @@ export const LAYOUT_OPTIONS: LayoutOption[] = [
   },
   {
     id: "grid",
-    name: "קומפקטי",
-    blurb: "שלושת המדדים קומפקטיים והשוואתיים, בלי טקסט מלווה.",
+    name: "Compact",
+    blurb: "All three compact and comparable, with no accompanying text.",
     sketch: [
       { w: 1, full: false },
       { w: 1, full: false },

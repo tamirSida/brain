@@ -16,7 +16,7 @@ export type Platform = "google" | "microsoft" | "both";
 
 export interface AgentAction {
   id: string;
-  he: string;
+  label: string;
   tier: Tier;
   platform: Platform;
   /** The real endpoint(s) behind it. */
@@ -30,7 +30,7 @@ export interface AgentAction {
 export const AGENT_ACTIONS: AgentAction[] = [
   {
     id: "search-mail",
-    he: "חיפוש בדוא״ל לפי שולח, תאריך, נושא או קובץ מצורף",
+    label: "Search mail by sender, date, subject or attachment",
     tier: "read",
     platform: "both",
     api: "Gmail messages.list?q= · Graph /me/messages $search",
@@ -38,35 +38,35 @@ export const AGENT_ACTIONS: AgentAction[] = [
   },
   {
     id: "list-events",
-    he: "הצגת פגישות היום/השבוע עם המוזמנים וסטטוס האישור שלהם",
+    label: "Show today's or this week's meetings with invitees and their RSVP",
     tier: "read",
     platform: "both",
     api: "Calendar events.list · Graph /me/calendarView",
     scope: "calendar.readonly · Calendars.Read",
-    caveat: "סטטוס = מי אישר את ההזמנה, לא מי נכח בפועל.",
+    caveat: "RSVP is who accepted the invitation, not who actually attended.",
   },
   {
     id: "event-attachment",
-    he: "איתור הקובץ המצורף לפגישה",
+    label: "Locate the file attached to a meeting",
     tier: "read",
     platform: "both",
     api: "Calendar events.get → attachments[]",
     scope: "calendar.readonly + drive.readonly",
     caveat:
-      "עובד רק אם הקובץ צורף לפגישה במפורש, או שמדובר בתמלול או בהקלטה שנוצרה אוטומטית. קובץ ששותף בצ'אט של הפגישה אינו נגיש דרך ה-API.",
+      "Works only if the file was explicitly attached to the meeting, or is an auto-generated transcript or recording. A file shared in the meeting chat is not reachable through the API.",
   },
   {
     id: "find-file",
-    he: "חיפוש קבצים שנערכו או שותפו סביב מועד הפגישה",
+    label: "Find files edited or shared around the time of a meeting",
     tier: "read",
     platform: "both",
     api: "Drive files.list?q= · Graph /search/query",
     scope: "drive.readonly · Files.Read",
-    caveat: "היוריסטיקה לפי חלון זמן ומשתתפים — ניחוש מושכל, לא שליפה ודאית.",
+    caveat: "A heuristic over time window and participants — an informed guess, not a certain lookup.",
   },
   {
     id: "free-slots",
-    he: "מציאת חלונות זמן פנויים לכל המשתתפים",
+    label: "Find open time slots across every participant",
     tier: "read",
     platform: "both",
     api: "Calendar freeBusy.query · Graph findMeetingTimes",
@@ -74,17 +74,17 @@ export const AGENT_ACTIONS: AgentAction[] = [
   },
   {
     id: "attendance",
-    he: "דוח נוכחות בפועל לפגישת Teams",
+    label: "Actual attendance report for a Teams meeting",
     tier: "read",
     platform: "microsoft",
     api: "Graph /me/onlineMeetings/{id}/attendanceReports",
     scope: "OnlineMeetingArtifact.Read.All",
     caveat:
-      "Microsoft בלבד, ורק למארגן הפגישה. דורש אישור מנהל טננט. ל-Google Meet אין ממשק מקביל.",
+      "Microsoft only, and only for the meeting organizer. Requires tenant admin consent. Google Meet has no equivalent interface.",
   },
   {
     id: "draft-reply",
-    he: "ניסוח טיוטת תשובה לאישורך",
+    label: "Draft a reply for your review",
     tier: "draft",
     platform: "both",
     api: "Gmail drafts.create · Graph POST /me/messages",
@@ -92,53 +92,53 @@ export const AGENT_ACTIONS: AgentAction[] = [
   },
   {
     id: "draft-to-attendees",
-    he: "טיוטת מייל עם קובץ מצורף לכל מי שאישר הגעה",
+    label: "Draft mail with an attachment to everyone who accepted",
     tier: "draft",
     platform: "both",
     api: "events.get → attendees[] → drafts.create",
     scope: "calendar.readonly + gmail.compose",
-    caveat: "הנמענים הם מי שאישר את ההזמנה — לא מי שנכח בפועל.",
+    caveat: "Recipients are whoever accepted the invitation — not whoever actually attended.",
   },
   {
     id: "propose-event",
-    he: "הצעת פגישה חדשה לפני שליחה",
+    label: "Propose a new meeting before sending it",
     tier: "draft",
     platform: "both",
-    api: "מוחזק בצד הלקוח עד אישור",
+    api: "held client-side until confirmed",
     scope: "—",
-    caveat: "ל-Calendar API אין מצב טיוטה לאירוע, לכן ההצעה נשמרת מקומית עד שתאשר.",
+    caveat: "The Calendar API has no draft state for an event, so the proposal is held locally until you confirm.",
   },
   {
     id: "send-mail",
-    he: "שליחת המייל",
+    label: "Send the mail",
     tier: "send",
     platform: "both",
     api: "Gmail messages.send · Graph /me/sendMail",
     scope: "gmail.send · Mail.Send",
-    caveat: "אין ביטול אחרי שליחה.",
+    caveat: "There is no undo once sent.",
   },
   {
     id: "create-event",
-    he: "יצירת פגישה ושליחת הזמנות",
+    label: "Create a meeting and send invitations",
     tier: "send",
     platform: "both",
     api: "events.insert?sendUpdates=all · Graph POST /me/events",
     scope: "calendar.events · Calendars.ReadWrite",
-    caveat: "מודיע לכל המוזמנים.",
+    caveat: "Notifies every invitee.",
   },
   {
     id: "update-event",
-    he: "עדכון או ביטול פגישה קיימת",
+    label: "Update or cancel an existing meeting",
     tier: "send",
     platform: "both",
     api: "events.patch / events.delete · Graph PATCH|DELETE /me/events/{id}",
     scope: "calendar.events · Calendars.ReadWrite",
-    caveat: "מודיע לכל המוזמנים.",
+    caveat: "Notifies every invitee.",
   },
 ];
 
 export const TIER_LABEL: Record<Tier, string> = {
-  read: "קריאה",
-  draft: "טיוטה",
-  send: "שליחה",
+  read: "read",
+  draft: "draft",
+  send: "send",
 };

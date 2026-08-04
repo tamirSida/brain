@@ -18,12 +18,12 @@ const Body = z.object({ idToken: z.string().min(20) });
 export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "קלט לא תקין" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
   const identity = await verifyIdToken(parsed.data.idToken);
   if (!identity) {
-    return NextResponse.json({ error: "התחברות לא תקפה" }, { status: 401 });
+    return NextResponse.json({ error: "That sign-in is not valid" }, { status: 401 });
   }
 
   const res = NextResponse.json({ ok: true, email: identity.email });

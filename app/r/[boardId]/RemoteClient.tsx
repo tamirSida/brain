@@ -28,11 +28,12 @@ import type { Metric } from "@/lib/ai/schemas";
  * inline-end side, a fixed composer, hold-to-talk with cancel or send — means
  * nobody needs the interface explained.
  *
- * One thread, no modes: asking "כמה רכבים החברה מחכירה?" and then saying
- * "תוסיף את זה ללוח" only works if both go through the same conversation.
+ * One thread, no modes: asking "how many cars does the company lease?" and then
+ * saying "add that to the board" only works if both go through the same
+ * conversation.
  */
 
-const IDEAS = ["מה מחכה לי היום?", "תוסיף תזרים חודשי", "כמה רכבים החברה מחכירה?"];
+const IDEAS = ["What's waiting for me today?", "Add monthly cash flow", "How many cars does the company lease?"];
 
 interface Turn {
   role: "user" | "assistant";
@@ -95,7 +96,7 @@ export function RemoteClient({
         body: JSON.stringify({ text: body, history }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "הבקשה נכשלה");
+      if (!res.ok) throw new Error(data.error ?? "That request failed");
 
       if (data.metrics) setMetrics(data.metrics);
       setThread((t) =>
@@ -113,7 +114,7 @@ export function RemoteClient({
       // a question with no answer under it.
       setThread((t) => t.slice(0, -2));
       setInput(body);
-      setError(e instanceof Error ? e.message : "שגיאה");
+      setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setBusy(false);
     }
@@ -157,8 +158,8 @@ export function RemoteClient({
               colour while a turn is in flight. */}
           <BrandMark className="size-9 shrink-0 text-ink" />
           <div className="min-w-0">
-            <p className="truncate text-[14px] font-medium text-ink">המוח הארגוני</p>
-            <p className="truncate text-[11px] text-ink-3">הלוח של {owner}</p>
+            <p className="truncate text-[14px] font-medium text-ink">Organization Brain</p>
+            <p className="truncate text-[11px] text-ink-3">{owner}’s board</p>
           </div>
         </div>
 
@@ -168,7 +169,7 @@ export function RemoteClient({
           aria-expanded={board}
           className="flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border border-line px-3 text-[12px] text-ink-2 transition-colors hover:text-ink"
         >
-          הלוח
+          Board
           <span className="num text-ink-3">{metrics.length}</span>
           <Icon
             icon={faChevronDown}
@@ -192,9 +193,9 @@ export function RemoteClient({
                 </div>
                 <button
                   type="button"
-                  onClick={() => void run(`הסר את המדד "${m.title}" מהלוח`)}
+                  onClick={() => void run(`Remove the "${m.title}" metric from the board`)}
                   disabled={busy}
-                  aria-label={`הסר ${m.title}`}
+                  aria-label={`Remove ${m.title}`}
                   className="grid size-10 shrink-0 place-items-center rounded-full text-ink-3 transition-colors hover:bg-risk/10 hover:text-risk disabled:opacity-40"
                 >
                   <Icon icon={faTrashCan} className="text-[13px]" />
@@ -203,7 +204,7 @@ export function RemoteClient({
             ))}
             {metrics.length === 0 && (
               <li className="rounded-[10px] border border-dashed border-line px-3 py-4 text-center text-[12.5px] text-ink-3">
-                הלוח ריק. תגיד מה להוסיף.
+                The board is empty. Say what to add.
               </li>
             )}
           </ul>
@@ -216,7 +217,7 @@ export function RemoteClient({
 
         {thread.length === 0 && (
           <div className="relative mt-6 text-center">
-            <h1 className="text-[20px] font-light tracking-tight text-ink">איך אפשר לעזור?</h1>
+            <h1 className="text-[20px] font-light tracking-tight text-ink">How can I help?</h1>
             <ul className="mt-5 flex flex-wrap justify-center gap-2">
               {IDEAS.map((i) => (
                 <li key={i}>
@@ -237,8 +238,8 @@ export function RemoteClient({
         <div className="relative flex flex-col gap-2">
           {thread.map((t, i) =>
             t.role === "user" ? (
-              // self-end is inline-end, which under dir="rtl" is the left —
-              // where WhatsApp puts your own messages in Hebrew.
+              // self-end is inline-end, which under dir="ltr" is the right —
+              // where WhatsApp puts your own messages.
               <div
                 key={i}
                 className="bubble-out max-w-[85%] self-end rounded-[14px] rounded-ee-[4px] px-3 py-2 text-[14.5px] leading-relaxed shadow-sm"
@@ -251,7 +252,7 @@ export function RemoteClient({
                 className="bubble-in flex max-w-[85%] items-center gap-2 self-start rounded-[14px] rounded-es-[4px] px-3 py-2.5 text-[13px] text-ink-3 shadow-sm"
               >
                 <Icon icon={faCircleNotch} className="animate-spin" />
-                חושב…
+                Thinking…
               </div>
             ) : (
               <div
@@ -264,7 +265,7 @@ export function RemoteClient({
                 {t.edited && (
                   <p className="mb-1 flex items-center gap-1.5 text-[11px] font-medium text-ok">
                     <Icon icon={faCheck} />
-                    הלוח עודכן
+                    Board updated
                   </p>
                 )}
                 <Markdown text={t.content} className="text-[14.5px]" />
@@ -295,7 +296,7 @@ export function RemoteClient({
             <button
               type="button"
               onClick={mic.cancel}
-              aria-label="בטל הקלטה"
+              aria-label="Cancel recording"
               className="grid size-11 shrink-0 place-items-center rounded-full text-ink-3 transition-colors hover:bg-risk/10 hover:text-risk"
             >
               <Icon icon={faTrashCan} className="text-[16px]" />
@@ -305,14 +306,14 @@ export function RemoteClient({
               <span className="size-2 shrink-0 animate-pulse rounded-full bg-risk" />
               <span className="num shrink-0 text-[13px] text-risk">{clock(elapsed)}</span>
               <span className="truncate text-[13px] text-ink-2">
-                {input || "מקשיב…"}
+                {input || "Listening…"}
               </span>
             </div>
 
             <button
               type="button"
               onClick={mic.stop}
-              aria-label="סיים ושלח"
+              aria-label="Finish and send"
               className="grid size-11 shrink-0 place-items-center rounded-full bg-ok text-white transition-colors"
             >
               <Icon icon={faPaperPlane} className="text-[15px]" />
@@ -326,7 +327,7 @@ export function RemoteClient({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && void run(input)}
-                placeholder="הודעה"
+                placeholder="Message"
                 className="min-h-11 min-w-0 flex-1 bg-transparent text-[14.5px] text-ink placeholder:text-ink-3 focus:outline-none"
               />
             </div>
@@ -342,7 +343,7 @@ export function RemoteClient({
                 mic.start();
               }}
               disabled={busy}
-              aria-label={canSend ? "שלח" : "הקלט"}
+              aria-label={canSend ? "Send" : "Record"}
               className={cn(
                 "grid size-11 shrink-0 place-items-center rounded-full transition-colors",
                 busy ? "bg-surface-2 text-ink-3" : "bg-ok text-white"

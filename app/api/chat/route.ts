@@ -43,14 +43,14 @@ export async function POST(req: Request) {
 
   if (!hasApiKey()) {
     return NextResponse.json(
-      { error: "חסר ANTHROPIC_API_KEY — הצ'אט דורש מפתח פעיל." },
+      { error: "ANTHROPIC_API_KEY is not set — chat needs an active key." },
       { status: 503 }
     );
   }
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "קלט לא תקין" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
   const { conversationId, message, voice } = parsed.data;
   const now = new Date().toISOString();
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error("[chat]", err);
-    const msg = err instanceof Error ? err.message : "שגיאה לא צפויה";
+    const msg = err instanceof Error ? err.message : "Unexpected error";
     return NextResponse.json({ error: msg }, { status: 502 });
   }
 }

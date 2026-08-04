@@ -29,13 +29,13 @@ export function isTextual(file: File): boolean {
 }
 
 export async function readAttachment(file: File): Promise<Attachment> {
-  const base = { name: file.name, size: file.size, type: file.type || "לא ידוע" };
+  const base = { name: file.name, size: file.size, type: file.type || "unknown" };
   if (!isTextual(file)) return base;
 
   const raw = await file.text();
   return {
     ...base,
-    text: raw.length > MAX_CHARS ? `${raw.slice(0, MAX_CHARS)}\n…(נחתך)` : raw,
+    text: raw.length > MAX_CHARS ? `${raw.slice(0, MAX_CHARS)}\n…(truncated)` : raw,
   };
 }
 
@@ -49,10 +49,10 @@ export function formatSize(bytes: number): string {
 export function withAttachment(text: string, att: Attachment | null): string {
   if (!att) return text;
 
-  const head = `[קובץ מצורף: ${att.name} · ${att.type} · ${formatSize(att.size)}]`;
+  const head = `[Attached file: ${att.name} · ${att.type} · ${formatSize(att.size)}]`;
   const body = att.text
-    ? `\n<תוכן הקובץ>\n${att.text}\n</תוכן הקובץ>`
-    : `\n(לא ניתן לקרוא את תוכן הקובץ הזה בדפדפן — יש לך רק שם הקובץ והסוג שלו.)`;
+    ? `\n<file contents>\n${att.text}\n</file contents>`
+    : `\n(This file\u2019s contents cannot be read in the browser — you have only its name and type.)`;
 
   return `${head}${body}\n\n${text}`.trim();
 }
