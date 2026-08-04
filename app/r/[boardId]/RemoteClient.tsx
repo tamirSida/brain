@@ -154,12 +154,13 @@ export function RemoteClient({
       {/* Header */}
       <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-surface px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="flex items-center gap-2.5">
-          {/* Red on a white disc, matching the graph hub on the desktop board.
-              The mark doubles as the thinking indicator here — an arc orbits it
-              while a turn is in flight. */}
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white">
-            <BrandMark className="size-5 text-[#D01E3B]" />
-          </span>
+          {/* No disc behind it, unlike the graph hub: the header surface is
+              already white in light mode, so a white disc is invisible there and
+              leaves the mark looking undersized. On the dark canvas of the graph
+              the disc earns its place; here the mark can sit directly on the
+              header and read on both themes. It doubles as the thinking
+              indicator — an arc orbits it while a turn is in flight. */}
+          <BrandMark className="size-8 shrink-0 text-[#D01E3B]" />
           <div className="min-w-0">
             <p className="truncate text-[14px] font-medium text-ink">Organization Brain</p>
             <p className="truncate text-[11px] text-ink-3">{owner}’s board</p>
