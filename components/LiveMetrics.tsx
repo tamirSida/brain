@@ -39,11 +39,6 @@ export function LiveMetrics({
   const shape = useRef(JSON.stringify(initial));
   const endThinking = useRef<(() => void) | null>(null);
   const video = useRef<HTMLVideoElement>(null);
-  /**
-   * The clip is three megabytes, so it is not in the page until the first edit
-   * arrives — and once mounted it stays, so every later edit shows it instantly.
-   */
-  const [wantsVideo, setWantsVideo] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -96,8 +91,6 @@ export function LiveMetrics({
     // is arriving, so skipping it loses nothing.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setWantsVideo(true);
     // Autoplay can still be refused; a background flourish is not worth
     // surfacing an error over.
     void video.current?.play().catch(() => {});
@@ -115,25 +108,27 @@ export function LiveMetrics({
       {/* Site footage, faint, only while an edit is on its way. It sits behind
           the cards — which are translucent and dimmed at that moment — so it
           reads as the surface waking up rather than as a video playing. */}
-      {wantsVideo && (
-        <video
-          ref={video}
-          src="/crane-bg-loop.mp4"
-          muted
-          loop
-          playsInline
-          preload="none"
-          aria-hidden
-          className={cn(
-            "pointer-events-none absolute inset-0 size-full rounded-[var(--radius-card)] object-cover",
-            "transition-opacity duration-700 ease-out",
-            // Faded at the edges so it never reads as a hard rectangle bolted
-            // onto the layout.
-            "[mask-image:radial-gradient(120%_100%_at_50%_50%,black_40%,transparent_100%)]",
-            receiving ? "opacity-20 saturate-50" : "opacity-0"
-          )}
-        />
-      )}
+      {/* Always mounted, never preloaded: `preload="none"` means not a byte is
+          fetched until play() is called, and mounting it up front avoids the
+          trap of calling play() on a ref that the same render has not created
+          yet — which is why the clip stayed invisible on the first edit. */}
+      <video
+        ref={video}
+        src="/crane-bg-loop.mp4"
+        muted
+        loop
+        playsInline
+        preload="none"
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-0 size-full rounded-[var(--radius-card)] object-cover",
+          "transition-opacity duration-700 ease-out",
+          // Faded at the edges so it never reads as a hard rectangle bolted
+          // onto the layout.
+          "[mask-image:radial-gradient(120%_100%_at_50%_50%,black_40%,transparent_100%)]",
+          receiving ? "opacity-20 saturate-50" : "opacity-0"
+        )}
+      />
 
       {/* While an edit is arriving the board recedes and a spinner takes the
           foreground: the point is to pull every eye in the room to the screen
@@ -157,7 +152,7 @@ export function LiveMetrics({
               <Icon icon={faMobileScreenButton} className="text-[15px] text-brand-hi" />
             </span>
             <span className="rounded-full bg-bg/80 px-3 py-1 text-[12px] font-medium text-ink-2 backdrop-blur-sm">
-              מעדכן את הלוח…
+              מטפל בבקשה שלך מהנייד
             </span>
           </div>
         </div>
