@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { redirect } from "next/navigation";
 
 import { Agenda } from "@/components/Agenda";
+import { BrandLogo } from "@/components/Brand";
 import { Greeting } from "@/components/Greeting";
 import { EditDashboard } from "@/components/EditDashboard";
 import { QuickAsk } from "@/components/QuickAsk";
@@ -57,7 +57,9 @@ export default async function DashboardPage() {
         {/* Status bar */}
         <div className="flex shrink-0 items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Image src="/ofek-logo.svg" alt="אופק אחזקות" width={78} height={28} priority className="brand-mark opacity-90" />
+            <span className="group inline-flex text-ink">
+              <BrandLogo className="h-6 w-auto" />
+            </span>
             {session.source === "demo" && (
               <span
                 title="ANTHROPIC_API_KEY לא הוגדר — מוצגים נתוני דוגמה קבועים"

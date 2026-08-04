@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { faArrowLeft, faCircleNotch, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
+import { BrandLogo } from "@/components/Brand";
 import { Icon } from "@/components/Icon";
 import { firebaseAuth } from "@/lib/firebase/client";
 import { apiFetch } from "@/lib/http";
@@ -72,14 +72,9 @@ export function LoginForm() {
   return (
     <div className="rise relative w-full max-w-[380px]">
       <div className="flex flex-col items-center">
-        <Image
-          src="/ofek-logo.svg"
-          alt="אופק אחזקות"
-          width={96}
-          height={34}
-          priority
-          className="brand-mark opacity-90"
-        />
+        <span className="group inline-flex text-ink">
+          <BrandLogo className="h-9 w-auto" />
+        </span>
         <p className="mt-4 text-[15px] text-ink-2">המוח הארגוני</p>
       </div>
 

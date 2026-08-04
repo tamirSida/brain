@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import {
   faCheck,
@@ -12,6 +11,7 @@ import {
   faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { BrandMark } from "@/components/Brand";
 import { Icon } from "@/components/Icon";
 import { Markdown } from "@/components/Markdown";
 import { apiFetch } from "@/lib/http";
@@ -153,9 +153,9 @@ export function RemoteClient({
       {/* Header */}
       <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-surface px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="flex items-center gap-2.5">
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#0d131b]">
-            <Image src="/ofek-logo.svg" alt="" width={26} height={10} priority />
-          </span>
+          {/* The mark doubles as the thinking indicator here — it spins in
+              colour while a turn is in flight. */}
+          <BrandMark className="size-9 shrink-0 text-ink" />
           <div className="min-w-0">
             <p className="truncate text-[14px] font-medium text-ink">המוח הארגוני</p>
             <p className="truncate text-[11px] text-ink-3">הלוח של {owner}</p>

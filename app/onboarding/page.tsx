@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { redirect } from "next/navigation";
+import { BrandLogo } from "@/components/Brand";
 
 import { OnboardingForm } from "./OnboardingForm";
 import { currentEmail } from "@/lib/session";
@@ -23,14 +23,9 @@ export default async function OnboardingPage({
 
       <div className="relative mx-auto flex min-h-dvh w-full max-w-[440px] flex-col px-5 pb-12 pt-[max(2.5rem,env(safe-area-inset-top))]">
         <header className="rise">
-          <Image
-            src="/ofek-logo.svg"
-            alt="אופק אחזקות"
-            width={104}
-            height={38}
-            priority
-            className="brand-mark opacity-95"
-          />
+          <span className="group inline-flex text-ink">
+            <BrandLogo className="h-10 w-auto" />
+          </span>
 
           <h1 className="mt-9 text-[26px] leading-[1.25] font-light tracking-tight text-ink">
             מהלך חכם

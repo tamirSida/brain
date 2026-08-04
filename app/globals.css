@@ -218,20 +218,6 @@ body {
   -webkit-backdrop-filter: blur(22px) saturate(1.25);
 }
 
-/* The Ofek mark ships as white-fill SVG (built for a dark header). Invert it
-   on light surfaces or it disappears entirely. */
-:root[data-theme="light"] .brand-mark {
-  filter: brightness(0);
-  opacity: 0.9;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme]) .brand-mark {
-    filter: brightness(0);
-    opacity: 0.9;
-  }
-}
-
 /* Light surfaces need a hairline shadow to separate from the page; dark ones
    read as separate on contrast alone. */
 :root[data-theme="light"] .notif {
@@ -293,6 +279,31 @@ body {
 .edge-flow {
   stroke-dasharray: 2 6;
   animation: dash 1000ms linear infinite;
+}
+
+/* The Almogim mark: six dots that carry the brand's colours.
+   Plain, they follow the surrounding text. They take their own colour on
+   hover, and while the brain is thinking the whole ring spins — the logo is
+   the loading indicator rather than something next to one. */
+.brand-dots .dot {
+  fill: currentColor;
+  transition: fill 320ms ease;
+}
+
+.group:hover .brand-dots .dot,
+.brand-dots.is-colour .dot {
+  fill: var(--dot);
+}
+
+@keyframes spin-mark {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.brand-dots.is-spinning {
+  transform-origin: 50% 50%;
+  animation: spin-mark 1.5s linear infinite;
 }
 
 /* Chat bubbles. Outgoing sits on the inline-end side, which under dir="rtl"

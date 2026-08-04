@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 import type { Connector, ConnectorStatus } from "@/lib/types";
+import { BrandMark } from "@/components/Brand";
 import { cn } from "@/lib/cn";
 import { useThinking } from "@/lib/thinking";
 
@@ -203,10 +204,11 @@ export function BrainGraph({ connectors }: { connectors: Connector[] }) {
           )}
         </svg>
 
-        {/* Core mark — the Ofek logo ships white-on-dark, so it keeps its own
-            dark disc in both themes. */}
+        {/* The core is the mark itself: at rest it sits quietly on the dark
+            disc, and while the brain is working it colours and spins. The
+            thing at the centre of the graph is the thing that is thinking. */}
         <div className="pointer-events-none absolute left-1/2 top-1/2 grid size-[76px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[#0d131b]">
-          <Image src="/ofek-logo.svg" alt="אופק" width={62} height={22} priority />
+          <BrandMark className="size-10 text-white" />
         </div>
 
         {/* Nodes */}
