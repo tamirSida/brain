@@ -101,7 +101,7 @@ export default async function DashboardPage() {
             </section>
 
             {/* Below the metrics: read first, then ask. */}
-            <QuickAsk />
+            <QuickAsk boardId={boardId} />
 
           </div>
 

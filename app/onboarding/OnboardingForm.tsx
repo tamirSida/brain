@@ -229,35 +229,47 @@ function Building({ stage }: { stage: number }) {
   }, []);
 
   return (
-    <div className="relative py-6" role="status" aria-live="polite">
-      {/* Site footage behind the build.
+    <div className="py-6" role="status" aria-live="polite">
+      {/* Site footage, in its own band with the spinner centred on it.
 
           This is the one moment in the app with nothing to look at and roughly
-          twenty seconds to fill, so it earns the clip in a way that a two-second
-          board update did not. Faded and edge-masked, so it reads as the surface
-          waking up rather than as a video bolted onto the page. */}
-      <video
-        ref={video}
-        src="/crane-bg-loop.mp4"
-        muted
-        loop
-        playsInline
-        preload="auto"
-        aria-hidden
-        className={cn(
-          "pointer-events-none absolute inset-0 size-full rounded-[var(--radius-card)] object-cover",
-          "opacity-25 saturate-50",
-          "[mask-image:radial-gradient(120%_100%_at_50%_45%,black_35%,transparent_100%)]"
-        )}
-      />
+          twenty seconds to fill, so it earns the clip in a way that a
+          two-second board update did not.
 
-      <div className="relative mx-auto grid size-28 place-items-center">
-        <span className="absolute inset-0 rounded-full border border-brand/25 pulse" />
-        <span className="absolute inset-4 rounded-full border border-brand/40" />
-        <Icon icon={faCircleNotch} className="animate-spin text-[22px] text-brand-hi" />
+          The stage list sits *below* the band rather than over it: text on
+          moving footage is unreadable no matter how far the video is faded, and
+          the fix is to stop overlapping them rather than to keep dimming the
+          clip. The only thing on top of the video is the spinner, which is a
+          shape and survives a busy background. */}
+      <div className="relative mx-auto grid aspect-[16/10] w-full max-w-sm place-items-center overflow-hidden rounded-[var(--radius-card)] bg-surface-2">
+        <video
+          ref={video}
+          src="/crane-bg-loop.mp4"
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute inset-0 size-full object-cover",
+            "opacity-60 saturate-[0.85]",
+            // Vignetted towards the middle so the spinner always has a calm
+            // patch under it, whatever the footage is doing.
+            "[mask-image:radial-gradient(130%_110%_at_50%_50%,black_45%,transparent_100%)]"
+          )}
+        />
+
+        {/* Scrim: guarantees contrast for the spinner even on a bright frame. */}
+        <div className="pointer-events-none absolute inset-0 bg-bg/35" />
+
+        <div className="relative grid size-28 place-items-center">
+          <span className="absolute inset-0 rounded-full border border-brand/40 pulse" />
+          <span className="absolute inset-4 rounded-full border border-brand/60" />
+          <Icon icon={faCircleNotch} className="animate-spin text-[22px] text-brand-hi drop-shadow" />
+        </div>
       </div>
 
-      <ol className="relative mx-auto mt-8 max-w-xs space-y-3">
+      <ol className="mx-auto mt-8 max-w-xs space-y-3">
         {STAGES.map((s, i) => (
           <li
             key={s}

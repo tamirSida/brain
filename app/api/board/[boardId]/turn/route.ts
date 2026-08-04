@@ -9,6 +9,9 @@ export const runtime = "nodejs";
 // Netlify caps synchronous functions at 60s and does not allow raising it.
 export const maxDuration = 60;
 
+/** How many phone turns the board keeps. */
+const MAX_TURNS = 12;
+
 const Body = z.object({
   text: z.string().trim().min(2, "I didn't catch that"),
   /** Recent turns, replayed by the phone so follow-ups resolve. */
@@ -44,10 +47,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ boardId
   // Announce before the slow part so the dashboard reacts while the model is
   // still working, not only once it finishes. The question goes up with it, so
   // the room can read what was asked while the answer is still being written.
+  //
+  // Capped at MAX_TURNS: this rides along in every session write, and a phone
+  // left open on a table would otherwise grow the document without limit.
+  const turnId = crypto.randomUUID();
+  const priorTurns = (session.phoneTurns ?? []).slice(-(MAX_TURNS - 1));
   await writeSession({
     ...session,
     pendingSince: new Date().toISOString(),
-    lastTurn: { question: parsed.data.text, at: new Date().toISOString() },
+    phoneTurns: [...priorTurns, { id: turnId, question: parsed.data.text, at: new Date().toISOString() }],
   });
 
   try {
@@ -65,7 +73,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ boardId
         ? { ...session.brief, metrics: result.metrics }
         : session.brief,
       pendingSince: null,
-      lastTurn: { question: parsed.data.text, answer: result.reply, at: new Date().toISOString() },
+      // Patch the answer onto the entry already on the board, rather than
+      // appending — otherwise the question appears twice.
+      phoneTurns: [
+        ...priorTurns,
+        { id: turnId, question: parsed.data.text, answer: result.reply, at: new Date().toISOString() },
+      ],
       // Only bump the clock on a real change, so the dashboard's poll doesn't
       // treat an answered question as a board update.
       updatedAt: result.metrics ? new Date().toISOString() : session.updatedAt,
@@ -81,7 +94,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ boardId
     console.error("[board turn]", err);
     // Clear the marker, or the dashboard claims an edit is arriving until it
     // times out.
-    await writeSession({ ...session, pendingSince: null, lastTurn: null });
+    // Drop the unanswered question rather than leaving it stranded on the
+    // board with a spinner that will never resolve.
+    await writeSession({ ...session, pendingSince: null, phoneTurns: priorTurns });
     return NextResponse.json({ error: "That request failed. Try wording it differently." }, { status: 502 });
   }
 }
