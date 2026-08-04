@@ -5,7 +5,7 @@ import { readBoard } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "אופק · עריכה מהטלפון" };
+export const metadata = { title: "אלמוגים · עריכה מהטלפון" };
 
 /**
  * The phone remote, reached by scanning the QR on the dashboard.

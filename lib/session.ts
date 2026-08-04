@@ -2,7 +2,7 @@ import "server-only";
 
 import { cookies } from "next/headers";
 
-const COOKIE = "ofek_brain_email";
+const COOKIE = "almogim_brain_email";
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 /** Next 16: cookies() is async. Synchronous access was removed. */

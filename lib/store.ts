@@ -46,11 +46,11 @@ export function firestore(): Firestore {
  * requests in dev, so a plain module-level Map silently loses every write.
  */
 const globalForStore = globalThis as typeof globalThis & {
-  __ofekBrainStore?: Map<string, SessionState>;
-  __ofekBrainBoards?: Map<string, string>;
+  __almogimBrainStore?: Map<string, SessionState>;
+  __almogimBrainBoards?: Map<string, string>;
 };
-const memory = (globalForStore.__ofekBrainStore ??= new Map<string, SessionState>());
-const boardMemory = (globalForStore.__ofekBrainBoards ??= new Map<string, string>());
+const memory = (globalForStore.__almogimBrainStore ??= new Map<string, SessionState>());
+const boardMemory = (globalForStore.__almogimBrainBoards ??= new Map<string, string>());
 
 const key = (email: string) => email.trim().toLowerCase();
 

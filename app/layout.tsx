@@ -11,8 +11,8 @@ const heebo = Heebo({
 });
 
 export const metadata: Metadata = {
-  title: "אופק · המוח הארגוני",
-  description: "שכבת הבינה מעל כל המערכות של אופק אחזקות",
+  title: "אלמוגים · המוח הארגוני",
+  description: "שכבת הבינה מעל כל המערכות של אלמוגים",
 };
 
 export const viewport: Viewport = {
@@ -41,7 +41,7 @@ export default function RootLayout({
             never sees a dark flash. Must run blocking, before the body. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('ofek-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}`,
+            __html: `try{var t=localStorage.getItem('almogim-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}`,
           }}
         />
       </head>

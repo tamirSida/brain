@@ -98,7 +98,7 @@ export function OnboardingForm() {
           value={v.email}
           onBlur={() => setTouched((t) => ({ ...t, email: true }))}
           onChange={(e) => setV({ ...v, email: e.target.value })}
-          placeholder="name@ofek-holdings.com"
+          placeholder="name@almogim.co.il"
           aria-invalid={emailInvalid || undefined}
           aria-describedby={emailInvalid ? "email-err" : undefined}
           className={cn(inputCls, "text-left", emailInvalid && "border-risk/60")}

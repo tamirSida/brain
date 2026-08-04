@@ -32,7 +32,7 @@ export function ThemeToggle() {
     setTheme(next);
     document.documentElement.dataset.theme = next;
     try {
-      localStorage.setItem("ofek-theme", next);
+      localStorage.setItem("almogim-theme", next);
     } catch {
       /* private mode — the choice just won't persist */
     }

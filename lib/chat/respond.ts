@@ -61,7 +61,7 @@ export function systemPrompt(profile: Profile): string {
     return `- ${a.he} (${tier}${plat})${a.caveat ? `\n    מגבלה: ${a.caveat}` : ""}`;
   }).join("\n");
 
-  return `אתה המוח הארגוני של ״אופק אחזקות״ — חברת נדל״ן ואחזקות ישראלית.
+  return `אתה המוח הארגוני של ״אלמוגים״ — חברת נדל״ן ואחזקות ישראלית.
 אתה עוזר ל${profile.name}, ${profile.title}.
 
 המערכות המחוברות ומה יש בכל אחת:

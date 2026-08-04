@@ -97,7 +97,7 @@ export function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           disabled={busy}
           className="mt-1.5 min-h-12 w-full rounded-[var(--radius-ctl)] border border-line bg-surface px-4 text-start text-[15px] text-ink placeholder:text-ink-3 focus:border-brand/70 focus:outline-none disabled:opacity-60"
-          placeholder="name@ofek-holdings.com"
+          placeholder="name@almogim.co.il"
         />
 
         <label htmlFor="password" className="mt-3 block text-[13px] text-ink-2">

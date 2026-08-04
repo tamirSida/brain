@@ -1,6 +1,6 @@
 {
   "$comment": "Shared demo workspace — every user reads the same calendar and mailbox. Dates are stored as dayOffset relative to today and resolved at runtime, so 'yesterday's meeting' always works no matter when the demo runs.",
-  "organizer": { "name": "תמיר סידא", "email": "tamir@ofek-holdings.com" },
+  "organizer": { "name": "תמיר סידא", "email": "tamir@almogim.co.il" },
   "events": [
     {
       "id": "evt-exec-weekly",
@@ -11,11 +11,11 @@
       "location": "משרדי הקבוצה, רמת גן",
       "platform": "google",
       "attendees": [
-        { "name": "תמיר סידא", "email": "tamir@ofek-holdings.com", "rsvp": "accepted", "organizer": true },
-        { "name": "רוי דרור", "email": "roy@ofek-holdings.com", "rsvp": "accepted" },
-        { "name": "מיכל ברנע", "email": "michal.b@ofek-holdings.com", "rsvp": "accepted" },
-        { "name": "אורי לוינסון", "email": "uri.l@ofek-holdings.com", "rsvp": "tentative" },
-        { "name": "נעה שגב", "email": "noa.s@ofek-holdings.com", "rsvp": "declined" }
+        { "name": "תמיר סידא", "email": "tamir@almogim.co.il", "rsvp": "accepted", "organizer": true },
+        { "name": "רוי דרור", "email": "roy@almogim.co.il", "rsvp": "accepted" },
+        { "name": "מיכל ברנע", "email": "michal.b@almogim.co.il", "rsvp": "accepted" },
+        { "name": "אורי לוינסון", "email": "uri.l@almogim.co.il", "rsvp": "tentative" },
+        { "name": "נעה שגב", "email": "noa.s@almogim.co.il", "rsvp": "declined" }
       ],
       "attachments": [
         {
@@ -60,9 +60,9 @@
       "location": "רחוב הים 12, בת ים",
       "platform": "google",
       "attendees": [
-        { "name": "רוי דרור", "email": "roy@ofek-holdings.com", "rsvp": "accepted", "organizer": true },
+        { "name": "רוי דרור", "email": "roy@almogim.co.il", "rsvp": "accepted", "organizer": true },
         { "name": "איתי כהן", "email": "itay@shikun-binui.co.il", "rsvp": "accepted" },
-        { "name": "מיכל ברנע", "email": "michal.b@ofek-holdings.com", "rsvp": "accepted" }
+        { "name": "מיכל ברנע", "email": "michal.b@almogim.co.il", "rsvp": "accepted" }
       ],
       "attachments": []
     },
@@ -75,9 +75,9 @@
       "location": "חדר ישיבות ראשי",
       "platform": "microsoft",
       "attendees": [
-        { "name": "תמיר סידא", "email": "tamir@ofek-holdings.com", "rsvp": "accepted", "organizer": true },
-        { "name": "רוי דרור", "email": "roy@ofek-holdings.com", "rsvp": "accepted" },
-        { "name": "דנה אלמוג", "email": "dana@ofek-holdings.com", "rsvp": "accepted" },
+        { "name": "תמיר סידא", "email": "tamir@almogim.co.il", "rsvp": "accepted", "organizer": true },
+        { "name": "רוי דרור", "email": "roy@almogim.co.il", "rsvp": "accepted" },
+        { "name": "דנה אלמוג", "email": "dana@almogim.co.il", "rsvp": "accepted" },
         { "name": "יוסי מרקוביץ'", "email": "yossi@meitar-law.co.il", "rsvp": "needsAction" }
       ],
       "attachments": [
@@ -156,9 +156,9 @@
       "location": "Teams",
       "platform": "microsoft",
       "attendees": [
-        { "name": "תמיר סידא", "email": "tamir@ofek-holdings.com", "rsvp": "accepted", "organizer": true },
+        { "name": "תמיר סידא", "email": "tamir@almogim.co.il", "rsvp": "accepted", "organizer": true },
         { "name": "שרון גלעד", "email": "sharon.gilad@mizrahi-tefahot.co.il", "rsvp": "accepted" },
-        { "name": "דנה אלמוג", "email": "dana@ofek-holdings.com", "rsvp": "accepted" }
+        { "name": "דנה אלמוג", "email": "dana@almogim.co.il", "rsvp": "accepted" }
       ],
       "attachments": [
         {
@@ -200,8 +200,8 @@
       "location": "משרדי השוכר, הרצליה פיתוח",
       "platform": "google",
       "attendees": [
-        { "name": "מיכל ברנע", "email": "michal.b@ofek-holdings.com", "rsvp": "accepted", "organizer": true },
-        { "name": "רוי דרור", "email": "roy@ofek-holdings.com", "rsvp": "tentative" },
+        { "name": "מיכל ברנע", "email": "michal.b@almogim.co.il", "rsvp": "accepted", "organizer": true },
+        { "name": "רוי דרור", "email": "roy@almogim.co.il", "rsvp": "tentative" },
         { "name": "יוסי מרקוביץ'", "email": "yossi@meitar-law.co.il", "rsvp": "accepted" }
       ],
       "attachments": []
@@ -215,11 +215,11 @@
       "location": "משרדי הקבוצה, רמת גן",
       "platform": "microsoft",
       "attendees": [
-        { "name": "תמיר סידא", "email": "tamir@ofek-holdings.com", "rsvp": "accepted", "organizer": true },
-        { "name": "רוי דרור", "email": "roy@ofek-holdings.com", "rsvp": "accepted" },
-        { "name": "דנה אלמוג", "email": "dana@ofek-holdings.com", "rsvp": "accepted" },
-        { "name": "אורי לוינסון", "email": "uri.l@ofek-holdings.com", "rsvp": "needsAction" },
-        { "name": "נעה שגב", "email": "noa.s@ofek-holdings.com", "rsvp": "accepted" }
+        { "name": "תמיר סידא", "email": "tamir@almogim.co.il", "rsvp": "accepted", "organizer": true },
+        { "name": "רוי דרור", "email": "roy@almogim.co.il", "rsvp": "accepted" },
+        { "name": "דנה אלמוג", "email": "dana@almogim.co.il", "rsvp": "accepted" },
+        { "name": "אורי לוינסון", "email": "uri.l@almogim.co.il", "rsvp": "needsAction" },
+        { "name": "נעה שגב", "email": "noa.s@almogim.co.il", "rsvp": "accepted" }
       ],
       "attachments": [
         {
@@ -264,7 +264,7 @@
       "location": "Google Meet",
       "platform": "google",
       "attendees": [
-        { "name": "רוי דרור", "email": "roy@ofek-holdings.com", "rsvp": "accepted", "organizer": true },
+        { "name": "רוי דרור", "email": "roy@almogim.co.il", "rsvp": "accepted", "organizer": true },
         { "name": "איתי כהן", "email": "itay@shikun-binui.co.il", "rsvp": "accepted" },
         { "name": "ליאת פרידמן", "email": "liat@fa-architects.co.il", "rsvp": "accepted" }
       ],
@@ -306,7 +306,7 @@
     },
     {
       "id": "mail-accountant",
-      "from": { "name": "דנה אלמוג", "email": "dana@ofek-holdings.com" },
+      "from": { "name": "דנה אלמוג", "email": "dana@almogim.co.il" },
       "subject": "סגירת רבעון Q2 – טיוטה לבדיקה",
       "preview": "מצורפים הדוחות לפני העברה לרו״ח החיצוני. הרבעון עקף את התחזית; החיסכון בפארק המושבה מוסבר בביאור 7.",
       "dayOffset": -2,

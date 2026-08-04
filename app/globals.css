@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   OFEK BRAIN — design tokens
+   ALMOGIM BRAIN — design tokens
 
-   Carries Ofek Holdings' restraint (flat surfaces, minimal radii, generous
+   Carries Almogim's restraint (flat surfaces, minimal radii, generous
    whitespace, one accent) into both a light and a dark canvas.
 
    Tokens are declared as raw CSS vars on :root and swapped per theme; @theme

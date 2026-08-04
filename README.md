@@ -1,6 +1,6 @@
-# אופק · המוח הארגוני — mock
+# אלמוגים · המוח הארגוני — mock
 
-A working prototype of the Organization Brain for Ofek Holdings: a Hebrew,
+A working prototype of the Organization Brain for Almogim: a Hebrew,
 RTL, mobile-first dashboard over a company's connected systems, with a phone
 remote that edits it by voice.
 
@@ -60,7 +60,7 @@ cache headers.
 | --- | --- | --- |
 | `ANTHROPIC_API_KEY` | yes | Server-only. Never prefix with `NEXT_PUBLIC_`. |
 | `CLAUDE_MODEL` | no | Defaults to `claude-sonnet-5`. |
-| `NEXT_PUBLIC_FIREBASE_*` | no | Defaults to the `ofek-brain` project, baked into `lib/store.ts`. |
+| `NEXT_PUBLIC_FIREBASE_*` | no | Defaults to the `ofek-brain` Firebase project. That is the infrastructure name, not branding — renaming it would point the app at a project that does not exist. |
 | `NEXT_PUBLIC_TUNNEL_URL` | no | Ignored unless the dashboard is open on localhost, so it is safe either way. |
 
 Firestore rules live in `firestore.rules` and deploy separately:

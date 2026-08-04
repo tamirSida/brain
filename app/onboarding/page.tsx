@@ -30,7 +30,7 @@ export default async function OnboardingPage({
           <h1 className="mt-9 text-[26px] leading-[1.25] font-light tracking-tight text-ink">
             מהלך חכם
             <br />
-            מתחיל באופק
+            מתחיל באלמוגים
           </h1>
 
           <p className="mt-3 text-[14.5px] leading-relaxed text-ink-2">
@@ -44,7 +44,7 @@ export default async function OnboardingPage({
         </div>
 
         <p className="mt-10 text-center text-[12.5px] leading-relaxed text-ink-2">
-          הנתונים נשמרים בענן של אופק בלבד ואינם משמשים לאימון מודלים.
+          הנתונים נשמרים בענן של אלמוגים בלבד ואינם משמשים לאימון מודלים.
         </p>
       </div>
     </main>

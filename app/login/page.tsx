@@ -2,7 +2,7 @@ import { Suspense } from "react";
 
 import { LoginForm } from "./LoginForm";
 
-export const metadata = { title: "אופק · כניסה" };
+export const metadata = { title: "אלמוגים · כניסה" };
 
 export default function LoginPage() {
   return (
