@@ -38,6 +38,12 @@ export function LiveMetrics({
   // restart every card's entrance animation.
   const shape = useRef(JSON.stringify(initial));
   const endThinking = useRef<(() => void) | null>(null);
+  const video = useRef<HTMLVideoElement>(null);
+  /**
+   * The clip is three megabytes, so it is not in the page until the first edit
+   * arrives — and once mounted it stays, so every later edit shows it instantly.
+   */
+  const [wantsVideo, setWantsVideo] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -80,6 +86,23 @@ export function LiveMetrics({
     };
   }, [boardId]);
 
+  useEffect(() => {
+    if (!receiving) {
+      video.current?.pause();
+      return;
+    }
+    // Moving footage is exactly what "reduce motion" asks not to be shown, and
+    // this one is decorative — the banner and the spinner already say an edit
+    // is arriving, so skipping it loses nothing.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setWantsVideo(true);
+    // Autoplay can still be refused; a background flourish is not worth
+    // surfacing an error over.
+    void video.current?.play().catch(() => {});
+  }, [receiving]);
+
   return (
     <div className="relative">
       {receiving && (
@@ -87,6 +110,29 @@ export function LiveMetrics({
           <Icon icon={faMobileScreenButton} className="text-[11px]" />
           מקבל עדכון מהטלפון…
         </p>
+      )}
+
+      {/* Site footage, faint, only while an edit is on its way. It sits behind
+          the cards — which are translucent and dimmed at that moment — so it
+          reads as the surface waking up rather than as a video playing. */}
+      {wantsVideo && (
+        <video
+          ref={video}
+          src="/crane-bg-loop.mp4"
+          muted
+          loop
+          playsInline
+          preload="none"
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute inset-0 size-full rounded-[var(--radius-card)] object-cover",
+            "transition-opacity duration-700 ease-out",
+            // Faded at the edges so it never reads as a hard rectangle bolted
+            // onto the layout.
+            "[mask-image:radial-gradient(120%_100%_at_50%_50%,black_40%,transparent_100%)]",
+            receiving ? "opacity-20 saturate-50" : "opacity-0"
+          )}
+        />
       )}
 
       {/* While an edit is arriving the board recedes and a spinner takes the

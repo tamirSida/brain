@@ -53,8 +53,12 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   /**
-   * Everything except Next's own build output and static files in /public,
-   * which carry no data and would only add a token verification per asset.
+   * Everything except Next's own build output and static media in /public,
+   * which carry no data. Video matters here beyond tidiness: a media file is
+   * fetched as a stream of byte ranges, and verifying a JWT on every one of
+   * them would be wasted work on an asset that is not secret.
    */
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp4|webm|woff2?)$).*)",
+  ],
 };
