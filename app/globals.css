@@ -288,9 +288,12 @@ body {
    a broken image. The motion is therefore an arc that orbits the mark while
    the letter itself only breathes. The logo is still the loading indicator,
    rather than something parked next to one. */
+/* No `color` declaration here. Colour is set per use with a text-* utility, and
+   Tailwind puts utilities in @layer utilities — an unlayered rule beats a
+   layered one regardless of order, so declaring `color: inherit` here silently
+   overrode every caller and forced the mark back to the page ink. */
 .brand-mark,
 .brand-word {
-  color: inherit;
   transition: color 320ms ease;
 }
 
