@@ -204,11 +204,14 @@ export function BrainGraph({ connectors }: { connectors: Connector[] }) {
           )}
         </svg>
 
-        {/* The core is the mark itself: at rest it sits quietly on the dark
-            disc, and while the brain is working it colours and spins. The
-            thing at the centre of the graph is the thing that is thinking. */}
-        <div className="pointer-events-none absolute left-1/2 top-1/2 grid size-[76px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[#0d131b]">
-          <BrandMark className="size-10 text-white" />
+        {/* The core is the mark itself on a white disc — so the centre of the
+            graph is the identity rather than a dark disc with a logo on it, and
+            the red reads as the brand rather than as one more status colour
+            among the node rings. While the brain works, the orbit picks up the
+            same red. The thing at the centre of the graph is the thing that is
+            thinking. */}
+        <div className="pointer-events-none absolute left-1/2 top-1/2 grid size-[76px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white">
+          <BrandMark className="size-10 text-[#D01E3B]" />
         </div>
 
         {/* Nodes */}

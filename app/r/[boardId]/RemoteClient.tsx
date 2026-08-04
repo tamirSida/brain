@@ -154,9 +154,12 @@ export function RemoteClient({
       {/* Header */}
       <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-surface px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="flex items-center gap-2.5">
-          {/* The mark doubles as the thinking indicator here — it spins in
-              colour while a turn is in flight. */}
-          <BrandMark className="size-9 shrink-0 text-ink" />
+          {/* Red on a white disc, matching the graph hub on the desktop board.
+              The mark doubles as the thinking indicator here — an arc orbits it
+              while a turn is in flight. */}
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white">
+            <BrandMark className="size-5 text-[#D01E3B]" />
+          </span>
           <div className="min-w-0">
             <p className="truncate text-[14px] font-medium text-ink">Organization Brain</p>
             <p className="truncate text-[11px] text-ink-3">{owner}’s board</p>

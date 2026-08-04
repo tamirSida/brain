@@ -26,8 +26,10 @@ import { cn } from "@/lib/cn";
 export function LightstoneMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 100 100" className={cn("brand-mark", className)} fill="currentColor" aria-hidden>
-      {/* Drawn before the letter so the letter always sits on top of it. */}
-      <circle className="mark-ring" cx="50" cy="50" r="44" fill="none" stroke="#D01E3B" strokeWidth="4" strokeLinecap="round" />
+      {/* Drawn before the letter so the letter always sits on top of it.
+          currentColor, not a fixed red: the mark is reversed out of a red disc
+          in the graph hub, where a red arc would be invisible. */}
+      <circle className="mark-ring" cx="50" cy="50" r="44" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
       <g className="mark-glyph" transform="translate(29.98,78.22) scale(0.013033,-0.013033)" stroke="none">
         <path d="M0 2165 l0 -1995 1233 0 1232 0 27 25 27 25 82 102 83 103 15 16 16
 17 15 18 15 19 34 45 35 45 35 40 36 41 35 43 35 43 58 70 59 69 -6 14 -5 15
