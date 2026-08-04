@@ -42,8 +42,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ boardId
   }
 
   // Announce before the slow part so the dashboard reacts while the model is
-  // still working, not only once it finishes.
-  await writeSession({ ...session, pendingSince: new Date().toISOString() });
+  // still working, not only once it finishes. The question goes up with it, so
+  // the room can read what was asked while the answer is still being written.
+  await writeSession({
+    ...session,
+    pendingSince: new Date().toISOString(),
+    lastTurn: { question: parsed.data.text, at: new Date().toISOString() },
+  });
 
   try {
     const result = await runTurn(
@@ -60,6 +65,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ boardId
         ? { ...session.brief, metrics: result.metrics }
         : session.brief,
       pendingSince: null,
+      lastTurn: { question: parsed.data.text, answer: result.reply, at: new Date().toISOString() },
       // Only bump the clock on a real change, so the dashboard's poll doesn't
       // treat an answered question as a board update.
       updatedAt: result.metrics ? new Date().toISOString() : session.updatedAt,
@@ -75,7 +81,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ boardId
     console.error("[board turn]", err);
     // Clear the marker, or the dashboard claims an edit is arriving until it
     // times out.
-    await writeSession({ ...session, pendingSince: null });
+    await writeSession({ ...session, pendingSince: null, lastTurn: null });
     return NextResponse.json({ error: "That request failed. Try wording it differently." }, { status: 502 });
   }
 }

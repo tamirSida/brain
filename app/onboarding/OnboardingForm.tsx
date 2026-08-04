@@ -217,15 +217,47 @@ function Field({
 }
 
 function Building({ stage }: { stage: number }) {
+  const video = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    // Moving footage is exactly what "reduce motion" asks not to be shown, and
+    // this is decorative — the stage list already says what is happening.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Autoplay can still be refused; a background flourish is not worth
+    // surfacing an error over.
+    void video.current?.play().catch(() => {});
+  }, []);
+
   return (
-    <div className="py-6" role="status" aria-live="polite">
+    <div className="relative py-6" role="status" aria-live="polite">
+      {/* Site footage behind the build.
+
+          This is the one moment in the app with nothing to look at and roughly
+          twenty seconds to fill, so it earns the clip in a way that a two-second
+          board update did not. Faded and edge-masked, so it reads as the surface
+          waking up rather than as a video bolted onto the page. */}
+      <video
+        ref={video}
+        src="/crane-bg-loop.mp4"
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-0 size-full rounded-[var(--radius-card)] object-cover",
+          "opacity-25 saturate-50",
+          "[mask-image:radial-gradient(120%_100%_at_50%_45%,black_35%,transparent_100%)]"
+        )}
+      />
+
       <div className="relative mx-auto grid size-28 place-items-center">
         <span className="absolute inset-0 rounded-full border border-brand/25 pulse" />
         <span className="absolute inset-4 rounded-full border border-brand/40" />
         <Icon icon={faCircleNotch} className="animate-spin text-[22px] text-brand-hi" />
       </div>
 
-      <ol className="mx-auto mt-8 max-w-xs space-y-3">
+      <ol className="relative mx-auto mt-8 max-w-xs space-y-3">
         {STAGES.map((s, i) => (
           <li
             key={s}

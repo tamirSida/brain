@@ -25,6 +25,13 @@ export interface SessionState {
   /** Set while a phone command is being processed, so the desktop can show
    *  that an edit is arriving. Cleared when the command finishes. */
   pendingSince?: string | null;
+  /** The last thing said from the phone, and what came back.
+   *
+   *  Held on the session rather than pushed to the desktop, because the desktop
+   *  is already polling and the phone may be on a different network entirely.
+   *  `answer` is absent while the turn is still running, which is what lets the
+   *  board show the question first and the reply when it lands. */
+  lastTurn?: { question: string; answer?: string; at: string } | null;
   createdAt: string;
   updatedAt: string;
 }

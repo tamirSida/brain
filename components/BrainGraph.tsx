@@ -262,7 +262,14 @@ export function BrainGraph({ connectors }: { connectors: Connector[] }) {
                 {/* fill + object-contain: the supplied assets range from 1:1 to
                     5.6:1, and only a fixed box with contain fits them all. */}
                 <span className="relative block h-[22px] w-full">
-                  <Image src={n.conn.logo} alt="" fill sizes="74px" className="object-contain" />
+                  {/* unoptimized: these are already tiny, hand-picked brand
+                      assets drawn at 74px, so there is nothing for the
+                      optimizer to save — and on Netlify it becomes a serverless
+                      call that returns 500 on a cold start and only succeeds on
+                      the retry, which showed up as a connector logo missing in
+                      production. Served straight from the CDN they cannot fail,
+                      and netlify.toml already caches /connectors/* for a day. */}
+                  <Image src={n.conn.logo} alt="" fill sizes="74px" unoptimized className="object-contain" />
                 </span>
                 <span className={cn("absolute -end-1 -top-1 size-2.5 rounded-full ring-2 ring-bg", s.dot)} />
               </span>

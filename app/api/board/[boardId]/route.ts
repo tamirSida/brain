@@ -25,6 +25,12 @@ export async function GET(_req: Request, { params }: { params: Promise<{ boardId
   return NextResponse.json(
     {
       receiving,
+      // Only while it is fresh: a question from an hour ago is not news, and
+      // the board should settle back to just the metrics between visits.
+      lastTurn:
+        session.lastTurn && Date.now() - Date.parse(session.lastTurn.at) < 120_000
+          ? session.lastTurn
+          : null,
       metrics: session.brief.metrics,
       layout: session.profile.layout ?? null,
       owner: session.profile.name,
