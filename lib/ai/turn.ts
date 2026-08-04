@@ -14,8 +14,8 @@ import type { Profile } from "@/lib/types";
  * Questions and board edits go through the same call, with the same history,
  * because the interesting flow crosses between them:
  *
- *     "כמה רכבים החברה מחכירה?"  → "47 רכבים…"
- *     "תוסיף את זה ללוח"          → adds a 47-vehicle metric
+ *     "how many cars does the company lease?" → "47 vehicles…"
+ *     "add that to the dashboard"              → adds a 47-vehicle metric
  *
  * A mode switch would make that second sentence ambiguous — "add what?" — and
  * routing questions and edits to separate endpoints would mean the edit never
@@ -51,22 +51,28 @@ const IntentSchema = z.object({
 });
 
 const RULES = `
-אתה מפעיל שלט מהטלפון עבור לוח המדדים של ״אלמוגים״.
-כל הודעה היא או שאלה או בקשה לשנות את הלוח. הכרע לפי ההקשר, כולל השיחה שקדמה.
+You are driving the phone remote for Lightstone's dashboard.
+Every message is either a question or a request to change the board. Decide from
+context, including the conversation that came before.
 
 intent:
-- answer — המשתמש שאל שאלה. אל תיגע בלוח. reply הוא התשובה עצמה, קצרה:
-  עד ארבעה משפטים או חמש נקודות, מתאים למסך טלפון. spec = "".
-- add — המשתמש מבקש מדד חדש. targetId = "".
-- remove — המשתמש מבקש להסיר מדד. targetId = ה-id המדויק מרשימת הלוח. spec = "".
-- replace — המשתמש מבקש להחליף מדד קיים. targetId = הישן.
+- answer — the user asked a question. Leave the board alone. reply is the answer
+  itself, kept short: four sentences or five bullets at most, sized for a phone
+  screen. spec = "".
+- add — the user wants a new metric. targetId = "".
+- remove — the user wants a metric removed. targetId = the exact id from the
+  board list. spec = "".
+- replace — the user wants an existing metric swapped out. targetId = the old one.
 
-**הקשר**: אם המשתמש שאל שאלה ואז אמר ״תוסיף את זה ללוח״ / ״תוסיף לדשבורד״,
-ה-spec חייב לשאת את המספרים שכבר נתת בתשובה — לא נושא חדש.
-דוגמה: לשאלה ״כמה רכבים החברה מחכירה?״ ענית ״47 רכבים, ₪312 אלף לחודש״;
-spec יהיה ״רכבים בליסינג — 47 רכבים, עלות חודשית ₪312 אלף״.
+**Context**: if the user asked a question and then said "add that to the board" /
+"put that on the dashboard", the spec must carry the figures you already gave in
+your answer — not a new subject.
+Example: asked "how many cars does the company lease?" you answered "47 vehicles,
+$312K per month"; the spec is then "Leased vehicles — 47 vehicles, $312K monthly
+cost".
 
-reply לעריכה: משפט אחד בגוף ראשון, למשל ״הוספתי רכבים בליסינג ללוח.״`;
+reply for an edit: one sentence in the first person, e.g. "Added leased vehicles
+to the board."`;
 
 export interface TurnResult {
   intent: "answer" | "add" | "remove" | "replace";
@@ -88,11 +94,11 @@ export async function runTurn(
 ): Promise<TurnResult> {
   const list = current.length
     ? current.map((m) => `- ${m.id} · ${m.title} (${m.viz}) — ${m.value}`).join("\n")
-    : "(הלוח ריק)";
+    : "(the board is empty)";
 
   const conversation = history.length
-    ? history.map((h) => `${h.role === "user" ? "משתמש" : "עוזר"}: ${h.content}`).join("\n")
-    : "(אין שיחה קודמת)";
+    ? history.map((h) => `${h.role === "user" ? "User" : "Assistant"}: ${h.content}`).join("\n")
+    : "(no prior conversation)";
 
   // The full chat grounding — calendar, mail, connected systems — so a question
   // asked from the phone is answered from the same data as one asked at the
@@ -100,13 +106,13 @@ export async function runTurn(
   const decision = await structuredCall({
     system: `${systemPrompt(profile)}\n${RULES}`,
     prompt: [
-      "המדדים שכרגע על הלוח:",
+      "Metrics currently on the board:",
       list,
       "",
-      "השיחה עד כה:",
+      "The conversation so far:",
       conversation,
       "",
-      "ההודעה החדשה:",
+      "The new message:",
       text,
     ].join("\n"),
     schema: IntentSchema,
@@ -122,7 +128,7 @@ export async function runTurn(
     const next = current.filter((m) => m.id !== decision.targetId);
     // A removal that matched nothing is a failed instruction, not a no-op.
     if (next.length === current.length) {
-      return { intent: "answer", metrics: null, reply: "לא מצאתי מדד כזה על הלוח." };
+      return { intent: "answer", metrics: null, reply: "I could not find that metric on the board." };
     }
     return { intent: "remove", metrics: next, reply: decision.reply };
   }

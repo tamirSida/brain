@@ -32,7 +32,7 @@ export function ThemeToggle() {
     setTheme(next);
     document.documentElement.dataset.theme = next;
     try {
-      localStorage.setItem("almogim-theme", next);
+      localStorage.setItem("lightstone-theme", next);
     } catch {
       /* private mode — the choice just won't persist */
     }
@@ -44,7 +44,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      aria-label={isLight ? "עבור למצב כהה" : "עבור למצב בהיר"}
+      aria-label={isLight ? "Switch to dark mode" : "Switch to light mode"}
       className="grid size-11 place-items-center rounded-full border border-line text-ink-2 transition-colors hover:border-line-strong hover:text-ink"
     >
       {/* Render nothing until mounted — the server can't know the preference. */}

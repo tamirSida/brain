@@ -28,14 +28,14 @@ export default async function OnboardingPage({
           </span>
 
           <h1 className="mt-9 text-[26px] leading-[1.25] font-light tracking-tight text-ink">
-            מהלך חכם
+            A smarter move
             <br />
-            מתחיל באלמוגים
+            starts at Lightstone
           </h1>
 
           <p className="mt-3 text-[14.5px] leading-relaxed text-ink-2">
-            נתחיל בהיכרות קצרה. אשאל אותך מה חשוב לך לראות, ואבנה לך מסך בית
-            שמרכז את זה מכל המערכות של הקבוצה.
+            Let’s start with a short intake. I’ll ask what matters to you, then build
+            a home screen that pulls it together from every system the firm runs on.
           </p>
         </header>
 
@@ -44,7 +44,7 @@ export default async function OnboardingPage({
         </div>
 
         <p className="mt-10 text-center text-[12.5px] leading-relaxed text-ink-2">
-          הנתונים נשמרים בענן של אלמוגים בלבד ואינם משמשים לאימון מודלים.
+          Data stays in Lightstone’s own cloud and is never used to train models.
         </p>
       </div>
     </main>

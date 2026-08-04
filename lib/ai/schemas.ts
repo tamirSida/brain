@@ -10,21 +10,21 @@ export type Trend = z.infer<typeof TrendSchema>;
 export const MetricSchema = z.object({
   /** Stable slug, latin, kebab-case. */
   id: z.string(),
-  /** Short Hebrew label — max ~4 words. */
+  /** Short label — max ~4 words. */
   title: z.string(),
   /** Which infographic fits this metric. */
   viz: VizSchema,
   /** Formatted headline value, e.g. "94.2%" or "₪12.4M". */
   value: z.string(),
-  /** Optional Hebrew unit/subtitle, e.g. "12 פרויקטים". */
+  /** Optional unit/subtitle, e.g. "12 projects". */
   caption: z.string(),
   /** Percent change vs the comparison period. Negative is a decline. */
   delta: z.number(),
-  /** Hebrew label for the comparison, e.g. "מול הרבעון הקודם". */
+  /** Label for the comparison, e.g. "vs. prior quarter". */
   deltaLabel: z.string(),
   /** Whether this reads as healthy, watch, or at-risk. */
   trend: TrendSchema,
-  /** One Hebrew sentence — what this number means right now. */
+  /** One sentence — what this number means right now. */
   insight: z.string(),
   /**
    * Data behind the visual. 4–8 points for line/bar, 2–4 slices for donut,

@@ -10,7 +10,6 @@ import type { Connector } from "@/lib/types";
 const ConnectorSchema = z.object({
   id: z.string(),
   name: z.string(),
-  nameHe: z.string(),
   logo: z.string(),
   chip: z.enum(["light", "dark"]),
   kind: z.string(),

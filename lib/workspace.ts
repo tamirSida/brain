@@ -89,12 +89,12 @@ function resolve(offset: number): { date: string; dayLabel: string } {
 
   const label =
     offset === 0
-      ? "היום"
+      ? "Today"
       : offset === 1
-        ? "מחר"
+        ? "Tomorrow"
         : offset === -1
-          ? "אתמול"
-          : new Intl.DateTimeFormat("he-IL", { weekday: "long", day: "numeric", month: "long" }).format(d);
+          ? "Yesterday"
+          : new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" }).format(d);
 
   return { date: iso, dayLabel: label };
 }
@@ -114,16 +114,16 @@ export function getMail(): WorkspaceMail[] {
 }
 
 export const RSVP_LABEL: Record<Rsvp, string> = {
-  accepted: "אישר",
-  declined: "דחה",
-  tentative: "אולי",
-  needsAction: "לא ענה",
+  accepted: "accepted",
+  declined: "declined",
+  tentative: "tentative",
+  needsAction: "no reply",
 };
 
 /** One attachment rendered as text, contents included. */
 export function fileText(f: WorkspaceFile): string {
-  const head = `  קובץ: ${f.name} [${
-    f.source === "attached" ? "צורף לאירוע" : "תמלול שנוצר אוטומטית"
+  const head = `  File: ${f.name} [${
+    f.source === "attached" ? "attached to the event" : "auto-generated transcript"
   }${f.meta ? ` · ${f.meta}` : ""}]`;
   const body = f.sections
     .map((s) => `    ${s.title}:\n${s.lines.map((l) => `      · ${l}`).join("\n")}`)
@@ -139,26 +139,26 @@ export function workspaceContext(): string {
   const events = getEvents()
     .map((e) => {
       const who = e.attendees
-        .map((a) => `${a.name} <${a.email}> — ${RSVP_LABEL[a.rsvp]}${a.organizer ? " (מארגן)" : ""}`)
+        .map((a) => `${a.name} <${a.email}> — ${RSVP_LABEL[a.rsvp]}${a.organizer ? " (organizer)" : ""}`)
         .join("; ");
       // Full file contents, not just names — otherwise "summarise the
       // transcript" has nothing to summarise and the model has to decline.
       const files = e.attachments.length
         ? e.attachments.map((f) => `\n${fileText(f)}`).join("")
-        : "אין קבצים מצורפים";
+        : "no attachments";
       const plat = e.platform === "microsoft" ? "Outlook/Teams" : "Google";
-      return `- ${e.dayLabel} ${e.date} ${e.start}–${e.end} | ${e.title} | ${e.location} | ${plat}\n  משתתפים: ${who}\n  קבצים: ${files}`;
+      return `- ${e.dayLabel} ${e.date} ${e.start}–${e.end} | ${e.title} | ${e.location} | ${plat}\n  Attendees: ${who}\n  Files: ${files}`;
     })
     .join("\n");
 
   const mail = getMail()
     .map(
       (m) =>
-        `- ${m.dayLabel} ${m.time} | מאת ${m.from.name} <${m.from.email}> | ${m.subject}${
-          m.hasAttachment ? ` | מצורף: ${m.attachment}` : ""
-        }${m.unread ? " | לא נקרא" : ""}\n  ${m.preview}`
+        `- ${m.dayLabel} ${m.time} | from ${m.from.name} <${m.from.email}> | ${m.subject}${
+          m.hasAttachment ? ` | attachment: ${m.attachment}` : ""
+        }${m.unread ? " | unread" : ""}\n  ${m.preview}`
     )
     .join("\n");
 
-  return `<יומן>\n${events}\n</יומן>\n\n<דואר>\n${mail}\n</דואר>`;
+  return `<calendar>\n${events}\n</calendar>\n\n<mail>\n${mail}\n</mail>`;
 }

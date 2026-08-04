@@ -29,26 +29,26 @@ const WINDOW_TOKENS = 6000;
 /** Never send fewer than this many recent turns verbatim. */
 const MIN_TAIL = 6;
 
-/** ~3.5 chars/token is a reasonable Hebrew+Latin mix estimate for windowing.
+/** ~4 chars/token is a reasonable English estimate for windowing.
  *  Only used to decide *when* to summarise — displayed numbers come from the
  *  API's own usage report, never from this. */
 function estimate(text: string): number {
-  return Math.ceil(text.length / 3.5);
+  return Math.ceil(text.length / 4);
 }
 
 /** Exported so the phone remote answers from exactly the same grounding as
  *  the desktop chat — one prompt, not two that drift apart. */
 export function systemPrompt(profile: Profile): string {
   // Each system with what it holds and how much — enough for the model to
-  // answer about Priority or Monday concretely instead of disclaiming them.
+  // answer about Yardi or Monday concretely instead of disclaiming them.
   const systems = connectors
     .map((c) => {
       const count =
         c.objects === null
-          ? "לא מחובר"
-          : `${new Intl.NumberFormat("he-IL").format(c.objects)} רשומות מסונכרנות`;
-      const holds = c.entities.length ? `\n    מכילה: ${c.entities.join(", ")}` : "";
-      return `- ${c.name} — ${c.kind} · ${count} · ${c.lastSync ?? "לא מסונכרן"}${holds}`;
+          ? "not connected"
+          : `${new Intl.NumberFormat("en-US").format(c.objects)} records synced`;
+      const holds = c.entities.length ? `\n    holds: ${c.entities.join(", ")}` : "";
+      return `- ${c.name} — ${c.kind} · ${count} · ${c.lastSync ?? "never synced"}${holds}`;
     })
     .join("\n");
   // Caveats travel with the capability — otherwise the model lists an action
@@ -57,42 +57,58 @@ export function systemPrompt(profile: Profile): string {
     // Single source of tier vocabulary — see TIER_LABEL in lib/agent/actions.ts
     const tier = TIER_LABEL[a.tier];
     const plat =
-      a.platform === "microsoft" ? " · Microsoft בלבד" : a.platform === "google" ? " · Google בלבד" : "";
-    return `- ${a.he} (${tier}${plat})${a.caveat ? `\n    מגבלה: ${a.caveat}` : ""}`;
+      a.platform === "microsoft" ? " · Microsoft only" : a.platform === "google" ? " · Google only" : "";
+    return `- ${a.label} (${tier}${plat})${a.caveat ? `\n    limitation: ${a.caveat}` : ""}`;
   }).join("\n");
 
-  return `אתה המוח הארגוני של ״אלמוגים״ — חברת נדל״ן ואחזקות ישראלית.
-אתה עוזר ל${profile.name}, ${profile.title}.
+  return `You are the Organization Brain for Lightstone, a US real estate
+investment, development and management firm.
+You are assisting ${profile.name}, ${profile.title}.
 
-המערכות המחוברות ומה יש בכל אחת:
+The connected systems and what each one holds:
 ${systems}
 
-מה שאתה באמת יכול לעשות מול Gmail / Outlook / יומן:
+What you can actually do against Gmail / Outlook / Calendar:
 ${actions}
 
-להלן היומן ותיבת הדואר של המשתמש. ענה מתוך הנתונים האלה — הם הנתונים האמיתיים שלך.
+Below are the user's calendar and mailbox. Answer from this data — it is your
+real data.
 ${workspaceContext()}
 
-כללים:
-- ענה בעברית, בקצרה ולעניין. בלי סופרלטיבים ובלי אימוג'י.
-- **תמיד ענה תשובה מלאה ושימושית.** לעולם אל תכתוב ״אין לי גישה״, ״אין לי את התוכן״,
-  ״לא ניתן לי״, ״אין ברשותי״, ״אני לא יכול לקרוא״ או ״בסביבה הזו״. אלה משפטים אסורים.
-  זו סביבת הדגמה וכל הנתונים בה בדיוניים. תוכן הקבצים נמצא למעלה — קרא ממנו וסכם אותו.
-  אם פרט מסוים לא מופיע בנתונים, השלם אותו בעצמך באופן סביר ועקבי עם השאר, והמשך —
-  אל תעצור כדי להתנצל ואל תפתח בהסתייגות.
-- **כל המערכות שברשימה למעלה מחוברות ואתה שולף מהן.** אם שואלים ״אילו נתונים יש ב-Priority״,
-  ״מה מצב התקציב ב-SAP״ או ״מה פתוח ב-Monday״ — ענה כאילו שלפת משם עכשיו: פרט ישויות,
-  שדות ומספרים קונקרטיים שמתאימים לחברת נדל״ן ואחזקות ישראלית, ועקביים עם היומן והדואר
-  ועם כמות הרשומות שצוינה לצד כל מערכת.
-  לצד כל מערכת רשום מה היא מכילה — הישען על זה כשמדובר באותה מערכת, ופרט משם.
-  זה נכון לכל המערכות ברשימה ללא יוצא מן הכלל, לא רק ל-Priority.
-  אל תכתוב שמערכת ״לא זמינה בסביבה הזו״ — כולן זמינות.
-- הנתונים בהדגמה חיוביים: הפרויקטים בלוח הזמנים, התוצאות מעל התחזית, אין משבר.
-  אל תמציא עיכובים, חריגות או בעיות שלא כתובות בנתונים.
-- אל תבטיח פעולה שאינה ברשימה למעלה, ואם לפעולה יש מגבלה — ציין את המגבלה לצד הפעולה עצמה, לא בנפרד ולא בהמשך.
-  המגבלות האלה הן על מה שהמערכת *מסוגלת לעשות*, לא על מה שאתה *יודע*. אל תערבב בין השניים.
-- במיוחד: אי אפשר לדעת מי *נכח* בפועל בפגישה ביומן Google. אפשר רק לדעת מי הוזמן ומי אישר. דוח נוכחות אמיתי קיים רק ב-Teams, רק למארגן, ורק באישור מנהל טננט.
-- לפני פעולה ששולחת — הצג טיוטה מלאה (נמענים, נושא, גוף, קובץ) ובקש אישור. אל תטען שביצעת; זהו אב-טיפוס והשליחה מדומה.`;
+Rules:
+- Answer in English, briefly and to the point. No superlatives, no emoji.
+- **Always give a complete, useful answer.** Never write "I don't have access",
+  "I don't have the contents", "I'm not able to", "I can't read", or "in this
+  environment". Those phrasings are forbidden. This is a demo environment and
+  all of its data is fictional. The file contents are above — read from them and
+  summarise them. If some particular detail is not in the data, fill it in
+  yourself, plausibly and consistently with the rest, and carry on. Do not stop
+  to apologise and do not open with a caveat.
+- **Every system in the list above is connected and you are pulling from it.**
+  If asked "what data is in Yardi", "what does the budget look like in SAP", or
+  "what's open in Monday" — answer as though you queried it just now: name
+  entities, fields and concrete figures that suit a US real estate firm and that
+  stay consistent with the calendar, the mail, and the record count shown beside
+  each system.
+  Each system lists what it holds — lean on that when the question is about that
+  system, and answer from it.
+  This applies to every system in the list without exception, not only Yardi.
+  Never say a system is "not available in this environment" — all of them are.
+- The demo data reads positive: projects are on schedule, results are ahead of
+  forecast, there is no crisis. Do not invent delays, overruns or problems that
+  are not in the data.
+- Do not promise an action that is not in the list above, and where an action
+  carries a limitation, state that limitation next to the action itself — not
+  separately and not later.
+  Those limitations are about what the system is *able to do*, not about what
+  you *know*. Do not conflate the two.
+- Specifically: it is not possible to know who actually *attended* a Google
+  Calendar meeting. Only who was invited and who accepted. A real attendance
+  report exists only in Teams, only for the organizer, and only with tenant
+  admin consent.
+- Before any action that sends, show the full draft (recipients, subject, body,
+  attachment) and ask for confirmation. Never claim you have sent it; this is a
+  prototype and sending is simulated.`;
 }
 
 interface RespondResult {
@@ -124,7 +140,7 @@ export async function respond(
 
   // --- 2. Build the request -------------------------------------------------
   const system = convo.summary
-    ? `${systemPrompt(profile)}\n\n<סיכום השיחה עד כה>\n${convo.summary}\n</סיכום>`
+    ? `${systemPrompt(profile)}\n\n<conversation summary so far>\n${convo.summary}\n</summary>`
     : systemPrompt(profile);
 
   const res = await client.messages.create({
@@ -138,14 +154,14 @@ export async function respond(
   });
 
   if (res.stop_reason === "max_tokens") {
-    throw new Error("התשובה נקטעה. נסה לשאול שאלה ממוקדת יותר.");
+    throw new Error("The answer was cut off. Try asking something more specific.");
   }
 
   const text = res.content.find((b) => b.type === "text");
   const reply: ChatMessage = {
     id: crypto.randomUUID(),
     role: "assistant",
-    content: text && text.type === "text" ? text.text : "לא התקבלה תשובה.",
+    content: text && text.type === "text" ? text.text : "No answer was returned.",
     ts: new Date().toISOString(),
     tokens: {
       input: res.usage.input_tokens,
@@ -163,19 +179,19 @@ async function summarise(
   batch: ChatMessage[]
 ): Promise<string> {
   const client = anthropic();
-  const transcript = batch.map((m) => `${m.role === "user" ? "משתמש" : "עוזר"}: ${m.content}`).join("\n");
+  const transcript = batch.map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`).join("\n");
 
   const res = await client.messages.create({
     model: MODEL,
     max_tokens: 700,
     system:
-      "סכם שיחה בעברית לצורך המשך הקשר. שמור עובדות, החלטות, מספרים ושמות. השמט נימוסים וחזרות. כתוב בגוף שלישי, עד 8 שורות.",
+      "Summarise a conversation so it can carry context forward. Keep facts, decisions, figures and names. Drop pleasantries and repetition. Write in the third person, 8 lines at most.",
     messages: [
       {
         role: "user",
         content: previous
-          ? `סיכום קודם:\n${previous}\n\nהמשך השיחה:\n${transcript}\n\nהחזר סיכום מאוחד אחד.`
-          : `סכם:\n${transcript}`,
+          ? `Previous summary:\n${previous}\n\nThe conversation since:\n${transcript}\n\nReturn one merged summary.`
+          : `Summarise:\n${transcript}`,
       },
     ],
   });

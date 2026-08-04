@@ -42,7 +42,8 @@ export function Agenda({ events }: { events: WorkspaceEvent[] }) {
   function page(dir: -1 | 1) {
     const el = scroller.current;
     if (!el) return;
-    // RTL: scrollLeft runs negative, so "next" is a negative delta.
+    // Under RTL scrollLeft runs negative, so "next" flips sign. Read the
+    // document direction rather than assuming, so this survives a locale swap.
     el.scrollBy({ left: dir * el.clientWidth * (document.dir === "rtl" ? -1 : 1), behavior: "smooth" });
   }
 
@@ -52,24 +53,24 @@ export function Agenda({ events }: { events: WorkspaceEvent[] }) {
     <div className="flex min-h-0 flex-1 flex-col">
       <section className="flex min-h-0 flex-1 flex-col">
         <div className="mb-3 flex shrink-0 items-center justify-between">
-          <h2 className="text-[14px] font-medium text-ink">היומן שלך</h2>
+          <h2 className="text-[14px] font-medium text-ink">Your calendar</h2>
           {days.length > 1 && (
             <div className="flex gap-1">
               <button
                 type="button"
                 onClick={() => page(-1)}
-                aria-label="ימים קודמים"
+                aria-label="Earlier days"
                 className="grid size-9 place-items-center rounded-full border border-line text-ink-2 transition-colors hover:border-line-strong hover:text-ink"
               >
-                <Icon icon={faChevronRight} className="text-[11px]" />
+                <Icon icon={faChevronLeft} className="text-[11px]" />
               </button>
               <button
                 type="button"
                 onClick={() => page(1)}
-                aria-label="ימים הבאים"
+                aria-label="Later days"
                 className="grid size-9 place-items-center rounded-full border border-line text-ink-2 transition-colors hover:border-line-strong hover:text-ink"
               >
-                <Icon icon={faChevronLeft} className="text-[11px]" />
+                <Icon icon={faChevronRight} className="text-[11px]" />
               </button>
             </div>
           )}
@@ -99,7 +100,7 @@ export function Agenda({ events }: { events: WorkspaceEvent[] }) {
       </section>
 
       <p className="mt-3 shrink-0 text-center text-[11.5px] leading-relaxed text-ink-3">
-        יומן לדוגמה, משותף לכל המשתמשים.
+        Sample calendar, shared across all users.
       </p>
     </div>
   );
@@ -123,10 +124,10 @@ function EventCard({ event }: { event: WorkspaceEvent }) {
         body: JSON.stringify({ eventId: event.id }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "הכנה נכשלה");
+      if (!res.ok) throw new Error(data.error ?? "Preparation failed");
       setPrep(data.brief);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "שגיאה");
+      setErr(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setBusy(false);
     }
@@ -151,7 +152,7 @@ function EventCard({ event }: { event: WorkspaceEvent }) {
             <Icon icon={online ? faVideo : faLocationDot} className="text-[10px]" />
             <span className="bidi truncate">{event.location}</span>
             <span className="text-line-strong">·</span>
-            <span className="num">{event.attendees.length}</span> משתתפים
+            <span className="num">{event.attendees.length}</span> attendees
           </p>
 
           {event.attachments.map((f) => (
@@ -171,7 +172,7 @@ function EventCard({ event }: { event: WorkspaceEvent }) {
         )}
       >
         <Icon icon={busy ? faCircleNotch : faWandMagicSparkles} className={cn("text-[12px]", busy && "animate-spin")} />
-        {busy ? "חושב…" : prep ? "סגור את התדריך" : "הכן אותי לישיבה"}
+        {busy ? "Thinking…" : prep ? "Close the brief" : "Prep me for this meeting"}
       </button>
 
       {err && <p className="border-t border-line px-3 py-2 text-[12px] text-risk">{err}</p>}
@@ -188,7 +189,7 @@ function EventCard({ event }: { event: WorkspaceEvent }) {
 }
 
 function FileChip({ file, onOpen }: { file: WorkspaceFile; onOpen: () => void }) {
-  const note = file.source === "meet-transcript" ? "תמלול אוטומטי" : undefined;
+  const note = file.source === "meet-transcript" ? "auto transcript" : undefined;
   return (
     <button
       type="button"

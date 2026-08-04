@@ -114,7 +114,7 @@ export function Markdown({ text, className }: { text: string; className?: string
         }
         if (b.type === "ul") {
           return (
-            // ps-/marker sit on the right automatically under dir="rtl".
+            // ps-/marker follow the inline-start edge automatically.
             <ul key={key} className="list-disc space-y-1 ps-5 marker:text-ink-3">
               {b.items.map((it, j) => (
                 <li key={`${key}-${j}`}>{inline(it, `${key}-${j}`)}</li>

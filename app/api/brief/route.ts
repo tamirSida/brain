@@ -12,7 +12,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const Body = z.object({
-  focus: z.string().trim().min(12, "פרט קצת יותר מה חשוב לך"),
+  focus: z.string().trim().min(12, "Say a little more about what matters to you"),
   layout: z.enum(LAYOUTS).optional(),
 });
 
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "קלט לא תקין" },
+      { error: parsed.error.issues[0]?.message ?? "Invalid input" },
       { status: 400 }
     );
   }
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
   }
 
   if (!hasApiKey()) {
-    return NextResponse.json({ error: "חסר ANTHROPIC_API_KEY" }, { status: 503 });
+    return NextResponse.json({ error: "ANTHROPIC_API_KEY is not set" }, { status: 503 });
   }
 
   try {
@@ -61,6 +61,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, regenerated: true });
   } catch (err) {
     console.error("[brief]", err);
-    return NextResponse.json({ error: "בניית המסך נכשלה. נסה שוב." }, { status: 502 });
+    return NextResponse.json({ error: "Building the board failed. Try again." }, { status: 502 });
   }
 }

@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const Body = z.object({
-  text: z.string().trim().min(2, "לא הבנתי את הבקשה"),
+  text: z.string().trim().min(2, "I didn't catch that"),
   /** Recent turns, replayed by the phone so follow-ups resolve. */
   history: z
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() }))
@@ -27,16 +27,16 @@ const Body = z.object({
 export async function POST(req: Request, { params }: { params: Promise<{ boardId: string }> }) {
   const { boardId } = await params;
   const session = await readBoard(boardId);
-  if (!session) return NextResponse.json({ error: "הלוח לא נמצא" }, { status: 404 });
+  if (!session) return NextResponse.json({ error: "Board not found" }, { status: 404 });
 
   if (!hasApiKey()) {
-    return NextResponse.json({ error: "חסר ANTHROPIC_API_KEY" }, { status: 503 });
+    return NextResponse.json({ error: "ANTHROPIC_API_KEY is not set" }, { status: 503 });
   }
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "קלט לא תקין" },
+      { error: parsed.error.issues[0]?.message ?? "Invalid input" },
       { status: 400 }
     );
   }
@@ -76,6 +76,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ boardId
     // Clear the marker, or the dashboard claims an edit is arriving until it
     // times out.
     await writeSession({ ...session, pendingSince: null });
-    return NextResponse.json({ error: "הבקשה נכשלה. נסה לנסח אחרת." }, { status: 502 });
+    return NextResponse.json({ error: "That request failed. Try wording it differently." }, { status: 502 });
   }
 }

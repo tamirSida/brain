@@ -21,10 +21,10 @@ import type { WorkspaceFile } from "@/lib/workspace";
  */
 
 const KIND = {
-  pptx: { icon: faFilePowerpoint, tint: "text-[#d24726]", label: "מצגת" },
-  xlsx: { icon: faFileExcel, tint: "text-[#1d7044]", label: "גיליון" },
+  pptx: { icon: faFilePowerpoint, tint: "text-[#d24726]", label: "Deck" },
+  xlsx: { icon: faFileExcel, tint: "text-[#1d7044]", label: "Spreadsheet" },
   pdf: { icon: faFilePdf, tint: "text-[#c8102e]", label: "PDF" },
-  doc: { icon: faFileLines, tint: "text-[#2b579a]", label: "מסמך" },
+  doc: { icon: faFileLines, tint: "text-[#2b579a]", label: "Document" },
 } as const;
 
 export function FileViewer({ file, onClose }: { file: WorkspaceFile; onClose: () => void }) {
@@ -45,7 +45,7 @@ export function FileViewer({ file, onClose }: { file: WorkspaceFile; onClose: ()
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <button
         type="button"
-        aria-label="סגור"
+        aria-label="Close"
         onClick={onClose}
         className="absolute inset-0 bg-black/55"
       />
@@ -70,7 +70,7 @@ export function FileViewer({ file, onClose }: { file: WorkspaceFile; onClose: ()
           <button
             type="button"
             onClick={onClose}
-            aria-label="סגור"
+            aria-label="Close"
             className="grid size-11 shrink-0 place-items-center rounded-full text-ink-2 transition-colors hover:bg-surface-2"
           >
             <Icon icon={faXmark} className="text-[16px]" />
@@ -97,12 +97,12 @@ export function FileViewer({ file, onClose }: { file: WorkspaceFile; onClose: ()
               </section>
             ))}
             {file.sections.length === 0 && (
-              <p className="text-[13px] text-ink-3">אין תצוגה מקדימה לקובץ הזה.</p>
+              <p className="text-[13px] text-ink-3">No preview for this file.</p>
             )}
           </div>
 
           <p className="mt-3 text-center text-[11px] text-ink-3">
-            קובץ לדוגמה — נפתח מתוך האירוע ביומן.
+            Sample file — opened from the calendar event.
           </p>
         </div>
       </div>

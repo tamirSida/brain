@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
- * Hebrew dictation, with iOS Safari treated as a first-class case.
+ * Dictation, with iOS Safari treated as a first-class case.
  *
  * iOS is where this breaks, and it breaks quietly. Three things matter:
  *
@@ -27,12 +27,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const ERRORS: Record<string, string> = {
-  "not-allowed": "אין הרשאת מיקרופון. אשר גישה למיקרופון ונסה שוב.",
+  "not-allowed": "No microphone permission. Allow microphone access and try again.",
   "service-not-allowed":
-    "ההכתבה כבויה במכשיר. הגדרות ← כללי ← מקלדת ← הפעלת הכתבה, ואז נסה שוב.",
-  "no-speech": "לא שמעתי כלום. נסה שוב, קרוב יותר למיקרופון.",
-  network: "ההכתבה דורשת חיבור רשת יציב.",
-  "audio-capture": "לא נמצא מיקרופון זמין.",
+    "Dictation is turned off on this device. Settings → General → Keyboard → Enable Dictation, then try again.",
+  "no-speech": "I didn't hear anything. Try again, closer to the microphone.",
+  network: "Dictation needs a stable network connection.",
+  "audio-capture": "No microphone is available.",
 };
 
 function ctor(): any {
@@ -135,7 +135,7 @@ export function useDictation({
   // browser — Android Chrome's native continuous recognition silently
   // restarts and can emit duplicate finalized segments as distinct `results`
   // entries, which no amount of re-reading `results` can undo (that failure
-  // looked like "תוסיףתוסיףתוסיף לי גם…", growing with every pause). Instead
+  // looked like "add add add me also…", growing with every pause). Instead
   // we run reliable single-utterance bursts and restart them ourselves in
   // `onend`, carrying the finalized text forward in `accumulated`.
   const launch = useCallback(
@@ -143,14 +143,14 @@ export function useDictation({
       const Ctor = ctor();
       if (!Ctor) {
         setSupported(false);
-        setError("הדפדפן הזה לא תומך בהכתבה. אפשר להקליד במקום.");
+        setError("This browser doesn't support dictation. You can type instead.");
         setListening(false);
         return;
       }
 
       const r = new Ctor();
       recog.current = r;
-      r.lang = "he-IL";
+      r.lang = "en-US";
       r.continuous = false;
       r.maxAlternatives = 1;
       r.interimResults = true;
@@ -196,7 +196,7 @@ export function useDictation({
         setListening(false);
         // The user stopping deliberately is not a failure.
         if (e?.error === "aborted") return;
-        setError(ERRORS[e?.error] ?? `ההכתבה נכשלה (${e?.error ?? "לא ידוע"}).`);
+        setError(ERRORS[e?.error] ?? `Dictation failed (${e?.error ?? "unknown"}).`);
       };
 
       r.onend = () => {
@@ -227,7 +227,7 @@ export function useDictation({
         r.start();
       } catch (err) {
         setListening(false);
-        setError(`לא הצלחתי להפעיל את ההכתבה (${(err as Error).name}).`);
+        setError(`I couldn't start dictation (${(err as Error).name}).`);
         return;
       }
 
@@ -243,7 +243,7 @@ export function useDictation({
           }
           setListening(false);
           setError(
-            "ההכתבה לא נענתה. ודא שהכתבה מופעלת (הגדרות ← כללי ← מקלדת) ושיש הרשאת מיקרופון, או הקלד."
+            "Dictation didn't respond. Check that dictation is enabled (Settings → General → Keyboard) and that microphone access is allowed, or type instead."
           );
         }, 2500);
       }
@@ -258,7 +258,7 @@ export function useDictation({
     const Ctor = ctor();
     if (!Ctor) {
       setSupported(false);
-      setError("הדפדפן הזה לא תומך בהכתבה. אפשר להקליד במקום.");
+      setError("This browser doesn't support dictation. You can type instead.");
       return;
     }
     if (listening) return stop();

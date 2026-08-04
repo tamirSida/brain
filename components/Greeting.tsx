@@ -11,7 +11,7 @@ import { Icon } from "@/components/Icon";
  *
  * The server can't know the viewer's local hour, and the stored brief was
  * generated once at onboarding — so its salutation would freeze at whatever
- * time the user signed up ("ערב טוב" at 13:42). Resolve it live instead.
+ * time the user signed up ("Good evening" at 13:42). Resolve it live instead.
  */
 
 /** Each part of the day gets its own words, icon and light — the header should
@@ -25,7 +25,7 @@ interface TimeOfDay {
 }
 
 const NIGHT: TimeOfDay = {
-  hello: "לילה טוב",
+  hello: "Good night",
   icon: faMoon,
   tint: "text-[#8ea2c4]",
   glow: "bg-[#8ea2c4]/12",
@@ -34,11 +34,11 @@ const NIGHT: TimeOfDay = {
 function timeOfDay(h: number): TimeOfDay {
   if (h < 5) return NIGHT;
   if (h < 12)
-    return { hello: "בוקר טוב", icon: faSun, tint: "text-[#e0a340]", glow: "bg-[#e0a340]/14" };
+    return { hello: "Good morning", icon: faSun, tint: "text-[#e0a340]", glow: "bg-[#e0a340]/14" };
   if (h < 17)
-    return { hello: "צהריים טובים", icon: faCloudSun, tint: "text-[#d99a4e]", glow: "bg-[#d99a4e]/14" };
+    return { hello: "Good afternoon", icon: faCloudSun, tint: "text-[#d99a4e]", glow: "bg-[#d99a4e]/14" };
   if (h < 21)
-    return { hello: "ערב טוב", icon: faCloudMoon, tint: "text-[#a08bc4]", glow: "bg-[#a08bc4]/14" };
+    return { hello: "Good evening", icon: faCloudMoon, tint: "text-[#a08bc4]", glow: "bg-[#a08bc4]/14" };
   return NIGHT;
 }
 
@@ -56,7 +56,7 @@ export function Greeting({ firstName }: { firstName: string }) {
 
   // Reserve the row's height before `hour` resolves so nothing below it jumps.
   return (
-    // justify-start, not right-*: under dir="rtl" the start edge is the right
+    // justify-start, not left-*: logical, so it follows the document direction
     // one, and the same class stays correct if this ever renders LTR.
     <div className="flex min-h-10 items-center justify-start gap-3">
       {t && (

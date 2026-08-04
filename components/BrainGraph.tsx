@@ -26,10 +26,10 @@ import { useThinking } from "@/lib/thinking";
  */
 
 const STATE: Record<ConnectorStatus, { stroke: string; dot: string; label: string }> = {
-  live: { stroke: "var(--ok)", dot: "bg-ok", label: "פעיל" },
-  syncing: { stroke: "var(--warn)", dot: "bg-warn", label: "מסנכרן" },
-  error: { stroke: "var(--risk)", dot: "bg-risk", label: "תקלה" },
-  unconfigured: { stroke: "var(--line-strong)", dot: "bg-ink-faint", label: "לא מחובר" },
+  live: { stroke: "var(--ok)", dot: "bg-ok", label: "Live" },
+  syncing: { stroke: "var(--warn)", dot: "bg-warn", label: "Syncing" },
+  error: { stroke: "var(--risk)", dot: "bg-risk", label: "Error" },
+  unconfigured: { stroke: "var(--line-strong)", dot: "bg-ink-faint", label: "Not connected" },
 };
 
 const SIZE = 360;
@@ -174,9 +174,14 @@ export function BrainGraph({ connectors }: { connectors: Connector[] }) {
             );
           })}
 
-          {/* Core */}
-          <circle cx={C} cy={C} r={CORE_R} fill="var(--bg-2)" />
-          <circle cx={C} cy={C} r={CORE_R} fill="none" stroke="var(--brand)" strokeOpacity="0.35" strokeWidth="1" />
+          {/* Core. The white disc is drawn here rather than as an HTML layer so
+              it scales with the graph — a fixed-pixel div left a gap between the
+              disc and the mark that grew and shrank with the viewport.
+
+              No trim: at rest this is a plain white disc with the mark on it.
+              The ring belongs to the mark and only appears while thinking, so a
+              ring around the core always means the core is working. */}
+          <circle cx={C} cy={C} r={CORE_R} fill="#ffffff" />
           <circle
             cx={C}
             cy={C}
@@ -204,11 +209,20 @@ export function BrainGraph({ connectors }: { connectors: Connector[] }) {
           )}
         </svg>
 
-        {/* The core is the mark itself: at rest it sits quietly on the dark
-            disc, and while the brain is working it colours and spins. The
-            thing at the centre of the graph is the thing that is thinking. */}
-        <div className="pointer-events-none absolute left-1/2 top-1/2 grid size-[76px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[#0d131b]">
-          <BrandMark className="size-10 text-white" />
+        {/* The mark sits over the white core drawn above — so the centre of the
+            graph is the identity rather than a dark disc with a logo on it, and
+            the red reads as the brand rather than as one more status colour
+            among the node rings. While the brain works, the orbit picks up the
+            same red. The thing at the centre of the graph is the thing that is
+            thinking. */}
+        {/* Sized as a percentage, not in pixels, so it tracks the core disc at
+            every breakpoint: the disc is 2·CORE_R of a SIZE-wide viewBox, which
+            is 30% of the container. That alignment is the point — the mark's
+            orbit arc sits just inside the disc edge, so while the brain works
+            the ring reads as the rim of the core rather than as a spinner that
+            happens to be nearby. */}
+        <div className="pointer-events-none absolute left-1/2 top-1/2 size-[30%] -translate-x-1/2 -translate-y-1/2">
+          <BrandMark className="size-full text-[#D01E3B]" />
         </div>
 
         {/* Nodes */}
@@ -275,15 +289,15 @@ export function BrainGraph({ connectors }: { connectors: Connector[] }) {
               {shown.objects !== null && (
                 <>
                   {" · "}
-                  <span className="num">{new Intl.NumberFormat("he-IL").format(shown.objects)}</span>
-                  {" רשומות"}
+                  <span className="num">{new Intl.NumberFormat("en-US").format(shown.objects)}</span>
+                  {" records"}
                 </>
               )}
             </p>
           </div>
         ) : (
           <p className="pt-1.5 text-center text-[11.5px] text-ink-3">
-            בחר מערכת כדי לראות מה זורם ממנה
+            Select a system to see what flows from it
           </p>
         )}
       </div>

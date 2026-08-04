@@ -62,10 +62,10 @@ export default async function DashboardPage() {
             </span>
             {session.source === "demo" && (
               <span
-                title="ANTHROPIC_API_KEY לא הוגדר — מוצגים נתוני דוגמה קבועים"
+                title="ANTHROPIC_API_KEY is not set — showing fixed sample data"
                 className="rounded-full border border-warn/40 bg-warn/10 px-2 py-0.5 text-[10.5px] font-medium text-warn"
               >
-                נתוני הדגמה
+                Demo data
               </span>
             )}
           </div>
@@ -88,9 +88,9 @@ export default async function DashboardPage() {
             </section>
 
             {/* Notifications */}
-            <section className="mt-8" aria-label="המדדים שלך">
+            <section className="mt-8" aria-label="Your metrics">
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-[13px] font-medium text-ink-2">המדדים שלך</h2>
+                <h2 className="text-[13px] font-medium text-ink-2">Your metrics</h2>
                 <EditDashboard focus={profile.focus} layout={profile.layout ?? DEFAULT_LAYOUT} />
               </div>
               <LiveMetrics
@@ -113,12 +113,12 @@ export default async function DashboardPage() {
                 style={{ animationDelay: "380ms" }}
               >
                 <div className="flex shrink-0 items-baseline justify-between">
-                  <h2 className="text-[14px] font-medium text-ink">המערכות המחוברות</h2>
+                  <h2 className="text-[14px] font-medium text-ink">Connected systems</h2>
                   <p className="text-[12px] text-ink-3">
                     <span className="num">{liveCount}</span>
-                    {" מתוך "}
+                    {" of "}
                     <span className="num">{connectors.length}</span>
-                    {" פעילות"}
+                    {" live"}
                   </p>
                 </div>
 

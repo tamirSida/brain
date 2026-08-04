@@ -18,10 +18,10 @@ import type { Metric, Trend } from "@/lib/ai/schemas";
 import { cn } from "@/lib/cn";
 
 const TREND: Record<Trend, { icon: IconDefinition; text: string; ring: string; label: string }> = {
-  ok: { icon: faCircleCheck, text: "text-ok", ring: "bg-ok/12 text-ok", label: "תקין" },
-  warn: { icon: faTriangleExclamation, text: "text-warn", ring: "bg-warn/12 text-warn", label: "תשומת לב" },
-  risk: { icon: faTriangleExclamation, text: "text-risk", ring: "bg-risk/12 text-risk", label: "בסיכון" },
-  neutral: { icon: faMinus, text: "text-ink-2", ring: "bg-brand/12 text-brand-hi", label: "יציב" },
+  ok: { icon: faCircleCheck, text: "text-ok", ring: "bg-ok/12 text-ok", label: "On track" },
+  warn: { icon: faTriangleExclamation, text: "text-warn", ring: "bg-warn/12 text-warn", label: "Watch" },
+  risk: { icon: faTriangleExclamation, text: "text-risk", ring: "bg-risk/12 text-risk", label: "At risk" },
+  neutral: { icon: faMinus, text: "text-ink-2", ring: "bg-brand/12 text-brand-hi", label: "Steady" },
 };
 
 const VIZ_ICON: Record<Metric["viz"], IconDefinition> = {

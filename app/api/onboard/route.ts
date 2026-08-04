@@ -13,10 +13,10 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const Body = z.object({
-  name: z.string().trim().min(2, "שם קצר מדי"),
-  email: z.email("כתובת הדוא״ל אינה תקינה"),
-  title: z.string().trim().min(2, "תפקיד קצר מדי"),
-  focus: z.string().trim().min(12, "עוד קצת פירוט יעזור"),
+  name: z.string().trim().min(2, "That name is too short"),
+  email: z.email("That email address is not valid"),
+  title: z.string().trim().min(2, "That role is too short"),
+  focus: z.string().trim().min(12, "A little more detail would help"),
   layout: z.enum(LAYOUTS).default(DEFAULT_LAYOUT),
 });
 
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "קלט לא תקין" },
+      { error: parsed.error.issues[0]?.message ?? "Invalid input" },
       { status: 400 }
     );
   }
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("[onboard]", err);
     return NextResponse.json(
-      { error: "בניית המסך נכשלה. נסה שוב בעוד רגע." },
+      { error: "Building the board failed. Try again in a moment." },
       { status: 502 }
     );
   }

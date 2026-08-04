@@ -5,7 +5,7 @@ import { readBoard } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "אלמוגים · עריכה מהטלפון" };
+export const metadata = { title: "Lightstone · Edit from your phone" };
 
 /**
  * The phone remote, reached by scanning the QR on the dashboard.

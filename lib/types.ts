@@ -34,7 +34,6 @@ export type ConnectorStatus = "live" | "syncing" | "error" | "unconfigured";
 export interface Connector {
   id: string;
   name: string;
-  nameHe: string;
   logo: string;
   /** Some supplied brand assets are white-on-dark; those need a dark chip. */
   chip: "light" | "dark";

@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   ALMOGIM BRAIN — design tokens
+   LIGHTSTONE BRAIN — design tokens
 
-   Carries Almogim's restraint (flat surfaces, minimal radii, generous
-   whitespace, one accent) into both a light and a dark canvas.
+   Carries Lightstone's restraint (flat surfaces, minimal radii, generous
+   whitespace, one accent — their red) into both a light and a dark canvas.
 
    Tokens are declared as raw CSS vars on :root and swapped per theme; @theme
    maps Tailwind utilities onto those vars with `inline` so the utilities stay
@@ -26,15 +26,15 @@
   --ink-3: #8593a3;
   --ink-faint: #64717f;
 
-  --brand: #3d6fe5;
-  --brand-hi: #7ba1ff;
+  --brand: #d01e3b;
+  --brand-hi: #ee4c66;
   --brand-on: #ffffff;
 
   --horizon: #d9a441;
 
   --ok: #3fb98a;
   --warn: #dda63c;
-  --risk: #e2645b;
+  --risk: #e8834a;
 
   --notif-mix: 78%;
   --wash-brand: 0.18;
@@ -61,15 +61,15 @@
   --ink-3: #5d6a77;
   --ink-faint: #9aa6b2;
 
-  --brand: #2456c8;
-  --brand-hi: #1b459f;
+  --brand: #b0182f;
+  --brand-hi: #8d1325;
   --brand-on: #ffffff;
 
   --horizon: #b1802a;
 
   --ok: #16744f;
   --warn: #8a5e0d;
-  --risk: #c0392f;
+  --risk: #b1541b;
 
   --notif-mix: 100%;
   --wash-brand: 0.1;
@@ -94,14 +94,14 @@
     --ink-3: #5d6a77;
     --ink-faint: #9aa6b2;
 
-    --brand: #2456c8;
-    --brand-hi: #1b459f;
+    --brand: #b0182f;
+    --brand-hi: #8d1325;
 
     --horizon: #b1802a;
 
     --ok: #16744f;
     --warn: #8a5e0d;
-    --risk: #c0392f;
+    --risk: #b1541b;
 
     --notif-mix: 100%;
     --wash-brand: 0.1;
@@ -136,7 +136,7 @@
   --radius-card: 20px;
   --radius-ctl: 12px;
 
-  --font-sans: var(--font-heebo), "Heebo", "Assistant", system-ui, sans-serif;
+  --font-sans: var(--font-plex), "IBM Plex Sans", system-ui, sans-serif;
 }
 
 * {
@@ -169,8 +169,8 @@ body {
   }
 }
 
-/* Numerals, dates and currency stay LTR inside RTL text and never reflow.
-   Every mixed Hebrew/Latin run must be isolated or it renders scrambled. */
+/* Figures line up column-to-column, and stay a self-contained run so a value
+   never reflows into the text around it. */
 .num {
   font-variant-numeric: tabular-nums;
   direction: ltr;
@@ -281,33 +281,77 @@ body {
   animation: dash 1000ms linear infinite;
 }
 
-/* The Almogim mark: six dots that carry the brand's colours.
-   Plain, they follow the surrounding text. They take their own colour on
-   hover, and while the brain is thinking the whole ring spins — the logo is
-   the loading indicator rather than something next to one. */
-.brand-dots .dot {
-  fill: currentColor;
-  transition: fill 320ms ease;
+/* The Lightstone mark, doubling as the loading indicator.
+
+   The brand is one red and one letterform, so there is nothing to recolour
+   part-by-part and nothing that survives being rotated — a spinning L reads as
+   a broken image. The motion is therefore an arc that orbits the mark while
+   the letter itself only breathes. The logo is still the loading indicator,
+   rather than something parked next to one. */
+/* No `color` declaration here. Colour is set per use with a text-* utility, and
+   Tailwind puts utilities in @layer utilities — an unlayered rule beats a
+   layered one regardless of order, so declaring `color: inherit` here silently
+   overrode every caller and forced the mark back to the page ink. */
+.brand-mark,
+.brand-word {
+  transition: color 320ms ease;
 }
 
-.group:hover .brand-dots .dot,
-.brand-dots.is-colour .dot {
-  fill: var(--dot);
+/* Hidden until there is something to report, so a still mark is just a mark. */
+.mark-ring {
+  opacity: 0;
+  transform-origin: 50% 50%;
+  /* A quarter-turn of arc: enough to read as motion, short enough to read as
+     progress rather than as a border. */
+  stroke-dasharray: 69 207;
+  transition: opacity 240ms ease;
 }
 
-@keyframes spin-mark {
+.brand-mark.is-thinking .mark-ring {
+  opacity: 1;
+  animation: mark-orbit 1.2s linear infinite;
+}
+
+.brand-mark.is-thinking .mark-glyph {
+  transform-origin: 50% 50%;
+  animation: mark-breathe 1.8s ease-in-out infinite;
+}
+
+/* The wordmark is red wherever it appears — it is the logo, not an accent that
+   follows the page. All it can do while thinking is breathe; rotating or
+   recolouring a wordmark stops it being one. */
+.brand-word.is-brand {
+  color: #d01e3b;
+}
+
+.brand-word.is-thinking {
+  animation: mark-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes mark-orbit {
   to {
     transform: rotate(360deg);
   }
 }
 
-.brand-dots.is-spinning {
-  transform-origin: 50% 50%;
-  animation: spin-mark 1.5s linear infinite;
+@keyframes mark-breathe {
+  50% {
+    opacity: 0.55;
+  }
 }
 
-/* Chat bubbles. Outgoing sits on the inline-end side, which under dir="rtl"
-   puts it on the left — matching WhatsApp in Hebrew. */
+/* Motion is decoration here — the dimmed board and its overlay already say a
+   request is in flight, so removing it costs no information. */
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark.is-thinking .mark-ring,
+  .brand-mark.is-thinking .mark-glyph,
+  .brand-word.is-thinking {
+    animation: none;
+  }
+}
+
+/* Chat bubbles. Outgoing sits on the inline-end side, which under dir="ltr"
+   puts it on the right — matching WhatsApp in English. */
 .bubble-out {
   background: var(--bubble-out);
   color: var(--bubble-out-ink);

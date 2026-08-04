@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
-  faArrowLeft,
+  faArrowRight,
   faCircleNotch,
   faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
@@ -17,9 +17,9 @@ type Values = { name: string; email: string; title: string; focus: string };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const STAGES = [
-  "קורא את מה שכתבת",
-  "בוחר את שלושת המדדים",
-  "מרכיב את מסך הבית",
+  "Reading what you wrote",
+  "Choosing the three metrics",
+  "Assembling the home screen",
 ];
 
 export function OnboardingForm() {
@@ -63,11 +63,11 @@ export function OnboardingForm() {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "לא הצלחנו לבנות את המסך. נסה שוב.");
+        throw new Error(body.error ?? "We couldn’t build the board. Try again.");
       }
       router.push("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "שגיאה לא צפויה.");
+      setError(err instanceof Error ? err.message : "Unexpected error.");
       setBusy(false);
     }
   }
@@ -76,19 +76,19 @@ export function OnboardingForm() {
 
   return (
     <form onSubmit={submit} className="space-y-5" noValidate>
-      <Field label="מה השם שלך?" htmlFor="name" show>
+      <Field label="What’s your name?" htmlFor="name" show>
         <input
           id="name"
           autoFocus
           autoComplete="name"
           value={v.name}
           onChange={(e) => setV({ ...v, name: e.target.value })}
-          placeholder="שם מלא"
+          placeholder="Full name"
           className={inputCls}
         />
       </Field>
 
-      <Field label="לאן לשלוח את העדכונים?" htmlFor="email" show={showEmail}>
+      <Field label="Where should updates go?" htmlFor="email" show={showEmail}>
         <input
           id="email"
           type="email"
@@ -98,46 +98,46 @@ export function OnboardingForm() {
           value={v.email}
           onBlur={() => setTouched((t) => ({ ...t, email: true }))}
           onChange={(e) => setV({ ...v, email: e.target.value })}
-          placeholder="name@almogim.co.il"
+          placeholder="name@lightstonegroup.com"
           aria-invalid={emailInvalid || undefined}
           aria-describedby={emailInvalid ? "email-err" : undefined}
           className={cn(inputCls, "text-left", emailInvalid && "border-risk/60")}
         />
         {emailInvalid && (
           <p id="email-err" className="mt-1.5 text-[12.5px] text-risk">
-            כתובת הדוא״ל אינה תקינה
+            That email address is not valid
           </p>
         )}
       </Field>
 
-      <Field label="מה התפקיד שלך?" htmlFor="title" show={showTitle}>
+      <Field label="What’s your role?" htmlFor="title" show={showTitle}>
         <input
           id="title"
           autoComplete="organization-title"
           value={v.title}
           onChange={(e) => setV({ ...v, title: e.target.value })}
-          placeholder="למשל: סמנכ״ל כספים"
+          placeholder="For example: Chief Financial Officer"
           className={inputCls}
         />
       </Field>
 
       <Field
-        label="מה שלושת המספרים שחשוב לראות כל בוקר?"
+        label="Which three numbers matter every morning?"
         htmlFor="focus"
         show={showFocus}
-        help="אפשר לכתוב בשפה חופשית. אין צורך בפורמט מסוים."
+        help="Write it however you like. No particular format needed."
       >
         <textarea
           id="focus"
           rows={4}
           value={v.focus}
           onChange={(e) => setV({ ...v, focus: e.target.value })}
-          placeholder="למשל: תזרים מזומנים חודשי, חריגות תקציב בפרויקטים הפעילים, ואחוזי אכלוס בנכסים המניבים"
+          placeholder="For example: monthly cash flow, budget variance across active projects, and occupancy across stabilized assets"
           className={cn(inputCls, "resize-none leading-relaxed")}
         />
         <p className="mt-1.5 text-[12px] text-ink-3">
-          <span className="num">{v.focus.trim().length}</span> תווים
-          {v.focus.trim().length < 12 && " · עוד קצת פירוט יעזור"}
+          <span className="num">{v.focus.trim().length}</span> characters
+          {v.focus.trim().length < 12 && " · a little more detail would help"}
         </p>
       </Field>
 
@@ -171,8 +171,8 @@ export function OnboardingForm() {
               : "cursor-not-allowed bg-surface-2 text-ink-3"
           )}
         >
-          בנה את המוח שלי
-          <Icon icon={faArrowLeft} className="text-[13px]" />
+          Build my brain
+          <Icon icon={faArrowRight} className="text-[13px]" />
         </button>
       )}
     </form>

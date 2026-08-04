@@ -45,11 +45,11 @@ export function QuickAsk() {
         body: JSON.stringify({ conversationId: convoId, message: q, voice }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "שליחה נכשלה");
+      if (!res.ok) throw new Error(data.error ?? "Sending failed");
       setConvoId(data.conversationId);
       setAnswer(data.reply.content);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "שגיאה");
+      setError(e instanceof Error ? e.message : "Something went wrong");
       setAsked(null);
     } finally {
       endThinking();
@@ -88,7 +88,7 @@ export function QuickAsk() {
           busy={busy}
           listening={listening}
           onMic={mic.start}
-          placeholder="איך אפשר לעזור?"
+          placeholder="How can I help?"
         />
       </div>
 
@@ -113,7 +113,7 @@ export function QuickAsk() {
           {busy ? (
             <p className="mt-2 flex items-center gap-2 text-[13px] text-ink-3">
               <Icon icon={faCircleNotch} className="animate-spin" />
-              חושב…
+              Thinking…
             </p>
           ) : (
             answer && <Markdown text={answer} className="mt-2 text-[13.5px] text-ink" />

@@ -68,7 +68,7 @@ export function QrPanel({ boardId }: { boardId: string }) {
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        aria-label="פתח את הלוח בטלפון"
+        aria-label="Open the board on your phone"
         className={cn(
           "flex min-h-11 items-center gap-2 rounded-full border px-4 text-[12.5px] transition-colors",
           open
@@ -77,7 +77,7 @@ export function QrPanel({ boardId }: { boardId: string }) {
         )}
       >
         <Icon icon={faMobileScreenButton} className="text-[12px]" />
-        ערוך מהטלפון
+        Edit from your phone
       </button>
 
       {open && (
@@ -86,22 +86,22 @@ export function QrPanel({ boardId }: { boardId: string }) {
               which matters when this is on screen in front of a room. */}
           <button
             type="button"
-            aria-label="סגור"
+            aria-label="Close"
             onClick={() => setOpen(false)}
             className="fixed inset-0 z-40 cursor-default"
           />
 
           <div
             role="dialog"
-            aria-label="סריקה לפתיחה בטלפון"
+            aria-label="Scan to open on your phone"
             className="rise absolute top-full z-50 mt-2 w-[268px] rounded-[var(--radius-card)] border border-line bg-bg p-4 shadow-2xl start-0"
           >
             <div className="flex items-start justify-between gap-2">
-              <p className="text-[13.5px] font-medium text-ink">סרוק כדי לערוך</p>
+              <p className="text-[13.5px] font-medium text-ink">Scan to edit</p>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="סגור"
+                aria-label="Close"
                 className="grid size-8 shrink-0 place-items-center rounded-full text-ink-2 transition-colors hover:bg-surface-2"
               >
                 <Icon icon={faXmark} className="text-[13px]" />
@@ -123,7 +123,7 @@ export function QrPanel({ boardId }: { boardId: string }) {
 
             {tunnelled && (
               <p className="mt-2 text-center text-[10.5px] leading-relaxed text-ink-3">
-                דרך מנהרת ngrok — כי המסך פתוח מקומית
+                Via the ngrok tunnel — because this screen is open locally
               </p>
             )}
 
@@ -131,8 +131,8 @@ export function QrPanel({ boardId }: { boardId: string }) {
               // A localhost QR scans fine and then fails on the phone. Say so
               // here rather than letting it fail in front of an audience.
               <p className="mt-2 rounded-[8px] bg-warn/10 px-2.5 py-2 text-[11px] leading-relaxed text-warn">
-                הכתובת מקומית — טלפון לא יגיע אליה. הגדר NEXT_PUBLIC_TUNNEL_URL
-                או פתח את המסך דרך המנהרה.
+                This address is local — a phone can’t reach it. Set NEXT_PUBLIC_TUNNEL_URL
+                or open this screen through the tunnel.
               </p>
             )}
           </div>
